@@ -33,12 +33,15 @@
         <td class="password-label">{{ form.password.label_tag }}</td>
         <td>{{ form.password }}</td>
       </tr>
+          <tr>
+              <td></td>
+              <td>
+                  <input class="form-submit" type="submit" value="login"/>
+                  <input type="hidden" name="next" value="{{ next }}"/>
+              </td>
+          </tr>
       </table>
-
-      <input class="form-submit" type="submit" value="login" />
-      <input type="hidden" name="next" value="{{ next }}" />
-
-        <p><a href="{% url 'password_reset' %}">Lost Password?</a></p>
+        <p class="password-reset-link"><a href="{% url 'password_reset' %}">Lost Password?</a></p>
     </form>
 
   </div>

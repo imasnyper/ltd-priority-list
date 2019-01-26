@@ -111,6 +111,18 @@ h1, h3 {
 	width: 375px;
 }
 
+.reset-password-form {
+    width: 375px
+}
+
+.password-reset-complete {
+    width: 500px
+}
+
+.password-reset-link {
+    text-align: right
+}
+
 .job-edit-form-container {
 	width: 500px;
 }

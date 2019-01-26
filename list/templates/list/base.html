@@ -14,18 +14,21 @@
 	<body>
 		<table class="nav-bar">
 			<tr>
-				<td class="hidden">					
+                {% block logged_in_hidden %}
+                    <td class="hidden">
 						{% if user.is_authenticated %}
 							{{ user.username }} | <a href="{% url 'logout' %}">Logout</a>
 						{% else %}
 							Hello, Guest | <a href="{% url 'login' %}">Log In</a>
 						{% endif %}
 				</td>
+                {% endblock %}
 				<td class="title">
 					{% block page_title %}
 					<h1>Pinnacle & Starvision Priority List</h1>
 					{% endblock page_title %}
 				</td>
+                {% block logged_in %}
 				<td class="auth">
 					{% block auth %}
 						{% if user.is_authenticated %}
@@ -35,6 +38,7 @@
 						{% endif %}
 					{% endblock auth %}
 				</td>
+                {% endblock %}
 			</tr>
 		</table>
 		

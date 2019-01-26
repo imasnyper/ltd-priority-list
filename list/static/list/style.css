@@ -155,6 +155,7 @@ h1, h3 {
 	text-align: right;
 }
 
+/*noinspection CssInvalidPropertyValue*/
 #id_username, #id_password {
 	width: -webkit-fill-available;
 	width: -moz-fill-available;

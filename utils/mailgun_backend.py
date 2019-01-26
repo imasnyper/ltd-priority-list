@@ -15,7 +15,7 @@ class MailgunBackend(BaseEmailBackend):
     def __init__(self, url=None, fail_silently=False):
         super().__init__(fail_silently=fail_silently)
         self.url = url or settings.MAILGUN_API_URL
-        self.api_key = settings.MAILGUN_API
+        self.api_key = settings.MAILGUN_API_KEY
 
     def send_messages(self, email_messages):
         """

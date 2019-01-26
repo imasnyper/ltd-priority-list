@@ -1,0 +1,16 @@
+{% extends 'list/base.html' %}
+
+{% block body %}
+	<div class="form center-form-container">
+		<h3>Add Customer</h3>
+		<form action="{% url 'list:add_customer' %}" method="POST">
+			{% csrf_token %}
+			{{ form.non_field_errors }}
+			{{ form.name.errors }}
+			{{ form.name.label_tag }}
+			{{ form.name }}
+			<br />
+			<input type="submit" value="Submit">
+		</form>
+	</div>
+{% endblock body %}

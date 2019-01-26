@@ -1,0 +1,166 @@
+.flex-container {
+	display: flex;
+	flex-wrap: wrap;
+	background-color: DodgerBlue;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.flex-container > div {
+	background-color: #f1f1f1;
+	width: 45%;
+	margin: 10px;
+	text-align: left;
+}
+
+h1, h3 {
+	text-align: center;
+}
+
+.title {
+	width: 60%;
+}
+
+.hidden {
+	visibility: hidden;
+	white-space: nowrap;
+}
+
+.add-another, .add-another:hover {
+	text-decoration: none;
+}
+
+.job-item {
+	display: inline-block;
+	width: 350px;
+}
+
+.delete-form, .sort-up-link, .sort-down-link, .edit-link {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+}
+
+.delete-button, .sort-up-button, .sort-down-button, .sort-up-button-placeholder, .edit-button {
+	width: 15px;
+	height: 15px;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	background-color: rgba(0,0,0,0);
+	background-size: cover;
+	cursor: pointer;
+}
+
+.sort-up-button-placeholder {
+	width: 15px;
+	height: 15px;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	background-color: rgba(0,0,0,0);
+	background-size: cover;
+	cursor: default;
+}
+
+.sort-up-button {
+	background-image: url('img/sort-up.svg');
+}
+
+.sort-down-button {
+	background-image: url('img/sort-down.svg');
+}
+
+.delete-button {
+	background-image: url('img/icon-deletelink.svg');
+}
+
+.edit-button {
+	background-image: url('img/icon-changelink.svg');
+}
+
+.add-job-form {
+	padding-left: 40px;
+	margin-bottom: 16px;
+}
+
+.auth, .hidden {
+	width: 20%;
+	text-align: right;
+	padding-right: 10px;
+}
+
+.nav-bar {
+	width: 100%;
+}
+
+.form {
+	margin: 20px auto 0 auto;
+	padding: 10px;
+	box-shadow: 2px 2px 1px darkgrey;
+	border: 1px solid lightgrey;
+}
+
+.login-form-container, .center-form-container {
+	width: 375px;
+}
+
+.job-edit-form-container {
+	width: 500px;
+}
+
+.login-table {
+	width: 100%;
+}
+
+.instructions {
+	text-align: center;
+}
+
+.add-job-form > div > span > label {
+	width: 95px;
+}
+
+.edit-job-form > div > span > label {
+	width: 95px;
+}
+
+.login-form {
+	overflow: hidden;
+}
+
+.form-submit {
+	float: right;
+}
+
+.lost-password {
+	text-align: right;
+}
+
+#id_username, #id_password {
+	width: -webkit-fill-available;
+	width: -moz-fill-available;
+}
+
+#id_description {
+	width: 250px;
+}
+
+
+#id_customer {
+	width: 250px;
+}
+
+.True {
+	background-color: yellow;
+}
+
+.False {
+	background-color: green;
+}

@@ -1,0 +1,121 @@
+{% extends "list/base.html" %}
+
+{% block body %}
+	<div class="flex-container">
+		{% for machine in machines %}
+			<div class="machine-section">
+				<h3>{{ machine.name }}</h3>
+				<ol>
+					{% with job_set=machine.job_set.all %}
+						{% if job_set|length > 0 %}
+							{% for job in job_set %}
+								<span>
+									<span class=>{{ forloop.counter }}. ({{ job.order }}) </span>
+                                    {% if job.add_tools %}
+                                        <span>&#10004;</span>
+                                    {% else %}
+                                        <span>&#10006;</span>
+                                    {% endif %}
+									<li class="job-item">
+										{{ job.job_number }} - {{ job.description }} - {{ job.due_date }} - {{ job.customer.name|title }}
+									</li>
+									{% if user.is_authenticated %}
+										<form action="{% url 'list:delete' job.pk %}" class="delete-form" method="post">
+											{% csrf_token %}
+											<button type="submit" class="delete-button"></button>
+										</form>
+										<a href="{% url 'list:edit' job.pk %}" class="edit-link">
+											<div class="edit-button"></div>
+										</a>
+										{% if forloop.counter > 1 %}
+											<a href="{% url 'list:sort_up' job.pk %}" class="sort-up-link">
+												<div class="sort-up-button"></div>
+											</a>
+										{% else %}
+											<div class="sort-up-link">
+												<div class="sort-up-button-placeholder"></div>
+											</div>
+										{% endif %}
+										{% if forloop.counter < job_set|length %}
+											<a href="{% url 'list:sort_down' job.pk %}" class="sort-down-link">
+												<div class="sort-down-button"></div>
+											</a>
+										{% endif %}
+									{% endif %}
+									<br />
+								</span>
+							{% endfor %}
+						{% endif %}
+					{% endwith %}
+				</ol>
+				{% if user.is_authenticated %}
+                    {% if active_machine != machine.pk %}
+                        <form class="add-job-form" action="{% url 'list:add' machine.pk %}" method="post">
+                            {% csrf_token %}
+                            {{ form.non_field_errors }}
+                            <div class="form-job-number">
+                                {{ form.job_number.errors }}
+                                <span class="job-number-label">{{ form.job_number.label_tag }}</span>
+                                <span class="job-number-input">{{ form.job_number }}</span>
+                            </div>
+                            <div class="form-description">
+                                {{ form.description.errors }}
+                                <span class="description-label">{{ form.description.label_tag }}</span>
+                                <span class="description-input">{{ form.description }}</span>
+                            </div>
+                            <div class="form-customer">
+                                {{ form.customer.errors }}
+                                <span class="customer-label">{{ form.customer.label_tag }}</span>
+                                <span class="customer-input">{{ form.customer }}</span>
+                            </div>
+                            <div class="form-due-date">
+                                {{ form.due_date.errors }}
+                                <span class="due-date-label">{{ form.due_date.label_tag }}</span>
+                                <span class="due-date-input">{{ form.due_date }}</span>
+                            </div>
+                            <div class="form-add-tools">
+                                {{ form.add_tools.errors }}
+                                <span class="add-tools-label">{{ form.add_tools.label_tag }}</span>
+                                <span class="add-tools-input">{{ form.add_tools }}</span>
+                            </div>
+                            <button type="submit">Save</button>
+                        </form>
+                    {% else %}
+                        <form class="add-job-form" action="{% url 'list:add' machine.pk %}" method="post">
+                            {% csrf_token %}
+                            {{ active_machine_form.non_field_errors }}
+                            <div class="form-job-number">
+                                {{ active_machine_form.job_number.errors }}
+                                <span class="job-number-label">{{ active_machine_form.job_number.label_tag }}</span>
+                                <span class="job-number-input">{{ active_machine_form.job_number }}</span>
+                            </div>
+                            <div class="form-description">
+                                {{ active_machine_form.description.errors }}
+                                <span class="description-label">{{ active_machine_form.description.label_tag }}</span>
+                                <span class="description-input">{{ active_machine_form.description }}</span>
+                            </div>
+                            <div class="form-customer">
+                                {{ active_machine_form.customer.errors }}
+                                <span class="customer-label">{{ active_machine_form.customer.label_tag }}</span>
+                                <span class="customer-input">{{ active_machine_form.customer }}</span>
+                            </div>
+                            <div class="form-due-date">
+                                {{ active_machine_form.due_date.errors }}
+                                <span class="due-date-label">{{ active_machine_form.due_date.label_tag }}</span>
+                                <span class="due-date-input">{{ active_machine_form.due_date }}</span>
+                            </div>
+                            <div class="form-add-tools">
+                                {{ active_machine_form.add_tools.errors }}
+                                <span class="add-tools-label">{{ active_machine_form.add_tools.label_tag }}</span>
+                                <span class="add-tools-input">{{ active_machine_form.add_tools }}</span>
+                            </div>
+                            <button type="submit">Save</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+			</div>
+		{% endfor %}
+	</div>
+    {#    <pre>{%  filter force_escape %}{%  debug  %}{% endfilter %}</pre>#}
+{% endblock body %}
+{% block login %}{% endblock login %}

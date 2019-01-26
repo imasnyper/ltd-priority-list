@@ -1,0 +1,44 @@
+{% extends 'list/base.html' %}
+
+{% block body %}
+	<div class="form job-edit-form-container">
+		{% if user.is_authenticated %}
+			<form class="edit-job-form" action="{% url 'list:edit' job.pk %}" method="post">
+				{% csrf_token %}
+				{{ form.non_field_errors }}
+				<div class="form-job-number">
+					{{ form.job_number.errors }}
+					<span class="job-number-label">{{ form.job_number.label_tag }}</span>
+					<span class="job-number-input">{{ form.job_number }}</span>
+				</div>
+				<div class="form-description">
+					{{ form.description.errors }}
+					<span class="description-label">{{ form.description.label_tag }}</span>
+					<span class="description-input">{{ form.description }}</span>
+				</div>
+				<div class="form-customer">
+					{{ form.customer.errors }}
+					<span class="customer-label">{{ form.customer.label_tag }}</span>
+					<span class="customer-input">{{ form.customer }}</span>
+				</div>
+				<div class="form-machine">
+					{{ form.machine.errors }}
+					<span class="machine-label">{{ form.machine.label_tag }}</span>
+					<span class="machine-input">{{ form.machine }}</span>
+				</div>
+				<div class="form-due-date">
+					{{ form.due_date.errors }}
+					<span class="due-date-label">{{ form.due_date.label_tag }}</span>
+					<span class="due-date-input">{{ form.due_date }}</span>
+				</div>
+				<div class="form-add-tools">
+					{{ form.add_tools.errors }}
+					<span class="add-tools-label">{{ form.add_tools.label_tag }}</span>
+					<span class="add-tools-input">{{ form.add_tools }}</span>
+				</div>
+				<button type="submit">Save</button>
+				<a href="{% url 'list:priority-list' %}">Cancel</a>
+			</form>
+		{% endif %}
+	</div>
+{% endblock body %}

@@ -26,6 +26,14 @@ h1, h3 {
 	white-space: nowrap;
 }
 
+.job-table {
+	margin: 20px
+}
+
+.table-title {
+	font-weight: bold;
+}
+
 .add-another, .add-another:hover {
 	text-decoration: none;
 }

@@ -72,7 +72,7 @@ class CustomerCreate(CreateView):
 
 class JobUpdate(UpdateView):
     model = Job
-    fields = ['add_tools', 'job_number', 'description', 'customer',
+    fields = ['add_tools', 'job_number', 'description', 'due_date', 'customer',
               'machine']
     success_url = reverse_lazy("list:priority-list")
     template_name_suffix = "_update_form"
@@ -85,8 +85,9 @@ class JobUpdate(UpdateView):
         context['machines'] = Machine.objects.all()
         context['customers'] = Customer.objects.all().order_by("name")
         context['job_form'] = JobForm({'add_tools': job.add_tools,
-                                       'number': job.job_number,
+                                       'job_number': job.job_number,
                                        'description': job.description,
+                                       'due_date': job.due_date,
                                        'customer': job.customer,
                                        'machine': job.machine})
         return context

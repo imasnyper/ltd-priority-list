@@ -3,14 +3,14 @@
 {% block body %}
 	<div class="form center-form-container">
 		<h3>Add Customer</h3>
-        <form action="{% url 'list:add_customer' %}?next={{ next_url }}" method="POST">
+        <form action="{% url 'list:add_customer' %}?next={{ next_url }}?cust={{ current_customer }}" method="POST">
 			{% csrf_token %}
 			{{ form.non_field_errors }}
 			{{ form.name.errors }}
 			{{ form.name.label_tag }}
 			{{ form.name }}
 			<br />
-			<input type="submit" value="Submit">
+            <input id="customer_add" type="submit" value="Submit">
 		</form>
 	</div>
 {% endblock body %}

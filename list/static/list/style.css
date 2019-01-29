@@ -27,11 +27,22 @@ h1, h3 {
 }
 
 .job-table {
-	margin: 20px
+    margin: 2px auto 20px auto;
+}
+
+th {
+    border-bottom: 1px solid black;
+    margin-bottom: 10px;
+    min-width: 60px;
+}
+
+td {
+    min-height: 50px;
 }
 
 .table-title {
 	font-weight: bold;
+    padding: 1px 3px;
 }
 
 .add-another, .add-another:hover {
@@ -41,6 +52,10 @@ h1, h3 {
 .job-item {
 	display: inline-block;
 	width: 350px;
+}
+
+.tools {
+    text-align: center;
 }
 
 .delete-form, .sort-up-link, .sort-down-link, .edit-link {

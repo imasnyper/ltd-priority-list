@@ -42,9 +42,9 @@ class JobCreate(CreateView):
 
         return context
 
-    def form_invalid(self, form):
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
+    # def form_invalid(self, form):
+    #     context = self.get_context_data(form=form)
+    #     return self.render_to_response(context)
 
     # def post(self, request, *args, **kwargs):
     #     form_data = request.POST
@@ -71,6 +71,7 @@ class CustomerCreate(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['next_url'] = self.request.GET.get('next')
+        context['current_customer'] = self.request.GET.get('cust')
         return context
 
     def get_success_url(self):

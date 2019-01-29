@@ -9,13 +9,12 @@
                     {% if job_set|length > 0 %}
                         <table class="job-table">
                             <tr>
-                                <td class="table-title">Order</td>
-                                <td class="table-title">Job Number</td>
-                                <td class="table-title">Description</td>
-                                <td class="table-title">Due Date</td>
-                                <td class="table-title">Customer</td>
-                                <td class="table-title">Add Tools</td>
-                                <td class="table-title" colspan="4"></td>
+                                <th class="table-title job-number-title">Order</th>
+                                <th class="table-title">Job #</th>
+                                <th class="table-title">Description</th>
+                                <th class="table-title">Customer</th>
+                                <th class="table-title add-tools-title">Tools?</th>
+                                <th class="table-title" colspan="4"></th>
                             </tr>
                             {% for job in job_set %}
                                 <tr>
@@ -29,17 +28,16 @@
                                         {{ job.description }}
                                     </td>
                                     <td>
-                                        {{ job.due_date }}
-                                    </td>
-                                    <td>
                                         {{ job.customer.name|title }}
                                     </td>
                                     <td>
-                                        {% if job.add_tools %}
-                                            &#10004;
-                                        {% else %}
-                                            &#10006;
-                                        {% endif %}
+                                        <div class="tools">
+                                            {% if job.add_tools %}
+                                                &#10004;
+                                            {% else %}
+                                                &#10006;
+                                            {% endif %}
+                                        </div>
                                     </td>
                                     {% if user.is_authenticated %}
                                         <td>

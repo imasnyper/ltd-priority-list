@@ -65,9 +65,20 @@ class JobCreate(CreateView):
 
 class CustomerCreate(CreateView):
     model = Customer
-    success_url = reverse_lazy("list:priority-list")
     template_name = "list/add_customer.html"
     form_class = CustomerForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['next_url'] = self.request.GET.get('next')
+        return context
+
+    def get_success_url(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return next_url
+        else:
+            return reverse("list:priority-list")
 
 
 class JobUpdate(UpdateView):
@@ -88,8 +99,8 @@ class JobUpdate(UpdateView):
                                        'job_number': job.job_number,
                                        'description': job.description,
                                        'due_date': job.due_date,
-                                       'customer': job.customer,
-                                       'machine': job.machine})
+                                       'customer': job.customer.id,
+                                       'machine': job.machine.id})
         return context
 
 

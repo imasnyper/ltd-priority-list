@@ -48,27 +48,7 @@ class JobForm(forms.ModelForm):
     class Meta:
         model = Job
         fields = ['job_number', 'description',
-                  'customer', 'due_date', 'add_tools']
-
-    # def is_valid(self):
-    #     valid = super().is_valid()
-    #
-    #     return valid
-
-    # def clean(self):
-    #     self.cleaned_data = super().clean()
-    #     try:
-    #         # pdb.set_trace()
-    #         self.cleaned_data['due_date']
-    #     except KeyError:
-    #         raise forms.ValidationError("Part of the date was left blank.")
-    #
-    #     return self.cleaned_data
-
-    # def clean_due_date(self):
-    #     date = self.cleaned_data['due_date']
-    #     pdb.set_trace()
-    #     return date
+                  'customer', 'machine', 'due_date', 'add_tools']
 
 
 class CustomerForm(forms.ModelForm):

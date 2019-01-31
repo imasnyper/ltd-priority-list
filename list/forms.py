@@ -44,6 +44,10 @@ class JobForm(forms.ModelForm):
         label="Due Date:",
         widget=forms.widgets.DateInput(attrs={'type': 'date'}),
         required=False)
+    machine = forms.IntegerField(
+        label="Machine:",
+        required=False,
+    )
 
     class Meta:
         model = Job

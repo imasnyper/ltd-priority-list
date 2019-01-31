@@ -74,6 +74,8 @@
                                 </tr>
                             {% endfor %}
                         </table>
+                    {% else %}
+                        <p class="empty-job-list">Currently no jobs for {{ machine.name|title }}</p>
                     {% endif %}
                 {% endwith %}
 				{% if user.is_authenticated %}

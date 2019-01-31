@@ -8,7 +8,7 @@
 
 .flex-container > div {
 	background-color: #f1f1f1;
-	width: 45%;
+    width: 48%;
 	margin: 10px;
 	text-align: left;
 }
@@ -27,7 +27,9 @@ h1, h3 {
 }
 
 .job-table {
-    margin: 2px auto 20px auto;
+    margin: 2px 2px 20px 2px;
+    width: -webkit-fill-available;
+    width: -moz-fill-available;
 }
 
 th {
@@ -52,6 +54,10 @@ td {
 .job-item {
 	display: inline-block;
 	width: 350px;
+}
+
+.empty-job-list {
+    padding-left: 40px;
 }
 
 .tools {
@@ -108,9 +114,15 @@ td {
 	background-image: url('img/icon-changelink.svg');
 }
 
+/*.add-job-form {*/
+/*padding-left: 40px;*/
+/*margin-bottom: 16px;*/
+/*}*/
+
 .add-job-form {
-	padding-left: 40px;
-	margin-bottom: 16px;
+    padding: 0 0 40px 40px;
+    position: relative;
+    bottom: 100%;
 }
 
 .auth, .hidden {

@@ -19,5 +19,6 @@ virtualenv-clone = "*"
 whitenoise = "*"
 Django = "*"
 requests = "*"
+django-debug-toolbar = "*"
 
 [dev-packages]

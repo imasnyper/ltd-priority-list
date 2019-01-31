@@ -141,3 +141,8 @@ django_heroku.settings(locals())
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+EMAIL_BACKEND = 'utils.mailgun_backend.MailgunBackend'
+MAILGUN_API_KEY = os.environ.get("MAILGUN_API_KEY")
+MAILGUN_API_URL = "https://api.mailgun.net/v3/sandboxc3caeaf85ca14955bc3d4a1c3935c1f0.mailgun.org/messages"
+DEFAULT_FROM_EMAIL = "Postmaster <postmaster@sandboxc3caeaf85ca14955bc3d4a1c3935c1f0.mailgun.org>"

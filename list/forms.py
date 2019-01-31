@@ -3,7 +3,7 @@ from django.conf import settings
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 
-from list.models import Job, Customer
+from list.models import Job, Customer, Machine
 
 
 class RelatedFieldWidgetCanAdd(forms.widgets.Select):
@@ -44,9 +44,10 @@ class JobForm(forms.ModelForm):
         label="Due Date:",
         widget=forms.widgets.DateInput(attrs={'type': 'date'}),
         required=False)
-    machine = forms.IntegerField(
+    machine = forms.ModelChoiceField(
         label="Machine:",
         required=False,
+        queryset=Machine.objects.all(),
     )
 
     class Meta:

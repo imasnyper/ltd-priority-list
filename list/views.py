@@ -1,5 +1,4 @@
-from django.http import Http404
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect, reverse, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
@@ -42,20 +41,6 @@ class JobCreate(CreateView):
 
         return context
 
-    # def form_invalid(self, form):
-    #     context = self.get_context_data(form=form)
-    #     return self.render_to_response(context)
-
-    # def post(self, request, *args, **kwargs):
-    #     form_data = request.POST
-    #     form = JobForm(data=form_data)
-    #     if form.is_valid():
-    #         return self.form_valid
-    #     else:
-    #         return render(request, "list:add", context={'form':form})
-    #
-    #     return super().post(request, *args, **kwargs)
-
     def form_valid(self, form):
         form.instance.machine = Machine.objects.get(
             pk=self.kwargs['machine_pk'])
@@ -88,8 +73,6 @@ class JobUpdate(UpdateView):
               'machine']
     success_url = reverse_lazy("list:priority-list")
     template_name_suffix = "_update_form"
-    # template_name = "list/index.html"
-    # form_class = JobForm
 
     def get_context_data(self, **kwargs):
         job = self.object
@@ -106,10 +89,7 @@ class JobUpdate(UpdateView):
 
 
 def job_sort_up(request, pk):
-    try:
-        job = Job.objects.get(pk=pk)
-    except Job.DoesNotExist:
-        raise Http404("Job does not exist.")
+    job = get_object_or_404(Job, pk=pk)
 
     job.up()
     job.save()
@@ -118,10 +98,7 @@ def job_sort_up(request, pk):
 
 
 def job_sort_down(request, pk):
-    try:
-        job = Job.objects.get(pk=pk)
-    except Job.DoesNotExist:
-        raise Http404("Job does not exist.")
+    job = get_object_or_404(Job, pk=pk)
 
     job.down()
     job.save()
@@ -133,4 +110,3 @@ class JobDelete(DeleteView):
     model = Job
     fields = ['job_number', 'description', 'customer']
     success_url = reverse_lazy("list:priority-list")
-    # template_name_suffix = "_delete_form"

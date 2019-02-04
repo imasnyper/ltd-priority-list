@@ -27,4 +27,7 @@ $(document).ready(function () {
         let customerNumber = window.location.href.substring(customerIndex + 6, window.location.href.length);
         $("#id_customer").val(customerNumber).change();
     }
+    setTimeout(function () {
+        location.reload(true)
+    }, 1000 * 60 * 5)
 });

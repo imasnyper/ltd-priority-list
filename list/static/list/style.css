@@ -60,14 +60,22 @@ h1, h3 {
 	white-space: nowrap;
 }
 
+.center {
+    text-align: center;
+}
+
 .job-table {
     margin: 2px 2px 20px 2px;
     width: -webkit-fill-available;
     width: -moz-fill-available;
 }
 
-.center {
-    text-align: center;
+.job-table tr:nth-child(even) {
+    background-color: #fff;
+}
+
+.job-table tr:nth-child(odd) {
+    background-color: #f1f1f1;
 }
 
 .archive-table {
@@ -81,11 +89,11 @@ h1, h3 {
 }
 
 .archive-table tr:nth-child(even) {
-    background-color: #eee
+    background-color: #fff;
 }
 
 .archive-table tr:nth-child(odd) {
-    background-color: #fff
+    background-color: #f1f1f1;
 }
 
 th {
@@ -141,16 +149,6 @@ td {
 }
 
 .sort-up-button-placeholder {
-	width: 15px;
-	height: 15px;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	border: none;
-	padding: 0;
-	margin: 0;
-	background-color: rgba(0,0,0,0);
-	background-size: cover;
 	cursor: default;
 }
 
@@ -169,11 +167,6 @@ td {
 .edit-button {
 	background-image: url('img/icon-changelink.svg');
 }
-
-/*.add-job-form {*/
-/*padding-left: 40px;*/
-/*margin-bottom: 16px;*/
-/*}*/
 
 .add-job-form {
     padding: 0 0 40px 40px;

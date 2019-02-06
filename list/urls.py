@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.urls import path
 
 from list import views
@@ -10,7 +11,8 @@ urlpatterns = [
     path('job/edit/<int:pk>/', views.JobUpdate.as_view(), name='edit'),
     path('job/sort_up/<int:pk>/', views.job_sort_up, name='sort_up'),
     path('job/sort_down/<int:pk>/', views.job_sort_down, name='sort_down'),
-    path('job/delete/<int:pk>/', views.JobDelete.as_view(), name='delete'),
+    path('job/archive/<int:pk>/', views.job_archive, name='archive'),
+    path('archive', login_required(views.ArchiveView.as_view()), name='archive-view'),
     path('customer/add/',
          views.CustomerCreate.as_view(), name='add_customer'),
 ]

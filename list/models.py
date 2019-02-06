@@ -24,6 +24,12 @@ class Customer(OrderedModel):
 class Machine(OrderedModel):
     name = models.CharField(max_length=50, unique=True)
 
+    def active_jobs(self):
+        return Job.objects.filter(machine__pk=self.pk).filter(active=True)
+
+    def inactive_jobs(self):
+        return Job.objects.filter(machine__pk=self.pk).filter(active=False)
+
     class Meta(OrderedModel.Meta):
         ordering = ("order",)
 
@@ -42,7 +48,9 @@ class Job(OrderedModel):
     date_added = models.DateField(
         default=timezone.now, blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
+    datetime_completed = models.DateTimeField(default=None, blank=True, null=True)
     order_with_respect_to = 'machine'
+    active = models.BooleanField(blank=True, null=True, default=True)
 
     def bot(self):
         # Looks for the max value for 'order' in a given subset, or -1(we add 1 before assigning the value)
@@ -63,6 +71,9 @@ class Job(OrderedModel):
             old_job = Job.objects.get(id=self.pk)
         except Job.DoesNotExist:
             old_job = None
+
+        if not self.active:
+            self.datetime_completed = timezone.now()
 
         super().save(*args, **kwargs)
 

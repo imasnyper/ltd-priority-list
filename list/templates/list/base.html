@@ -21,7 +21,7 @@
 						{% else %}
 							Hello, Guest | <a href="{% url 'login' %}">Log In</a>
 						{% endif %}
-				</td>
+                    </td>
                 {% endblock %}
 				<td class="title">
 					{% block page_title %}
@@ -40,6 +40,14 @@
 				</td>
                 {% endblock %}
 			</tr>
+            <tr>
+                {% if user.is_authenticated %}
+                    <td class="center" colspan="3">
+                        {% block links %}
+                            <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>{% endblock links %}
+                    </td>
+                {% endif %}
+            </tr>
 		</table>
 		
 		{% block body %}

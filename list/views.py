@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, reverse, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from list.forms import CustomerForm, JobForm
@@ -20,6 +20,19 @@ class PriorityListView(ListView):
         context['customers'] = Customer.objects.all().order_by("name")
         context['form'] = JobForm
         return context
+
+
+class ArchiveView(ListView):
+    model = Job
+    template_name = "list/archive.html"
+    context_object_name = "jobs"
+    queryset = Job.objects.filter(active=False).order_by("-datetime_completed")
+    paginate_by = 10
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['jobs'] = Job.objects.filter(active=False).order_by("datetime_completed")
+    #     return context
 
 
 class JobCreate(CreateView):
@@ -106,7 +119,16 @@ def job_sort_down(request, pk):
     return redirect(reverse("list:priority-list"))
 
 
-class JobDelete(DeleteView):
-    model = Job
-    fields = ['job_number', 'description', 'customer']
-    success_url = reverse_lazy("list:priority-list")
+def job_archive(request, pk):
+    job = get_object_or_404(Job, pk=pk)
+
+    job.active = False
+    job.to(999)
+    job.save()
+
+    return redirect(reverse("list:priority-list"))
+
+# class JobDelete(DeleteView):
+#     model = Job
+#     fields = ['job_number', 'description', 'customer']
+#     success_url = reverse_lazy("list:priority-list")

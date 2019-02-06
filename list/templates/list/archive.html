@@ -1,0 +1,68 @@
+{% extends "list/base.html" %}
+
+{% block links %}
+    <a class="button" href="{% url 'list:priority-list' %}">Priority List</a>
+{% endblock %}
+{% block body %}
+    <div class="flex-container archive">
+        <table class="archive-table">
+            <thead>
+            <tr>
+                <th>
+
+                </th>
+                <th>
+                    Job Number
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Machine
+                </th>
+                <th>
+                    Date Added
+                </th>
+                <th>
+                    Date Completed
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for job in jobs %}
+                <tr>
+                    <td>{{ page_obj.start_index|add:forloop.counter|add:"-1" }}.</td>
+                    <td>{{ job.job_number }}</td>
+                    <td>{{ job.description }}</td>
+                    <td>{{ job.machine.name }}</td>
+                    <td>{{ job.date_added }}</td>
+                    <td>{{ job.datetime_completed }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <div><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></div>
+                {% else %}
+                    <div class="disabled"><span>&laquo;</span></div>
+                {% endif %}
+                {% for i in paginator.page_range %}
+                    {% if page_obj.number == i %}
+                        <div class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></div>
+                    {% else %}
+                        <div><a href="?page={{ i }}">{{ i }}</a></div>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <div><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></div>
+                {% else %}
+                    <div class="disabled"><span>&raquo;</span></div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock body %}
+
+{% block login %}{% endblock login %}

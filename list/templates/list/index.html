@@ -5,7 +5,7 @@
 		{% for machine in machines %}
 			<div class="machine-section">
 				<h3>{{ machine.name }}</h3>
-                {% with job_set=machine.job_set.all %}
+                {% with job_set=machine.active_jobs %}
                     {% if job_set|length > 0 %}
                         <table class="job-table">
                             <tr>
@@ -41,7 +41,7 @@
                                     </td>
                                     {% if user.is_authenticated %}
                                         <td>
-                                            <form action="{% url 'list:delete' job.pk %}" class="delete-form"
+                                            <form action="{% url 'list:archive' job.pk %}" class="delete-form"
                                                   method="post">
                                                 {% csrf_token %}
                                                 <button type="submit" class="delete-button"></button>

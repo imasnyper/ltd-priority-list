@@ -6,11 +6,45 @@
 	justify-content: center;
 }
 
-.flex-container > div {
+.flex-container > .machine-section {
 	background-color: #f1f1f1;
     width: 48%;
 	margin: 10px;
 	text-align: left;
+}
+
+.archive {
+    flex-direction: column;
+}
+
+.pagination {
+    flex-direction: row;
+    justify-content: center;
+    background-color: #f1f1f1;
+    margin: 10px auto 10px auto;
+    padding: 0 10px 0 10px;
+    border: 1px solid #000;
+}
+
+.pagination > div {
+    padding: 0 2px 0 2px;
+}
+
+.disabled {
+    display: none;
+}
+
+.button {
+    text-decoration: none;
+    background-color: dodgerblue;
+    color: white;
+    padding: 2px 6px 2px 6px;
+    /*border: 1px solid black;*/
+}
+
+.button:hover {
+    text-decoration: none;
+    color: white;
 }
 
 h1, h3 {
@@ -32,10 +66,32 @@ h1, h3 {
     width: -moz-fill-available;
 }
 
+.center {
+    text-align: center;
+}
+
+.archive-table {
+    width: 80%;
+    margin: 10px auto 0 auto;
+    border: 1px solid #000;
+}
+
+.archive-table th, .archive-table td {
+    padding: 1px 10px 1px 10px;
+}
+
+.archive-table tr:nth-child(even) {
+    background-color: #eee
+}
+
+.archive-table tr:nth-child(odd) {
+    background-color: #fff
+}
+
 th {
     border-bottom: 1px solid black;
     margin-bottom: 10px;
-    min-width: 60px;
+    /*min-width: 60px;*/
 }
 
 td {

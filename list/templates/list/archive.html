@@ -18,6 +18,9 @@
                     Description
                 </th>
                 <th>
+                    Customer
+                </th>
+                <th>
                     Machine
                 </th>
                 <th>
@@ -33,8 +36,9 @@
                 <tr>
                     <td>{{ page_obj.start_index|add:forloop.counter|add:"-1" }}.</td>
                     <td>{{ job.job_number }}</td>
-                    <td>{{ job.description }}</td>
-                    <td>{{ job.machine.name }}</td>
+                    <td>{{ job.description|title }}</td>
+                    <td>{{ job.customer.name|title }}</td>
+                    <td>{{ job.machine.name|title }}</td>
                     <td>{{ job.date_added }}</td>
                     <td>{{ job.datetime_completed }}</td>
                 </tr>

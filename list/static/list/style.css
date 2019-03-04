@@ -6,11 +6,15 @@
 	justify-content: center;
 }
 
-.flex-container > .machine-section {
+.flex-container > .machine-section, .flex-container > .job-detail {
 	background-color: #f1f1f1;
     width: 48%;
 	margin: 10px;
 	text-align: left;
+}
+
+.job-detail {
+    padding: 10px;
 }
 
 .archive {
@@ -64,6 +68,10 @@ h1, h3 {
     text-align: center;
 }
 
+.bold {
+    font-weight: bold;
+}
+
 .job-table {
     margin: 2px 2px 20px 2px;
     width: -webkit-fill-available;
@@ -104,6 +112,23 @@ th {
 
 td {
     min-height: 50px;
+}
+
+.job-detail-link {
+    display: block;
+    text-decoration: none;
+    color: black;
+}
+
+.job-detail-link:hover {
+    text-decoration: none;
+    color: black;
+}
+
+.job-row:hover {
+    box-shadow: 2px 2px darkgray;
+    transform: translateY(2px);
+    z-index: 1000;
 }
 
 .table-title {

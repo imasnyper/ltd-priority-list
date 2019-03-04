@@ -1,4 +1,4 @@
-"""SMTP email backend class."""
+"""Mailgun backend class."""
 
 import requests
 

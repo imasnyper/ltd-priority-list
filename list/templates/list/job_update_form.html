@@ -1,5 +1,10 @@
 {% extends 'list/base.html' %}
 
+
+{% block links %}
+    <a class="button" href="{% url 'list:priority-list' %}">Priority List</a>
+    <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>
+{% endblock links %}
 {% block body %}
 	<div class="form job-edit-form-container">
 		{% if user.is_authenticated %}

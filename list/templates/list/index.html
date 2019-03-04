@@ -17,25 +17,37 @@
                                 <th class="table-title" colspan="4"></th>
                             </tr>
                             {% for job in job_set %}
-                                <tr>
+                                <tr class="job-row">
                                     <td class="table-title">
-                                        {{ forloop.counter }}.
+                                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                            {{ forloop.counter }}.
+                                        </a>
                                     </td>
                                     <td>
-                                        {{ job.job_number }}
+                                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                            {{ job.job_number }}
+                                        </a>
                                     </td>
                                     <td>
-                                        {{ job.description|title }}
+                                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                            {{ job.description|title }}
+                                        </a>
                                     </td>
                                     <td>
-                                        {{ job.customer.name|title }}
+                                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                            {{ job.customer.name|title }}
+                                        </a>
                                     </td>
                                     <td>
                                         <div class="tools">
                                             {% if job.add_tools %}
-                                                &#10004;
+                                                <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                                    &#10004;
+                                                </a>
                                             {% else %}
-                                                &#10006;
+                                                <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                                    &#10006;
+                                                </a>
                                             {% endif %}
                                         </div>
                                     </td>

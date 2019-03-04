@@ -12,6 +12,7 @@ urlpatterns = [
     path('job/sort_up/<int:pk>/', views.job_sort_up, name='sort_up'),
     path('job/sort_down/<int:pk>/', views.job_sort_down, name='sort_down'),
     path('job/archive/<int:pk>/', views.job_archive, name='archive'),
+    path('job/<int:pk>', views.JobDetail.as_view(), name='job-detail'),
     path('archive', login_required(views.ArchiveView.as_view()), name='archive-view'),
     path('customer/add/',
          views.CustomerCreate.as_view(), name='add_customer'),

@@ -20,5 +20,6 @@ whitenoise = "*"
 Django = "*"
 requests = "*"
 django-debug-toolbar = "*"
+django-extensions = "*"
 
 [dev-packages]

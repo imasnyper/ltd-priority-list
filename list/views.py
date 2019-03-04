@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, reverse, get_object_or_404
 from django.urls import reverse_lazy
+from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
@@ -59,6 +60,10 @@ class JobCreate(CreateView):
             pk=self.kwargs['machine_pk'])
         form.save()
         return super().form_valid(form)
+
+
+class JobDetail(DetailView):
+    model = Job
 
 
 class CustomerCreate(CreateView):

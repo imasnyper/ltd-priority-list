@@ -4,7 +4,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta name="viewport" context="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<title>Pinnacle & Starvision Priority List</title>
 		<meta name="description" content="LT&D Priority List for Pinnacle and Starvision Machines">
 		<meta name="author" content="Daniel Hayes">
@@ -44,7 +44,8 @@
                 {% if user.is_authenticated %}
                     <td class="center" colspan="3">
                         {% block links %}
-                            <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>{% endblock links %}
+                            <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>
+                        {% endblock links %}
                     </td>
                 {% endif %}
             </tr>

@@ -1,0 +1,40 @@
+{% extends "list/base.html" %}
+
+{% block links %}
+    <a class="button" href="{% url 'list:priority-list' %}">Priority List</a>
+    <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>
+{% endblock %}
+{% block body %}
+    <div class="flex-container">
+        <div class="job-detail">
+            <div>
+                <span class="bold">Job Number: </span>
+                {{ job.job_number }}
+            </div>
+            <div>
+                <span class="bold">Description: </span>
+                {{ job.description|title }}
+            </div>
+            <div>
+                <span class="bold">Customer: </span>
+                {{ job.customer.name|title }}
+            </div>
+            <div>
+                <span class="bold">Date Added: </span>
+                {{ job.date_added }}
+            </div>
+            <div>
+                <span class="bold">Due Date: </span>
+                {{ job.due_date }}
+            </div>
+            <div>
+                <span class="bold">Add Tools: </span>
+                {% if job.add_tools %}
+                    &#10004;
+                {% else %}
+                    &#10006;
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

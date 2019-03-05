@@ -28,6 +28,14 @@
                 {{ job.due_date }}
             </div>
             <div>
+                <span class="bold">Completed: </span>
+                {% if job.datetime_completed %}
+                    {{ job.datetime_completed }}
+                {% else %}
+                    No
+                {% endif %}
+            </div>
+            <div>
                 <span class="bold">Add Tools: </span>
                 {% if job.add_tools %}
                     &#10004;
@@ -35,6 +43,8 @@
                     &#10006;
                 {% endif %}
             </div>
+            <a href="{% url 'list:edit' job.pk %}">Edit Job</a>
+            <a href="{% url 'list:archive' job.pk %}">Job Finished</a>
         </div>
     </div>
 {% endblock %}

@@ -33,14 +33,42 @@
             </thead>
             <tbody>
             {% for job in jobs %}
-                <tr>
-                    <td>{{ page_obj.start_index|add:forloop.counter|add:"-1" }}.</td>
-                    <td>{{ job.job_number }}</td>
-                    <td>{{ job.description|title }}</td>
-                    <td>{{ job.customer.name|title }}</td>
-                    <td>{{ job.machine.name|title }}</td>
-                    <td>{{ job.date_added }}</td>
-                    <td>{{ job.datetime_completed }}</td>
+                <tr class="job-row">
+                    <td>
+                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                            {{ page_obj.start_index|add:forloop.counter|add:"-1" }}.
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                            {{ job.job_number }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                            {{ job.description|title }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                            {{ job.customer.name|title }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                            {{ job.machine.name|title }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                            {{ job.date_added }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                            {{ job.datetime_completed }}
+                        </a>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -39,11 +39,23 @@
 }
 
 .button {
+    display: inline-block;
     text-decoration: none;
     background-color: dodgerblue;
     color: white;
     padding: 2px 6px 2px 6px;
-    /*border: 1px solid black;*/
+    box-shadow: 2px 2px darkgrey;
+    margin: 2px 0 2px 0;
+    transition: transform .15s, box-shadow .15s;
+    -webkit-transition: transform .15s, box-shadow .15s;
+    -moz-transition: transform .15s, box-shadow .15s;
+}
+
+.button:active {
+    transform: translateY(2px);
+    -webkit-transform: translateY(2px);
+    -moz-transform: translateY(2px);
+    box-shadow: none;
 }
 
 .button:hover {
@@ -125,10 +137,25 @@ td {
     color: black;
 }
 
+.job-row {
+    -webkit-transition: transform .15s, box-shadow .15s;
+    -moz-transition: transform .15s, box-shadow .15s;
+    transition: transform .15s, box-shadow .15s;
+}
+
 .job-row:hover {
     box-shadow: 2px 2px darkgray;
-    transform: translateY(2px);
+    transform: translateY(-2px);
+    -webkit-transform: translateY(-2px);
+    -moz-transform: translateY(-2px);
     z-index: 1000;
+}
+
+.job-row:active {
+    transform: translateY(0px);
+    -webkit-transform: translateY(0px);
+    -moz-transform: translateY(0px);
+    box-shadow: none;
 }
 
 .table-title {

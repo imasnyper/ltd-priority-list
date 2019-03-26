@@ -1,6 +1,5 @@
 # import pdb
 
-from django.core import mail
 from django.core import validators
 from django.db import models
 from django.db.models import Max
@@ -82,15 +81,15 @@ class Job(OrderedModel):
 
         super().save(*args, **kwargs)
 
-        if old_job == None:
-            with mail.get_connection() as c:
-                mail.EmailMessage(
-                    f"Job {self.job_number} Added to Priority List for {self.machine.name}",
-                    f"Job {self.job_number} has been added to the priority list for {self.machine.name}. View it here: https://priority-list.herokuapp.com{self.get_absolute_url()}.",
-                    "New Job <postmaster@sandboxc3caeaf85ca14955bc3d4a1c3935c1f0.mailgun.org>",
-                    ['danihaye@gmail.com', ],
-                    connection=c,
-                ).send()
+        # if old_job == None:
+        #     with mail.get_connection() as c:
+        #         mail.EmailMessage(
+        #             f"Job {self.job_number} Added to Priority List for {self.machine.name}",
+        #             f"Job {self.job_number} has been added to the priority list for {self.machine.name}. View it here: https://priority-list.herokuapp.com{self.get_absolute_url()}.",
+        #             "New Job <postmaster@sandboxc3caeaf85ca14955bc3d4a1c3935c1f0.mailgun.org>",
+        #             ['danihaye@gmail.com', ],
+        #             connection=c,
+        #         ).send()
 
         if old_job is not None and self.machine.pk != old_job.machine.pk:
             # If machine changed, the instance is switching to a different subset,

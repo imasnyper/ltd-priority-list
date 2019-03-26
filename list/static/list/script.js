@@ -29,5 +29,12 @@ $(document).ready(function () {
     }
     setTimeout(function () {
         location.reload(true)
-    }, 1000 * 60 * 5)
+    }, 1000 * 60 * 5);
+
+    $("tr").each(() => {
+        if ($(this).height() > 54) {
+            console.log($(this).height());
+            $(this).find("td").find(".job-detail-link").css('padding', "0");
+        }
+    });
 });

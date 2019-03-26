@@ -119,17 +119,19 @@ h1, h3 {
 th {
     border-bottom: 1px solid black;
     margin-bottom: 10px;
-    /*min-width: 60px;*/
+    min-width: 60px;
 }
 
 td {
-    min-height: 50px;
+    vertical-align: middle;
+    position: relative;
 }
 
 .job-detail-link {
     display: block;
     text-decoration: none;
     color: black;
+    padding: 13px 0;
 }
 
 .job-detail-link:hover {

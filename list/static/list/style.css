@@ -119,12 +119,19 @@ h1, h3 {
 th {
     border-bottom: 1px solid black;
     margin-bottom: 10px;
-    min-width: 60px;
 }
 
 td {
     vertical-align: middle;
     position: relative;
+}
+
+.job-number-title {
+    min-width: 60px;
+}
+
+.customer-title {
+    min-width: 160px;
 }
 
 .job-detail-link {

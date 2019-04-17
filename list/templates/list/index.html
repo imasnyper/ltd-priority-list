@@ -13,44 +13,68 @@
                                     <th class="table-title"></th>
                                     <th class="table-title job-number-title">Job #</th>
                                     <th class="table-title">Description</th>
-                                    <th class="table-title customer-title">Customer</th>
+                                    {% if user.is_authenticated %}
+                                        <th class="table-title customer-title">Customer</th>
+                                    {% endif %}
                                     <th class="table-title add-tools-title">Tools?</th>
                                     <th class="table-title" colspan="4"></th>
                                 </tr>
                                 {% for job in job_set %}
                                     <tr class="job-row">
                                         <td class="table-title">
-                                            <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                            {% if user.is_authenticated %}
+                                                <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                                    {{ forloop.counter }}.
+                                                </a>
+                                            {% else %}
                                                 {{ forloop.counter }}.
-                                            </a>
+                                            {% endif %}
                                         </td>
                                         <td>
-                                            <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                            {% if user.is_authenticated %}
+                                                <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                                    {{ job.job_number }}
+                                                </a>
+                                            {% else %}
                                                 {{ job.job_number }}
-                                            </a>
+                                            {% endif %}
                                         </td>
                                         <td>
-                                            <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
-                                                {{ job.description|title }}
-                                            </a>
+                                            {% if user.is_authenticated %}
+                                                <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                                    {{ job.description|title }}
+                                                </a>
+                                            {% else %}
+                                                {{ job.description }}
+                                            {% endif %}
                                         </td>
-                                        <td>
-                                            <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
-                                                {{ job.customer.name|title }}
-                                            </a>
-                                        </td>
+                                        {% if user.is_authenticated %}
+                                            <td>
+                                                <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                                                    {{ job.customer.name|title }}
+                                                </a>
+                                            </td>
+                                        {% endif %}
                                         <td>
                                             <div class="tools">
                                                 {% if job.add_tools %}
-                                                    <a href="{% url 'list:job-detail' job.pk %}"
-                                                       class="job-detail-link">
+                                                    {% if user.is_authenticated %}
+                                                        <a href="{% url 'list:job-detail' job.pk %}"
+                                                           class="job-detail-link">
+                                                            &#10004;
+                                                        </a>
+                                                    {% else %}
                                                         &#10004;
-                                                    </a>
+                                                    {% endif %}
                                                 {% else %}
-                                                    <a href="{% url 'list:job-detail' job.pk %}"
-                                                       class="job-detail-link">
+                                                    {% if user.is_authenticated %}
+                                                        <a href="{% url 'list:job-detail' job.pk %}"
+                                                           class="job-detail-link">
+                                                            &#10006;
+                                                        </a>
+                                                    {% else %}
                                                         &#10006;
-                                                    </a>
+                                                    {% endif %}
                                                 {% endif %}
                                             </div>
                                         </td>

@@ -1,8 +1,11 @@
 # import pdb
 
+from django.contrib.auth.models import User
 from django.core import validators
 from django.db import models
 from django.db.models import Max
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.utils import timezone
 from ordered_model.models import OrderedModel
@@ -115,3 +118,22 @@ class Job(OrderedModel):
 
     def __str__(self):
         return f"{self.job_number} {self.description}"
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    machines = models.ManyToManyField(Machine)
+
+    def __str__(self):
+        return f"{self.user.username}"
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()

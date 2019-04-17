@@ -1,3 +1,5 @@
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.shortcuts import redirect, reverse, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
@@ -5,7 +7,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from list.forms import CustomerForm, JobForm
-from list.models import Customer, Job, Machine
+from list.models import Customer, Job, Machine, Profile
 
 
 # Create your views here.
@@ -17,7 +19,13 @@ class PriorityListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['machines'] = Machine.objects.all()
+        try:
+            user = User.objects.get(id=self.request.user.id)
+            profile = get_object_or_404(Profile, user=user)
+            context['machines'] = profile.machines.all()
+        except User.DoesNotExist:
+            context['machines'] = Machine.objects.all()
+
         context['customers'] = Customer.objects.all().order_by("name")
         context['form'] = JobForm
         return context
@@ -27,13 +35,16 @@ class ArchiveView(ListView):
     model = Job
     template_name = "list/archive.html"
     context_object_name = "jobs"
-    queryset = Job.objects.filter(active=False).order_by("-datetime_completed")
     paginate_by = 10
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['jobs'] = Job.objects.filter(active=False).order_by("datetime_completed")
-    #     return context
+    def get_queryset(self):
+        user = get_object_or_404(User, id=self.request.user.id)
+        profile = get_object_or_404(Profile, user=user)
+
+        return Job.objects.all() \
+            .filter(active=False) \
+            .filter(machine__in=profile.machines.all()) \
+            .order_by("datetime_completed")
 
 
 class JobCreate(CreateView):
@@ -137,3 +148,19 @@ def job_archive(request, pk):
 #     model = Job
 #     fields = ['job_number', 'description', 'customer']
 #     success_url = reverse_lazy("list:priority-list")
+
+
+class ProfileView(UserPassesTestMixin, DetailView):
+    model = Profile
+    template_name = "list/profile.html"
+
+    def test_func(self):
+        return self.request.resolver_match.kwargs['pk'] == self.request.user.profile.id
+
+
+class ProfileEditView(UserPassesTestMixin, DetailView):
+    model = Profile
+    template_name = "list/profile_edit.html"
+
+    def test_func(self):
+        return self.request.resolver_match.kwargs['pk'] == self.request.user.profile.id

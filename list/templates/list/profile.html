@@ -1,0 +1,10 @@
+{% extends 'list/base.html' %}
+
+{% block body %}
+    {{ profile }}
+    <ul>
+        {% for machine in profile.machines.all %}
+            <li>{{ machine.name }}</li>
+        {% endfor %}
+    </ul>
+{% endblock body %}

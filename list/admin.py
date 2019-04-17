@@ -1,6 +1,8 @@
 from django.contrib import admin
 from ordered_model.admin import OrderedModelAdmin
-from list.models import Customer, Job, Machine
+
+from list.models import Customer, Job, Machine, Profile
+
 
 # Register your models here.
 
@@ -19,3 +21,4 @@ class MachineAdmin(OrderedModelAdmin):
 admin.site.register(Job, JobAdmin)
 admin.site.register(Customer)
 admin.site.register(Machine, MachineAdmin)
+admin.site.register(Profile)

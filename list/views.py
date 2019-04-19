@@ -6,7 +6,7 @@ from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from list.forms import CustomerForm, JobForm
+from list.forms import CustomerForm, JobForm, ProfileForm
 from list.models import Customer, Job, Machine, Profile
 
 
@@ -158,9 +158,10 @@ class ProfileView(UserPassesTestMixin, DetailView):
         return self.request.resolver_match.kwargs['pk'] == self.request.user.profile.id
 
 
-class ProfileEditView(UserPassesTestMixin, DetailView):
+class ProfileEditView(UserPassesTestMixin, UpdateView):
     model = Profile
-    template_name = "list/profile_edit.html"
+    form_class = ProfileForm
+    template_name = "list/profile_update.html"
 
     def test_func(self):
         return self.request.resolver_match.kwargs['pk'] == self.request.user.profile.id

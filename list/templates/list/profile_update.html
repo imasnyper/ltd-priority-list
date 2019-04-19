@@ -1,14 +1,14 @@
 {% extends 'list/base.html' %}
 
+
 {% block links %}
     <a class="button" href="{% url 'list:priority-list' %}">Priority List</a>
     <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>
 {% endblock links %}
 {% block body %}
-    {{ profile }}
-    <ul>
-        {% for machine in profile.machines.all %}
-            <li>{{ machine.name }}</li>
-        {% endfor %}
-    </ul>
+    <form action="{% url 'list:profile-edit' profile.user.id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
 {% endblock body %}

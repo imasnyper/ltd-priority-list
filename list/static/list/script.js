@@ -37,4 +37,6 @@ $(document).ready(function () {
             $(this).find("td").find(".job-detail-link").css('padding', "0");
         }
     });
+
+    $("select").focus();
 });

@@ -2,8 +2,9 @@ from django import forms
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
-from list.models import Job, Customer, Machine
+from list.models import Job, Customer, Machine, Profile
 
 
 class RelatedFieldWidgetCanAdd(forms.widgets.Select):
@@ -69,3 +70,15 @@ class CustomerForm(forms.ModelForm):
             raise forms.ValidationError("This customer already exists.")
 
         return name
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('machines',)
+        labels = {
+            'machines': _("Select machines to display"),
+        }
+        widgets = {
+            'machines': forms.SelectMultiple(attrs={'size': "8"})
+        }

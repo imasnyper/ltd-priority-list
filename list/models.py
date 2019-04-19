@@ -124,6 +124,9 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     machines = models.ManyToManyField(Machine)
 
+    def get_absolute_url(self):
+        return reverse("list:profile", args=[self.pk])
+
     def __str__(self):
         return f"{self.user.username}"
 

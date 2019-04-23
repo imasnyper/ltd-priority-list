@@ -8,63 +8,35 @@
 		<title>Pinnacle & Starvision Priority List</title>
 		<meta name="description" content="LT&D Priority List for Pinnacle and Starvision Machines">
 		<meta name="author" content="Daniel Hayes">
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-		<link rel="stylesheet" href="{% static 'list/style.css' %}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.3/css/uikit.min.css"/>
 	</head>
 	<body>
-		<table class="nav-bar">
-			<tr>
-                {% block logged_in_hidden %}
-                    <td class="hidden">
-						{% if user.is_authenticated %}
-                            <div class="dropdown">
-                                Logged in as {{ user.username }} | <a href="{% url 'logout' %}">Logout</a>
-                                <div class="dropdown-content">
-                                    <a href="{% url 'list:profile' user.id %}">Profile</a>
-                                    <a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a>
-                                </div>
-                            </div>
-						{% else %}
-							Hello, Guest | <a href="{% url 'login' %}">Log In</a>
-						{% endif %}
-                    </td>
-                {% endblock %}
-				<td class="title">
-					{% block page_title %}
-					<h1>Pinnacle & Starvision Priority List</h1>
-					{% endblock page_title %}
-				</td>
-                {% block logged_in %}
-				<td class="auth">
-					{% block auth %}
-						{% if user.is_authenticated %}
-                            <span class="dropdown">
-                                Logged in as {{ user.username }}
-                                <div class="dropdown-content">
-                                    <a href="{% url 'list:profile' user.id %}">Profile</a>
-                                    <a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a>
-                                </div>
-                            </span>
-                            <span>
-                                | <a href="{% url 'logout' %}">Logout</a>
-                            </span>
-						{% else %}
-							Hello, Guest | <a href="{% url 'login' %}">Log In</a>
-						{% endif %}
-					{% endblock auth %}
-				</td>
-                {% endblock %}
-			</tr>
-            <tr>
-                {% if user.is_authenticated %}
-                    <td class="center" colspan="3">
-                        {% block links %}
-                            <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>
-                        {% endblock links %}
-                    </td>
-                {% endif %}
-            </tr>
-		</table>
+    {#        <ul id="login-dropdown" class="dropdown-content">#}
+    {#            <li><a href="{% url 'list:profile' user.id %}">Profile</a></li>#}
+    {#            <li><a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a></li>#}
+    {#        </ul>#}
+    <nav class="uk-navbar-container uk-navbar">
+        <div class="uk-navbar-left">
+            <ul class="uk-navbar-nav">
+                <li><a href="{% url 'list:priority-list' %}">LT&D Priority List</a></li>
+            </ul>
+        </div>
+        <div class="uk-navbar-right">
+            <ul class="uk-navbar-nav">
+                <li><a href="{% url 'list:priority-list' %}">Priority List</a></li>
+                <li><a href="{% url 'list:archive-view' %}">Archive</a></li>
+                <li>
+                    <a href="#">{{ user.username }}</a>
+                    <div class="uk-navbar-dropdown">
+                        <ul class="uk-nav uk-navbar-dropdown-nav">
+                            <li><a href="{% url 'list:profile' user.id %}">Profile</a></li>
+                            <li><a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
 		
 		{% block body %}
 		{% endblock body %}
@@ -72,8 +44,10 @@
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
                 integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
                 crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.3/js/uikit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.3/js/uikit-icons.min.js"></script>
         <script src="{% static 'list/script.js' %}"></script>
-    	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    {#    	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>#}
+    {#    	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>#}
 	</body>
 </html>

@@ -35,7 +35,7 @@ class JobForm(forms.ModelForm):
     customer = forms.ModelChoiceField(
         required=True,
         queryset=Customer.objects.all(),
-        widget=RelatedFieldWidgetCanAdd(Customer)
+        # widget=RelatedFieldWidgetCanAdd(Customer)
     )
     job_number = forms.CharField(
         label="Job Number:",

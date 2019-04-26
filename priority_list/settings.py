@@ -131,6 +131,8 @@ STATIC_URL = '/static/'
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, 'static'),
+    os.path.join(BASE_DIR, 'frontend/node_modules/uikit/dist/css'),
+    os.path.join(BASE_DIR, 'frontend/node_modules/uikit/dist/js'),
 ]
 
 # Simplified static file serving.

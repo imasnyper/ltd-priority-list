@@ -44,7 +44,7 @@ class ArchiveView(ListView):
         return Job.objects.all() \
             .filter(active=False) \
             .filter(machine__in=profile.machines.all()) \
-            .order_by("datetime_completed")
+            .order_by("-datetime_completed")
 
 
 class JobCreate(CreateView):
@@ -155,7 +155,8 @@ class ProfileView(UserPassesTestMixin, DetailView):
     template_name = "list/profile.html"
 
     def test_func(self):
-        return self.request.resolver_match.kwargs['pk'] == self.request.user.profile.id
+        user = get_object_or_404(User, pk=self.request.resolver_match.kwargs['pk'])
+        return user.username == self.request.user.username
 
 
 class ProfileEditView(UserPassesTestMixin, UpdateView):
@@ -164,4 +165,5 @@ class ProfileEditView(UserPassesTestMixin, UpdateView):
     template_name = "list/profile_update.html"
 
     def test_func(self):
-        return self.request.resolver_match.kwargs['pk'] == self.request.user.profile.id
+        user = get_object_or_404(User, pk=self.request.resolver_match.kwargs['pk'])
+        return user.username == self.request.user.username

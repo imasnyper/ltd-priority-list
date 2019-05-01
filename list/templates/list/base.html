@@ -9,31 +9,35 @@
 		<meta name="description" content="LT&D Priority List for Pinnacle and Starvision Machines">
 		<meta name="author" content="Daniel Hayes">
         <link rel="stylesheet" href="{% static 'uikit.theme.css' %}"/>
+        <link rel="stylesheet" href="{% static 'list/style.css' %}"/>
 	</head>
 	<body>
     {#        <ul id="login-dropdown" class="dropdown-content">#}
     {#            <li><a href="{% url 'list:profile' user.id %}">Profile</a></li>#}
     {#            <li><a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a></li>#}
     {#        </ul>#}
-    <nav class="uk-navbar-container" uk-navbar>
+    <nav class="uk-navbar-container uk-text-bold" uk-navbar>
         <div class="uk-navbar-left">
             <ul class="uk-navbar-nav">
-                <li><a href="{% url 'list:priority-list' %}">LT&D Priority List</a></li>
+                <li><a class="uk-text-large" href="{% url 'list:priority-list' %}">LT&D Priority List</a></li>
             </ul>
         </div>
         <div class="uk-navbar-right">
             <ul class="uk-navbar-nav">
                 <li><a href="{% url 'list:priority-list' %}">Priority List</a></li>
                 <li><a href="{% url 'list:archive-view' %}">Archive</a></li>
-                <li>
-                    <a href="#">{{ user.username }}</a>
-                    <div class="uk-navbar-dropdown">
-                        <ul class="uk-nav uk-navbar-dropdown-nav">
-                            <li><a href="{% url 'list:profile' user.id %}">Profile</a></li>
-                            <li><a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a></li>
-                        </ul>
-                    </div>
-                </li>
+                {% if user.is_authenticated %}
+                    <li>
+                        <a href="#">{{ user.username|title }}</a>
+                        <div class="uk-navbar-dropdown">
+                            <ul class="uk-nav uk-navbar-dropdown-nav">
+                                <li><a href="{% url 'list:profile' user.id %}">Profile</a></li>
+                                <li><a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a></li>
+                                <li><a href="{% url 'logout' %}">Logout</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </nav>

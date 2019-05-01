@@ -4,7 +4,7 @@
 
   
 {% block body %}
-  <div class="form login-form-container">
+    <div class="uk-container">
     {% if form.errors %}
       <p class="instructions">Your username and password didn't match. Please try again.</p>
     {% else %}
@@ -20,7 +20,7 @@
       {% endif %}
     {% endif %}
 
-    <form class="login-form" method="post" action="{% url 'login' %}">
+        <form class="uk-align-center" method="post" action="{% url 'login' %}">
       {% csrf_token %}
       <table class="login-table">
 

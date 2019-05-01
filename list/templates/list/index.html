@@ -15,112 +15,81 @@
                     </div>
                     {% with job_set=machine.active_jobs %}
                         {% if job_set|length > 0 %}
-                            <table class="uk-table uk-table-divider uk-table-hover uk-table-justify">
+                            <table class="uk-table-small uk-table-divider uk-table-hover uk-table-middle">
                                 <thead>
                                 <tr>
                                     <th></th>
                                     <th class="uk-table-shrink uk-text-nowrap">Job #</th>
                                     <th>Description</th>
-                                    {% if user.is_authenticated %}
                                         <th>Customer</th>
-                                    {% endif %}
-                                    <th class="table-title add-tools-title">Tools?</th>
-                                    <th class="table-title" colspan="4"></th>
+                                    <th>Tools?</th>
+                                    <th colspan="4">Edit/Delete</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {% for job in job_set %}
                                     <tr class="job-row">
-                                        <td class="uk-table-link">
-                                            {% if user.is_authenticated %}
-                                                <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
-                                                    {{ forloop.counter }}.
-                                                </a>
-                                            {% else %}
+                                        <td class="uk-table-link uk-text-bold">
+                                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
                                                 {{ forloop.counter }}.
-                                            {% endif %}
+                                            </a>
                                         </td>
                                         <td class="uk-table-link">
-                                            {% if user.is_authenticated %}
-                                                <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
-                                                    {{ job.job_number }}
-                                                </a>
-                                            {% else %}
+                                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
                                                 {{ job.job_number }}
-                                            {% endif %}
+                                            </a>
                                         </td>
                                         <td class="uk-table-link">
-                                            {% if user.is_authenticated %}
-                                                <a href="{% url 'list:job-detail' job.pk %}">
-                                                    {{ job.description|title }}
+                                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                                                {{ job.description|title }}
+                                            </a>
+                                        </td>
+                                        <td class="uk-table-link">
+                                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                                                {{ job.customer.name|title }}
+                                            </a>
+                                        </td>
+                                        <td class="uk-table-link uk-text-center">
+                                            {% if job.add_tools %}
+                                                <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                                                    &#10004;
                                                 </a>
                                             {% else %}
-                                                {{ job.description }}
-                                            {% endif %}
-                                        </td>
-                                        <td class="uk-table-link">
-                                            {% if user.is_authenticated %}
-                                                <td>
-                                                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-text-nowrap">
-                                                        {{ job.customer.name|title }}
-                                                    </a>
-                                                </td>
-                                            {% endif %}
-                                        <td>
-                                            <div class="uk-table-link">
-                                                {% if job.add_tools %}
-                                                    {% if user.is_authenticated %}
-                                                        <a href="{% url 'list:job-detail' job.pk %}"
-                                                           class="job-detail-link">
-                                                            &#10004;
-                                                        </a>
-                                                    {% else %}
-                                                        &#10004;
-                                                    {% endif %}
-                                                {% else %}
-                                                    {% if user.is_authenticated %}
-                                                        <a href="{% url 'list:job-detail' job.pk %}"
-                                                           class="job-detail-link">
-                                                            &#10006;
-                                                        </a>
-                                                    {% else %}
-                                                        &#10006;
-                                                    {% endif %}
-                                                {% endif %}
-                                            </div>
-                                        </td>
-                                        {% if user.is_authenticated %}
-                                            <td>
-                                                <form action="{% url 'list:archive' job.pk %}" class="delete-form"
-                                                      method="post">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="delete-button"></button>
-                                                </form>
-                                            </td>
-                                            <td>
-                                                <a href="{% url 'list:edit' job.pk %}" class="edit-link">
-                                                    <div class="edit-button"></div>
+                                                <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                                                    &#10006;
                                                 </a>
-                                            </td>
-                                            <td>
-                                                {% if forloop.counter > 1 %}
-                                                    <a href="{% url 'list:sort_up' job.pk %}" class="sort-up-link">
-                                                        <div class="sort-up-button"></div>
-                                                    </a>
-                                                {% else %}
-                                                    <div class="sort-up-link">
-                                                        <div class="sort-up-button-placeholder"></div>
-                                                    </div>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if forloop.counter < job_set|length %}
-                                                    <a href="{% url 'list:sort_down' job.pk %}" class="sort-down-link">
-                                                        <div class="sort-down-button"></div>
-                                                    </a>
-                                                {% endif %}
-                                            </td>
-                                        {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <form action="{% url 'list:archive' job.pk %}" class="delete-form"
+                                                  method="post">
+                                                {% csrf_token %}
+                                                <button type="submit" class="delete-button"></button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'list:edit' job.pk %}" class="edit-link">
+                                                <div class="edit-button"></div>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if forloop.counter > 1 %}
+                                                <a href="{% url 'list:sort_up' job.pk %}" class="sort-up-link">
+                                                    <div class="sort-up-button"></div>
+                                                </a>
+                                            {% else %}
+                                                <div class="sort-up-link">
+                                                    <div class="sort-up-button-placeholder"></div>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if forloop.counter < job_set|length %}
+                                                <a href="{% url 'list:sort_down' job.pk %}" class="sort-down-link">
+                                                    <div class="sort-down-button"></div>
+                                                </a>
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
@@ -129,38 +98,36 @@
                             <p class="empty-job-list">Currently no jobs for {{ machine.name|title }}</p>
                         {% endif %}
                     {% endwith %}
-                    {% if user.is_authenticated %}
-                        <form class="add-job-form" action="{% url 'list:add' machine.pk %}" method="post">
-                            {% csrf_token %}
-                            {{ form.non_field_errors }}
-                            <div class="form-job-number">
-                                {{ form.job_number.errors }}
-                                <span class="job-number-label">{{ form.job_number.label_tag }}</span>
-                                <span class="job-number-input">{{ form.job_number }}</span>
-                            </div>
-                            <div class="form-description">
-                                {{ form.description.errors }}
-                                <span class="description-label">{{ form.description.label_tag }}</span>
-                                <span class="description-input">{{ form.description }}</span>
-                            </div>
-                            <div class="form-customer">
-                                {{ form.customer.errors }}
-                                <span class="customer-label">{{ form.customer.label_tag }}</span>
-                                <div class="input-field customer-input">{{ form.customer }}</div>
-                            </div>
-                            <div class="form-due-date">
-                                {{ form.due_date.errors }}
-                                <span class="due-date-label">{{ form.due_date.label_tag }}</span>
-                                <span class="due-date-input">{{ form.due_date }}</span>
-                            </div>
-                            <div class="form-add-tools">
-                                {{ form.add_tools.errors }}
-                                <span class="add-tools-label">{{ form.add_tools.label_tag }}</span>
-                                <span class="add-tools-input">{{ form.add_tools }}</span>
-                            </div>
-                            <button type="submit">Save</button>
-                        </form>
-                    {% endif %}
+                    <form class="add-job-form" action="{% url 'list:add' machine.pk %}" method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        <div class="form-job-number">
+                            {{ form.job_number.errors }}
+                            <span class="job-number-label">{{ form.job_number.label_tag }}</span>
+                            <span class="job-number-input">{{ form.job_number }}</span>
+                        </div>
+                        <div class="form-description">
+                            {{ form.description.errors }}
+                            <span class="description-label">{{ form.description.label_tag }}</span>
+                            <span class="description-input">{{ form.description }}</span>
+                        </div>
+                        <div class="form-customer">
+                            {{ form.customer.errors }}
+                            <span class="customer-label">{{ form.customer.label_tag }}</span>
+                            <div class="input-field customer-input">{{ form.customer }}</div>
+                        </div>
+                        <div class="form-due-date">
+                            {{ form.due_date.errors }}
+                            <span class="due-date-label">{{ form.due_date.label_tag }}</span>
+                            <span class="due-date-input">{{ form.due_date }}</span>
+                        </div>
+                        <div class="form-add-tools">
+                            {{ form.add_tools.errors }}
+                            <span class="add-tools-label">{{ form.add_tools.label_tag }}</span>
+                            <span class="add-tools-input">{{ form.add_tools }}</span>
+                        </div>
+                        <button type="submit">Save</button>
+                    </form>
                 </div>
             </div>
         {% endfor %}

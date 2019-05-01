@@ -35,20 +35,27 @@ class JobForm(forms.ModelForm):
     customer = forms.ModelChoiceField(
         required=True,
         queryset=Customer.objects.all(),
-        # widget=RelatedFieldWidgetCanAdd(Customer)
+        widget=RelatedFieldWidgetCanAdd(Customer, attrs={'class': 'uk-select'})
     )
     job_number = forms.CharField(
         label="Job Number:",
         widget=forms.TextInput(
-            attrs={'min': 1000, 'max': 9999, 'type': 'number'}))
+            attrs={'min': 1000, 'max': 9999, 'type': 'number', 'class': 'uk-input'}))
     due_date = forms.DateField(
         label="Due Date:",
-        widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+        widget=forms.widgets.DateInput(attrs={'type': 'date', 'class': 'uk-input'}),
         required=False)
     machine = forms.ModelChoiceField(
         label="Machine:",
         required=False,
         queryset=Machine.objects.all(),
+        widget=forms.widgets.Select(attrs={'type': 'uk-select'})
+    )
+    add_tools = forms.BooleanField(
+        widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'})
+    )
+    description = forms.CharField(
+        widget=forms.widgets.TextInput(attrs={'class': 'uk-input'})
     )
 
     class Meta:

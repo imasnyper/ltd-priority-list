@@ -6,44 +6,45 @@
     <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>
 {% endblock links %}
 {% block body %}
-	<div class="form job-edit-form-container">
-		{% if user.is_authenticated %}
-			<form class="edit-job-form" action="{% url 'list:edit' job.pk %}" method="post">
-				{% csrf_token %}
+    <br/>
+    <div class="uk-container uk-inline uk-width-1-1">
+        <div class="uk-card uk-width-xlarge uk-align-center">
+            <form class="edit-job-form uk-padding-small" action="{% url 'list:edit' job.pk %}" method="post">
+                {% csrf_token %}
                 {{ job_form.non_field_errors }}
-				<div class="form-job-number">
+                <div class="uk-padding-small">
                     {{ job_form.job_number.errors }}
                     <span class="job-number-label">{{ job_form.job_number.label_tag }}</span>
                     <span class="job-number-input">{{ job_form.job_number }}</span>
-				</div>
-				<div class="form-description">
+                </div>
+                <div class="uk-padding-small">
                     {{ job_form.description.errors }}
                     <span class="description-label">{{ job_form.description.label_tag }}</span>
                     <span class="description-input">{{ job_form.description }}</span>
-				</div>
-				<div class="form-customer">
+                </div>
+                <div class="uk-padding-small">
                     {{ job_form.customer.errors }}
                     <span class="customer-label">{{ job_form.customer.label_tag }}</span>
                     <span class="customer-input">{{ job_form.customer }}</span>
-				</div>
-				<div class="form-machine">
+                </div>
+                <div class="uk-padding-small">
                     {{ job_form.machine.errors }}
                     <span class="machine-label">{{ job_form.machine.label_tag }}</span>
                     <span class="machine-input">{{ job_form.machine }}</span>
-				</div>
-				<div class="form-due-date">
+                </div>
+                <div class="uk-padding-small">
                     {{ job_form.due_date.errors }}
                     <span class="due-date-label">{{ job_form.due_date.label_tag }}</span>
                     <span class="due-date-input">{{ job_form.due_date }}</span>
-				</div>
-				<div class="form-add-tools">
+                </div>
+                <div class="uk-padding-small">
                     {{ job_form.add_tools.errors }}
                     <span class="add-tools-label">{{ job_form.add_tools.label_tag }}</span>
                     <span class="add-tools-input">{{ job_form.add_tools }}</span>
-				</div>
-				<button type="submit">Save</button>
-				<a href="{% url 'list:priority-list' %}">Cancel</a>
-			</form>
-		{% endif %}
+                </div>
+                <button class="uk-button uk-button-primary" type="submit">Save</button>
+                <a class="uk-button uk-button-secondary uk-float-right" href="{% url 'list:priority-list' %}">Cancel</a>
+            </form>
+        </div>
 	</div>
 {% endblock body %}

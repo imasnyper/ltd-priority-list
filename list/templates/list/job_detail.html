@@ -5,24 +5,13 @@
     <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>
 {% endblock %}
 {% block body %}
-    <div class="flex-container">
-        <div class="job-detail">
-            <div>
-                <span class="bold">Job Number: </span>
-                {{ job.job_number }}
-            </div>
-            <div>
-                <span class="bold">Description: </span>
+    <br/>
+    <div class="uk-container uk-inline uk-width-1-1">
+        <div class="uk-card uk-width-large uk-align-center">
+            <h1 class="uk-card-title">{{ job.customer.name|title }} {{ job.job_number }}</h1>
+            <p>
                 {{ job.description|title }}
-            </div>
-            <div>
-                <span class="bold">Customer: </span>
-                {{ job.customer.name|title }}
-            </div>
-            <div>
-                <span class="bold">Date Added: </span>
-                {{ job.date_added }}
-            </div>
+            </p>
             <div>
                 <span class="bold">Due Date: </span>
                 {{ job.due_date }}
@@ -36,15 +25,18 @@
                 {% endif %}
             </div>
             <div>
-                <span class="bold">Add Tools: </span>
+                <span class="bold">Tools to Add: </span>
                 {% if job.add_tools %}
-                    &#10004;
+                    <span uk-icon="check"></span>
                 {% else %}
-                    &#10006;
+                    <span uk-icon="close"></span>
                 {% endif %}
             </div>
-            <a href="{% url 'list:edit' job.pk %}">Edit Job</a>
-            <a href="{% url 'list:archive' job.pk %}">Job Finished</a>
+            <br/>
+            <a class="uk-button uk-button-default" href="{% url 'list:edit' job.pk %}"><span uk-icon="file-edit"></span>
+                Edit Job</a>
+            <a class="uk-button uk-button-danger uk-float-right" href="{% url 'list:archive' job.pk %}"><span
+                    uk-icon="trash"></span> Job Finished</a>
         </div>
     </div>
 {% endblock %}

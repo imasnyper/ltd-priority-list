@@ -3,42 +3,42 @@ table {
     border-spacing: 0;
 }
 
-.delete-form, .sort-up-link, .sort-down-link, .edit-link {
-	display: inline-block;
-	width: 15px;
-	height: 15px;
-}
+/*.delete-form, .sort-up-link, .sort-down-link, .edit-link {*/
+/*	display: inline-block;*/
+/*	width: 15px;*/
+/*	height: 15px;*/
+/*}*/
 
-.delete-button, .sort-up-button, .sort-down-button, .sort-up-button-placeholder, .edit-button {
-	width: 15px;
-	height: 15px;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	border: none;
-	padding: 0;
-	margin: 0;
-	background-color: rgba(0,0,0,0);
-	background-size: cover;
-	cursor: pointer;
-}
+/*.delete-button, .sort-up-button, .sort-down-button, .sort-up-button-placeholder, .edit-button {*/
+/*	width: 15px;*/
+/*	height: 15px;*/
+/*	-webkit-appearance: none;*/
+/*	-moz-appearance: none;*/
+/*	appearance: none;*/
+/*	border: none;*/
+/*	padding: 0;*/
+/*	margin: 0;*/
+/*	background-color: rgba(0,0,0,0);*/
+/*	background-size: cover;*/
+/*	cursor: pointer;*/
+/*}*/
 
-.sort-up-button-placeholder {
-	cursor: default;
-}
+/*.sort-up-button-placeholder {*/
+/*	cursor: default;*/
+/*}*/
 
-.sort-up-button {
-	background-image: url('img/sort-up.svg');
-}
+/*.sort-up-button {*/
+/*	background-image: url('img/sort-up.svg');*/
+/*}*/
 
-.sort-down-button {
-	background-image: url('img/sort-down.svg');
-}
+/*.sort-down-button {*/
+/*	background-image: url('img/sort-down.svg');*/
+/*}*/
 
-.delete-button {
-	background-image: url('img/icon-deletelink.svg');
-}
+/*.delete-button {*/
+/*	background-image: url('img/icon-deletelink.svg');*/
+/*}*/
 
-.edit-button {
-	background-image: url('img/icon-changelink.svg');
-}
+/*.edit-button {*/
+/*	background-image: url('img/icon-changelink.svg');*/
+/*}*/

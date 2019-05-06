@@ -1,5 +1,4 @@
 from django import forms
-from django.conf import settings
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -23,11 +22,12 @@ class RelatedFieldWidgetCanAdd(forms.widgets.Select):
 
     def render(self, name, value, *args, **kwargs):
         related_url = reverse_lazy(self.related_url)
-        output = [super(RelatedFieldWidgetCanAdd, self).render(
-            name, value, *args, **kwargs),
-            '<a href="%s" class="add-another" id="add_id_%s" onclick="return showAddAnotherPopup(this);"> ' %
-            (related_url, name), '<img src="%slist/img/icon-addlink.svg" width="15" height="15" alt="%s"/></a>' %
-            (settings.STATIC_URL, 'Add Another')]
+        output = [
+            super(RelatedFieldWidgetCanAdd, self).render(name, value, *args, **kwargs),
+            '<a href="%s" class="add-another uk-link-reset" id="add_id_%s" onclick="return showAddAnotherPopup(this);"> ' % (
+            related_url, name),
+            '<span class="uk-text-success" uk-icon="plus"></span></a>'
+        ]
         return mark_safe(''.join(output))
 
 
@@ -35,7 +35,7 @@ class JobForm(forms.ModelForm):
     customer = forms.ModelChoiceField(
         required=True,
         queryset=Customer.objects.all(),
-        widget=RelatedFieldWidgetCanAdd(Customer, attrs={'class': 'uk-select'})
+        widget=RelatedFieldWidgetCanAdd(Customer, attrs={'class': 'uk-select uk-form-width-large'})
     )
     job_number = forms.CharField(
         label="Job Number:",
@@ -43,16 +43,18 @@ class JobForm(forms.ModelForm):
             attrs={'min': 1000, 'max': 9999, 'type': 'number', 'class': 'uk-input'}))
     due_date = forms.DateField(
         label="Due Date:",
-        widget=forms.widgets.DateInput(attrs={'type': 'date', 'class': 'uk-input'}),
+        widget=forms.widgets.DateInput(
+            attrs={'type': 'text', 'class': 'uk-input date-input', 'data-uk-datepicker': "{format: 'MM/DD/YYYY'}"}),
         required=False)
     machine = forms.ModelChoiceField(
         label="Machine:",
         required=False,
         queryset=Machine.objects.all(),
-        widget=forms.widgets.Select(attrs={'type': 'uk-select'})
+        widget=forms.widgets.Select(attrs={'class': 'uk-select'})
     )
     add_tools = forms.BooleanField(
-        widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'})
+        widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'}),
+        required=False,
     )
     description = forms.CharField(
         widget=forms.widgets.TextInput(attrs={'class': 'uk-input'})

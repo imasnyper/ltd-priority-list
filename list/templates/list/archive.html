@@ -3,16 +3,22 @@
 {% block links %}
     <a class="button" href="{% url 'list:priority-list' %}">Priority List</a>
 {% endblock %}
+
+{% block archive_list_active %}
+    uk-active
+{% endblock %}
+
 {% block body %}
-    <div class="flex-container archive">
-        <table class="archive-table">
+    <div class="uk-container">
+        <h2 class="uk-text-center">Job Archive</h2>
+        <table class="uk-table-small uk-table-hover uk-table-middle">
             <thead>
             <tr>
                 <th>
 
                 </th>
-                <th>
-                    Job Number
+                <th class="uk-table-shrink uk-text-nowrap">
+                    Job #
                 </th>
                 <th>
                     Description
@@ -34,38 +40,38 @@
             <tbody>
             {% for job in jobs %}
                 <tr class="job-row">
-                    <td>
-                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                    <td class="uk-table-link">
+                        <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
                             {{ page_obj.start_index|add:forloop.counter|add:"-1" }}.
                         </a>
                     </td>
-                    <td>
-                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                    <td class="uk-table-link">
+                        <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
                             {{ job.job_number }}
                         </a>
                     </td>
-                    <td>
-                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                    <td class="uk-table-link">
+                        <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
                             {{ job.description|title }}
                         </a>
                     </td>
-                    <td>
-                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                    <td class="uk-table-link">
+                        <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
                             {{ job.customer.name|title }}
                         </a>
                     </td>
-                    <td>
-                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                    <td class="uk-table-link">
+                        <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
                             {{ job.machine.name|title }}
                         </a>
                     </td>
-                    <td>
-                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                    <td class="uk-table-link">
+                        <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
                             {{ job.date_added }}
                         </a>
                     </td>
-                    <td>
-                        <a href="{% url 'list:job-detail' job.pk %}" class="job-detail-link">
+                    <td class="uk-table-link">
+                        <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
                             {{ job.datetime_completed }}
                         </a>
                     </td>
@@ -74,25 +80,26 @@
             </tbody>
         </table>
         {% if is_paginated %}
-            <div class="pagination">
+            <ul class="uk-pagination uk-flex-center">
                 {% if page_obj.has_previous %}
-                    <div><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></div>
+                    <li><a href="?page={{ page_obj.previous_page_number }}"><span uk-pagination-previous></span></a>
+                    </li>
                 {% else %}
-                    <div class="disabled"><span>&laquo;</span></div>
+                    <div class="uk-disabled"><a href="#"><span uk-pagination-previous></span></a></div>
                 {% endif %}
                 {% for i in paginator.page_range %}
                     {% if page_obj.number == i %}
-                        <div class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></div>
+                        <li class="uk-active"><span>{{ i }}</span></li>
                     {% else %}
-                        <div><a href="?page={{ i }}">{{ i }}</a></div>
+                        <li><a href="?page={{ i }}">{{ i }}</a></li>
                     {% endif %}
                 {% endfor %}
                 {% if page_obj.has_next %}
-                    <div><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></div>
+                    <li><a href="?page={{ page_obj.next_page_number }}"><span uk-pagination-next></span></a></li>
                 {% else %}
-                    <div class="disabled"><span>&raquo;</span></div>
+                    <li class="uk-disabled"><a href="#"><span uk-pagination-next></span></a></li>
                 {% endif %}
-            </div>
+            </ul>
         {% endif %}
     </div>
 {% endblock body %}

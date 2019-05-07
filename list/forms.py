@@ -24,8 +24,7 @@ class RelatedFieldWidgetCanAdd(forms.widgets.Select):
         related_url = reverse_lazy(self.related_url)
         output = [
             super(RelatedFieldWidgetCanAdd, self).render(name, value, *args, **kwargs),
-            '<a href="%s" class="add-another uk-link-reset" id="add_id_%s" onclick="return showAddAnotherPopup(this);"> ' % (
-            related_url, name),
+            '<a href="#" uk-toggle="target: #form-modal-customer">',
             '<span class="uk-text-success" uk-icon="plus"></span></a>'
         ]
         return mark_safe(''.join(output))
@@ -67,6 +66,9 @@ class JobForm(forms.ModelForm):
 
 
 class CustomerForm(forms.ModelForm):
+    name = forms.CharField(
+        widget=forms.widgets.TextInput(attrs={'class': 'uk-input'})
+    )
 
     class Meta:
         model = Customer

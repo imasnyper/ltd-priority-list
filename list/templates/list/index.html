@@ -138,6 +138,26 @@
                             </form>
                         </div>
                     </div>
+                    <div id="form-modal-customer" uk-modal>
+                        <div class="uk-modal-dialog uk-modal-body">
+                            <button class="uk-modal-close-default" type="button" uk-close></button>
+                            <div class="uk-modal-header">
+                                <h3 class="uk-modal-title">Add New Customer</h3>
+                            </div>
+                            <form action="{% url 'list:add_customer' %}?next={{ next_url }}?cust={{ current_customer }}"
+                                  method="POST">
+                                {% csrf_token %}
+                                {{ customer_form.non_field_errors }}
+                                {{ customer_form.name.errors }}
+                                {{ customer_form.name.label_tag }}
+                                {{ customer_form.name }}
+                                <br/>
+                                <br/>
+                                <input class="uk-button uk-button-primary uk-float-right" id="customer_add"
+                                       type="submit" value="Save">
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         {% endfor %}

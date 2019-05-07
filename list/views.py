@@ -28,6 +28,7 @@ class PriorityListView(ListView):
 
         context['customers'] = Customer.objects.all().order_by("name")
         context['form'] = JobForm(auto_id="")
+        context['customer_form'] = CustomerForm()
         return context
 
 

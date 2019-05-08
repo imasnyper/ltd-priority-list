@@ -1,0 +1,19 @@
+{% extends 'list/base.html' %}
+
+{% block content %}
+    {% for vacation in vacation_list %}
+        <ul>
+            <ul>
+                <li>
+                    {{ vacation.user }}
+                </li>
+                <li>
+                    {{ vacation.start_date }}
+                </li>
+                <li>
+                    {{ vacation.end_date }}
+                </li>
+            </ul>
+        </ul>
+    {% endfor %}
+{% endblock content %}

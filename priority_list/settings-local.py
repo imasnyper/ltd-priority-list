@@ -31,6 +31,7 @@ DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 INSTALLED_APPS = [
     'list',
+    'vacation_calendar',
     'ordered_model',
     'django.contrib.admin',
     'django.contrib.auth',

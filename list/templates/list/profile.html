@@ -4,11 +4,17 @@
     <a class="button" href="{% url 'list:priority-list' %}">Priority List</a>
     <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>
 {% endblock links %}
-{% block body %}
-    {{ profile }}
-    <ul>
-        {% for machine in profile.machines.all %}
-            <li>{{ machine.name }}</li>
-        {% endfor %}
-    </ul>
-{% endblock body %}
+{% block content %}
+    <div class="uk-container uk-inline uk-width-1-1">
+        <div class="uk-width-xlarge uk-align-center">
+            <h2 class="uk-heading-small">{{ profile.user.username|title }}</h2>
+            <p>Jobs Tracked for the Following Machines</p>
+            <ul class="uk-list">
+                {% for machine in profile.machines.all %}
+                    <li>{{ machine.name }}</li>
+                {% endfor %}
+            </ul>
+            <a href="{% url 'list:profile-edit' profile.id %}">Edit Profile</a>
+        </div>
+    </div>
+{% endblock content %}

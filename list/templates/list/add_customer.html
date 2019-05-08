@@ -4,7 +4,7 @@
     <a class="button" href="{% url 'list:priority-list' %}">Priority List</a>
     <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>
 {% endblock links %}
-{% block body %}
+{% block content %}
 	<div class="form center-form-container">
 		<h3>Add Customer</h3>
         <form action="{% url 'list:add_customer' %}?next={{ next_url }}?cust={{ current_customer }}" method="POST">
@@ -17,4 +17,4 @@
             <input id="customer_add" type="submit" value="Submit">
 		</form>
 	</div>
-{% endblock body %}
+{% endblock content %}

@@ -19,30 +19,32 @@
                 <li><a class="uk-text-large" href="{% url 'list:priority-list' %}">LT&D Priority List</a></li>
             </ul>
         </div>
-        <div class="uk-navbar-right">
-            <ul class="uk-navbar-nav">
-                <li class="{% block priority_list_active %}{% endblock %}"><a href="{% url 'list:priority-list' %}">Priority
-                    List</a></li>
-                <li class="{% block archive_list_active %}{% endblock %}"><a href="{% url 'list:archive-view' %}">Archive</a>
-                </li>
-                {% if user.is_authenticated %}
+        {% if user.is_authenticated %}
+            <div class="uk-navbar-right">
+                <ul class="uk-navbar-nav">
+                    <li class="{% block priority_list_active %}{% endblock %}"><a href="{% url 'list:priority-list' %}">Priority
+                        List</a></li>
+                    <li class="{% block archive_list_active %}{% endblock %}"><a href="{% url 'list:archive-view' %}">Archive</a>
+                    </li>
+
                     <li>
                         <a href="#">{{ user.username|title }}</a>
                         <div class="uk-navbar-dropdown">
                             <ul class="uk-nav uk-navbar-dropdown-nav">
                                 <li><a href="{% url 'list:profile' user.id %}">Profile</a></li>
                                 <li><a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a></li>
+                                <li><a href="{% url 'password_change' %}">Change Password</a></li>
                                 <li><a href="{% url 'logout' %}">Logout</a></li>
                             </ul>
                         </div>
                     </li>
-                {% endif %}
-            </ul>
-        </div>
+                </ul>
+            </div>
+        {% endif %}
     </nav>
 
-    {% block body %}
-    {% endblock body %}
+    {% block content %}
+    {% endblock content %}
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
             integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

@@ -4,7 +4,7 @@
     uk-active
 {% endblock %}
 
-{% block body %}
+{% block content %}
     {#    <div class="uk-container">#}
     <div class="uk-grid-small uk-grid-match" uk-grid>
         {% for machine in machines %}
@@ -144,7 +144,7 @@
                             <div class="uk-modal-header">
                                 <h3 class="uk-modal-title">Add New Customer</h3>
                             </div>
-                            <form action="{% url 'list:add_customer' %}?next={{ next_url }}?cust={{ current_customer }}"
+                            <form action="{% url 'list:add_customer' %}"
                                   method="POST">
                                 {% csrf_token %}
                                 {{ customer_form.non_field_errors }}
@@ -163,5 +163,5 @@
         {% endfor %}
     </div>
     {#    </div>#}
-{% endblock body %}
+{% endblock content %}
 {% block login %}{% endblock login %}

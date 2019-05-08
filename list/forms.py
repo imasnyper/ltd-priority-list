@@ -1,5 +1,4 @@
 from django import forms
-from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -21,7 +20,6 @@ class RelatedFieldWidgetCanAdd(forms.widgets.Select):
         self.related_url = related_url
 
     def render(self, name, value, *args, **kwargs):
-        related_url = reverse_lazy(self.related_url)
         output = [
             super(RelatedFieldWidgetCanAdd, self).render(name, value, *args, **kwargs),
             '<a href="#" uk-toggle="target: #form-modal-customer">',
@@ -91,5 +89,5 @@ class ProfileForm(forms.ModelForm):
             'machines': _("Select machines to display"),
         }
         widgets = {
-            'machines': forms.SelectMultiple(attrs={'size': "8"})
+            'machines': forms.SelectMultiple(attrs={'size': "8", 'class': 'uk-select'})
         }

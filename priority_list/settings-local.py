@@ -30,6 +30,7 @@ DEBUG = True
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 INSTALLED_APPS = [
+    'common',
     'list',
     'vacation_calendar',
     'ordered_model',
@@ -66,7 +67,9 @@ ROOT_URLCONF = 'priority_list.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

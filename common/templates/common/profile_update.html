@@ -1,10 +1,5 @@
-{% extends 'list/base.html' %}
+{% extends 'common/base.html' %}
 
-
-{% block links %}
-    <a class="button" href="{% url 'list:priority-list' %}">Priority List</a>
-    <a class="button" href="{% url 'list:archive-view' %}">Finished Jobs</a>
-{% endblock links %}
 {% block content %}
     <div class="uk-container uk-inline uk-width-1-1">
         <div class="uk-width-xlarge uk-align-center">

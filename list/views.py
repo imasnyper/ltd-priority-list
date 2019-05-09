@@ -154,7 +154,7 @@ def job_archive(request, pk):
 
 class ProfileView(UserPassesTestMixin, DetailView):
     model = Profile
-    template_name = "list/profile.html"
+    template_name = "common/profile.html"
 
     def test_func(self):
         user = get_object_or_404(User, pk=self.request.resolver_match.kwargs['pk'])
@@ -164,7 +164,7 @@ class ProfileView(UserPassesTestMixin, DetailView):
 class ProfileEditView(UserPassesTestMixin, UpdateView):
     model = Profile
     form_class = ProfileForm
-    template_name = "list/profile_update.html"
+    template_name = "common/profile_update.html"
 
     def test_func(self):
         user = get_object_or_404(User, pk=self.request.resolver_match.kwargs['pk'])

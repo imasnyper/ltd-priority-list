@@ -16,29 +16,19 @@
     <nav class="uk-navbar-container uk-text-bold" uk-navbar>
         <div class="uk-navbar-left">
             <ul class="uk-navbar-nav">
-                <li><a class="uk-text-large" href="{% url 'list:priority-list' %}">LT&D Priority List</a></li>
+                <li><a class="uk-text-large" href="{% url 'list:priority-list' %}">Priority List</a></li>
+                <li><a class="uk-text-large" href="{% url 'vacation:calendar' %}">Vacation Calendar</a></li>
+            </ul>
+        </div>
+        <div class="uk-navbar-center">
+            <ul class="uk-navbar-nav">
+                <li><a class="uk-text-large" href="{% url 'list:priority-list' %}">LT&D </a></li>
             </ul>
         </div>
         {% if user.is_authenticated %}
             <div class="uk-navbar-right">
-                <ul class="uk-navbar-nav">
-                    <li class="{% block priority_list_active %}{% endblock %}"><a href="{% url 'list:priority-list' %}">Priority
-                        List</a></li>
-                    <li class="{% block archive_list_active %}{% endblock %}"><a href="{% url 'list:archive-view' %}">Archive</a>
-                    </li>
-
-                    <li>
-                        <a href="#">{{ user.username|title }}</a>
-                        <div class="uk-navbar-dropdown">
-                            <ul class="uk-nav uk-navbar-dropdown-nav">
-                                <li><a href="{% url 'list:profile' user.id %}">Profile</a></li>
-                                <li><a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a></li>
-                                <li><a href="{% url 'password_change' %}">Change Password</a></li>
-                                <li><a href="{% url 'logout' %}">Logout</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                </ul>
+                {% block navbar-app-links %}
+                {% endblock navbar-app-links %}
             </div>
         {% endif %}
     </nav>

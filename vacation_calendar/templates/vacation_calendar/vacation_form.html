@@ -1,0 +1,9 @@
+{% extends 'vacation_calendar/vc_base.html' %}
+
+{% block content %}
+    <form class="uk-form" action="{% url 'vacation:add' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <button class="uk-button uk-button-primary uk-align-right" type="submit">Save</button>
+    </form>
+{% endblock content %}

@@ -1,4 +1,4 @@
-{% extends "list/base.html" %}
+{% extends "list/list_base.html" %}
 
 {% block priority_list_active %}
     uk-active
@@ -13,7 +13,7 @@
             {#                <div class=uk-child-width-expand@s" uk-grid>#}
             {#            {% endif %}#}
             <div class="uk-width-1-2">
-                <div class="uk-card uk-card-hover uk-card-small uk-card-default uk-card-body">
+                <div class="uk-card uk-card-small uk-card-default uk-card-body">
                     <div class="uk-card-title">
                         <h3>{{ machine.name }}</h3>
                     </div>
@@ -66,10 +66,9 @@
                                             <a href="{% url 'list:archive' job.pk %}"
                                                class="uk-link-reset uk-padding-remove" uk-icon="trash"></a>
                                         </td>
-                                        <td class="uk-padding-remove">
+                                        <td class="uk-padding-remove uk-text-warning">
                                             <a href="{% url 'list:edit' job.pk %}"
-                                               class="uk-link-reset uk-padding-remove" uk-icon="file-edit">
-                                                <div class="edit-button"></div>
+                                               class="uk-link-reset uk-padding-remove" uk-icon="pencil">
                                             </a>
                                         </td>
                                         <td class="uk-padding-remove">

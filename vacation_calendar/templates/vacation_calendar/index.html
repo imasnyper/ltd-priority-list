@@ -1,0 +1,41 @@
+{% extends 'vacation_calendar/vc_base.html' %}
+
+{% block content %}
+    <div class="uk-container">
+        {% if vacation_list|length > 0 %}
+            <div class="uk-grid">
+                {% regroup vacation_list by user as user_vacations %}
+                {% for user, u_vacation in user_vacations %}
+                    <div class="uk-card uk-card-small uk-card-default uk-card-body">
+                        <h1 class="uk-card-title">
+                            {{ user|title }} Vacation dates:
+                        </h1>
+                        {% for vacation in u_vacation %}
+                            <div>
+                            <span>
+                                {{ vacation.start_date }}
+                            </span>
+                                -
+                                <span>
+                                {{ vacation.end_date }}
+                            </span>
+                                <span>
+                                <a class="uk-link-reset" href="{% url 'vacation:edit' vacation.pk %}"><span
+                                        class="uk-text-warning" uk-icon="pencil"></span></a>
+                                <a class="uk-link-reset" href="#"
+                                   onclick="document.getElementById('edit_form_{{ vacation.pk }}').submit();"><span
+                                        class="uk-text-danger" uk-icon="trash"></span></a>
+                            </span>
+                            </div>
+                            <form class="uk-hidden" id="edit_form_{{ vacation.pk }}" method="post"
+                                  action="{% url 'vacation:delete' vacation.pk %}">{% csrf_token %}<input type="submit">
+                            </form>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No vacations currently scheduled</p>
+        {% endif %}
+    </div>
+{% endblock content %}

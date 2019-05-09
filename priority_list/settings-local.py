@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'list',
     'vacation_calendar',
     'ordered_model',
+    'schedule',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -81,6 +82,11 @@ TEMPLATES = [
             'debug': DEBUG,
         },
     },
+]
+
+TEMPLATE_CONTEXT_PROCESSORS = [
+    "django.template.context_processors.request",
+
 ]
 
 WSGI_APPLICATION = 'priority_list.wsgi.application'

@@ -25,7 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('list.urls')),
     path('vacation/', include('vacation_calendar.urls')),
-    path('vacations/', include('schedule.urls')),
+    path('vacations/', include('scheduler.urls')),
     path('accounts/login/', auth_views.LoginView.as_view(authentication_form=MyLoginForm), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('accounts/password_change/', auth_views.PasswordChangeView.as_view(form_class=MyPasswordChangeForm),

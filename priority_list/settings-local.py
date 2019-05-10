@@ -30,11 +30,6 @@ DEBUG = True
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 INSTALLED_APPS = [
-    'common',
-    'list',
-    'vacation_calendar',
-    'ordered_model',
-    'schedule',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,6 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'django_extensions',
+    'common',
+    'list',
+    'vacation_calendar',
+    'ordered_model',
+    'scheduler',
 ]
 
 MIDDLEWARE = [

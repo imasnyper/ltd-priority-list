@@ -31,10 +31,6 @@ DEBUG = False
 # Application definition
 
 INSTALLED_APPS = [
-    'common',
-    'list',
-    'vacation_calendar',
-    'ordered_model',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +41,10 @@ INSTALLED_APPS = [
     # http://whitenoise.evans.io/en/stable/django.html#using-whitenoise-in-development
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
+    'common',
+    'list',
+    'vacation',
+    'ordered_model',
 ]
 
 MIDDLEWARE = [

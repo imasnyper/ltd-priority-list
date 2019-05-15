@@ -8,16 +8,16 @@
     <br/>
     <div class="uk-container uk-inline uk-width-1-1">
         <div class="uk-card uk-width-large uk-align-center">
-            <h1 class="uk-card-title">{{ job.customer.name|title }} {{ job.job_number }}</h1>
+            <h1 class="uk-card-title uk-text-bold">{{ job.customer.name|title }} {{ job.job_number }}</h1>
             <p>
                 {{ job.description|title }}
             </p>
             <div>
-                <span class="bold">Due Date: </span>
+                <span class="uk-text-bold">Due Date: </span>
                 {{ job.due_date }}
             </div>
             <div>
-                <span class="bold">Completed: </span>
+                <span class="uk-text-bold">Completed: </span>
                 {% if job.datetime_completed %}
                     {{ job.datetime_completed }}
                 {% else %}
@@ -25,17 +25,25 @@
                 {% endif %}
             </div>
             <div>
-                <span class="bold">Tools to Add: </span>
+                <span class="uk-text-bold">Tools to Add: </span>
                 {% if job.add_tools %}
                     <span uk-icon="check"></span>
                 {% else %}
                     <span uk-icon="close"></span>
                 {% endif %}
+                <div>
+                    <span class="uk-text-bold">Job Active?: </span>
+                    {% if job.active %}
+                        <span uk-icon="check"></span>
+                    {% else %}
+                        <span uk-icon="close"></span>
+                    {% endif %}
             </div>
             <br/>
             <a class="uk-button uk-button-default" href="{% url 'list:edit' job.pk %}"><span uk-icon="file-edit"></span>
                 Edit Job</a>
-            <a class="uk-button uk-button-danger uk-float-right" href="{% url 'list:archive' job.pk %}"><span
+                {# TODO: add url to unarchive a job, and show the correct button based on whether it's active or not.#}
+                <a class="uk-button uk-button-danger uk-float-right" href="{% url 'list:archive' job.pk %}"><span
                     uk-icon="trash"></span> Job Finished</a>
         </div>
     </div>

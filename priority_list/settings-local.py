@@ -30,10 +30,6 @@ DEBUG = True
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 INSTALLED_APPS = [
-    'common',
-    'list',
-    'vacation_calendar',
-    'ordered_model',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,6 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'django_extensions',
+    'common',
+    'list',
+    'vacation',
+    'ordered_model',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +81,11 @@ TEMPLATES = [
             'debug': DEBUG,
         },
     },
+]
+
+TEMPLATE_CONTEXT_PROCESSORS = [
+    "django.template.context_processors.request",
+
 ]
 
 WSGI_APPLICATION = 'priority_list.wsgi.application'

@@ -101,7 +101,7 @@ class CustomerCreate(CreateView):
 class JobUpdate(UpdateView):
     model = Job
     fields = ['add_tools', 'job_number', 'description', 'due_date', 'customer',
-              'machine']
+              'machine', 'active']
     success_url = reverse_lazy("list:priority-list")
     template_name_suffix = "_update_form"
 
@@ -115,7 +115,8 @@ class JobUpdate(UpdateView):
                                        'description': job.description,
                                        'due_date': job.due_date,
                                        'customer': job.customer.id,
-                                       'machine': job.machine.id})
+                                       'machine': job.machine.id,
+                                       'active': job.active})
         return context
 
 
@@ -141,7 +142,6 @@ def job_archive(request, pk):
     job = get_object_or_404(Job, pk=pk)
 
     job.active = False
-    job.to(999)
     job.save()
 
     return redirect(reverse("list:priority-list"))

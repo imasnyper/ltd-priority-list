@@ -44,9 +44,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'common',
     'list',
-    'vacation_calendar',
+    'vacation',
     'ordered_model',
-    'scheduler',
 ]
 
 MIDDLEWARE = [

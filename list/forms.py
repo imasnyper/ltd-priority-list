@@ -56,11 +56,16 @@ class JobForm(forms.ModelForm):
     description = forms.CharField(
         widget=forms.widgets.TextInput(attrs={'class': 'uk-input'})
     )
+    active = forms.BooleanField(
+        widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'}),
+        required=False,
+        initial=True
+    )
 
     class Meta:
         model = Job
         fields = ['job_number', 'description',
-                  'customer', 'machine', 'due_date', 'add_tools']
+                  'customer', 'machine', 'due_date', 'add_tools', 'active']
 
 
 class CustomerForm(forms.ModelForm):

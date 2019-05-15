@@ -43,9 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'common',
     'list',
-    'vacation_calendar',
+    'vacation',
     'ordered_model',
-    'scheduler',
 ]
 
 MIDDLEWARE = [

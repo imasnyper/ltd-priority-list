@@ -9,7 +9,7 @@
     <br/>
     <div class="uk-container uk-inline uk-width-1-1">
         <div class="uk-card uk-width-xlarge uk-align-center">
-            <form class="edit-job-form uk-padding-small" action="{% url 'list:edit' job.pk %}" method="post">
+            <form class="edit-job-form uk-padding-small" action="{% url 'list:edit' pk=job.pk %}" method="post">
                 {% csrf_token %}
                 {{ job_form.non_field_errors }}
                 <div class="uk-padding-small">
@@ -41,6 +41,11 @@
                     {{ job_form.add_tools.errors }}
                     <span class="add-tools-label">{{ job_form.add_tools.label_tag }}</span>
                     <span class="add-tools-input">{{ job_form.add_tools }}</span>
+                </div>
+                <div class="uk-padding-small">
+                    {{ job_form.active.errors }}
+                    <span class="active-label">{{ job_form.active.label_tag }}</span>
+                    <span class="active-input">{{ job_form.active }}</span>
                 </div>
                 <button class="uk-button uk-button-primary" type="submit">Save</button>
                 <a class="uk-button uk-button-secondary uk-float-right" href="{% url 'list:priority-list' %}">Cancel</a>

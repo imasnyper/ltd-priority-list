@@ -54,7 +54,7 @@ class Job(OrderedModel):
     due_date = models.DateField(blank=True, null=True)
     datetime_completed = models.DateTimeField(default=None, blank=True, null=True)
     order_with_respect_to = 'machine'
-    active = models.BooleanField(blank=True, null=True, default=True)
+    active = models.BooleanField(blank=True, default=True)
 
     def get_absolute_url(self):
         return reverse("list:job-detail", args=[self.pk])
@@ -81,6 +81,8 @@ class Job(OrderedModel):
 
         if not self.active:
             self.datetime_completed = timezone.now()
+        else:
+            self.datetime_completed = None
 
         super().save(*args, **kwargs)
 
@@ -111,6 +113,12 @@ class Job(OrderedModel):
                     order += 1
             except Job.DoesNotExist:
                 pass
+
+        else:
+            ordering_queryset = self.get_ordering_queryset(Job.objects.filter(active=True).filter(machine=self.machine))
+
+            for i, job in enumerate(ordering_queryset):
+                job.to(i)
 
     class Meta(OrderedModel.Meta):
 

@@ -1,0 +1,30 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block navbar-app-links %}
+    <ul class="uk-navbar-nav">
+        <li>
+            <a href="{% url 'vacation:add' %}">Add Vacation</a>
+        </li>
+        <li>
+            <a href="#">{{ user.username|title }}</a>
+            <div class="uk-navbar-dropdown">
+                <ul class="uk-nav uk-navbar-dropdown-nav">
+                    <li><a href="{% url 'list:profile' user.id %}">Profile</a></li>
+                    <li><a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a></li>
+                    <li><a href="{% url 'password_change' %}">Change Password</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </li>
+    </ul>
+{% endblock navbar-app-links %}
+
+{% block extra_extra_head %}
+    <link rel="stylesheet" href="{% static 'vacation/style.css' %}"/>
+{% endblock extra_extra_head %}
+{% block extra_scripts %}
+    <script src="{% static 'vacation/script.js' %}"></script>
+{% endblock extra_scripts %}
+{% block content %}
+{% endblock content %}

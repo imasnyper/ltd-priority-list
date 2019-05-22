@@ -1,0 +1,17 @@
+{% extends 'vacation/vc_base.html' %}
+
+{% block content %}
+    <div class="uk-container uk-width-1-1 uk-inline">
+        <div class="uk-card uk-card-body uk-align-center uk-width-1-3">
+            <div class="uk-card-title">
+                {{ vacation.user.username|title }}'s Vacation
+            </div>
+            <p>Start Date: {{ vacation.start_date }}</p>
+            <p>End Date: {{ vacation.end_date }}</p>
+            <a class="uk-button uk-button-default" href="{% url 'vacation:edit' vacation.pk %}">Edit <span
+                    uk-icon="pencil"></span></a>
+            <a class="uk-button uk-button-danger" href="{% url 'vacation:delete' vacation.pk %}">Delete <span
+                    uk-icon="trash"></span></a>
+        </div>
+    </div>
+{% endblock content %}

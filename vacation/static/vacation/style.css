@@ -1,0 +1,47 @@
+/*table > tbody > tr > td{*/
+/*    border: 1px solid black;*/
+/*}*/
+
+.calendar-event {
+    background-color: #1e87f0;
+    color: #fff;
+    width: 100%;
+    padding: 2px;
+    min-height: 28px;
+    text-align: center;
+    margin: 5px 0 5px 0;
+}
+
+.multi-day-start {
+    border-radius: 14px 0 0 14px;
+    margin: 5px 0 5px 30px;
+}
+
+.multi-day-end {
+    border-radius: 0 14px 14px 0;
+}
+
+.single-day-event {
+    border-radius: 14px;
+    margin: 5px 0 5px 30px;
+}
+
+table > tbody > tr > td > ul {
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+}
+
+table > tbody > tr > td > ul > li {
+    list-style: none;
+    display: flex;
+}
+
+table > tbody > tr > td > ul > li > a {
+    color: #fff !important;
+}
+
+table > tbody > tr > td > ul > li > a:hover {
+    text-decoration: none;
+    color: #fff !important;
+}

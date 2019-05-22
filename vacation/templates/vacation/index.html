@@ -1,0 +1,18 @@
+{% extends 'vacation/vc_base.html' %}
+
+{% block content %}
+    <div class="uk-container">
+        <br/>
+        <div>
+            <span><a class="uk-button uk-button-default" href="{{ prev_month }}"><span
+                    uk-icon="chevron-left"></span></a></span>
+            <span><a class="uk-button uk-button-default" href="{{ next_month }}"><span
+                    uk-icon="chevron-right"></span></a></span>
+            <span><a class="uk-button uk-button-default" href="{% url 'vacation:calendar' %}">Today</a></span>
+            <span><a class="uk-button uk-button-default uk-float-right" href="{% url 'vacation:add' %}">Add <span
+                    uk-icon="plus"></span></a></span>
+        </div>
+
+        {{ calendar }}
+    </div>
+{% endblock content %}

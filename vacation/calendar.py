@@ -1,6 +1,6 @@
 from calendar import HTMLCalendar
 
-from .models import Vacation
+from vacation.models import Vacation
 
 
 class VacationCalendar(HTMLCalendar):

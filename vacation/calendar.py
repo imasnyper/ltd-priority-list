@@ -53,7 +53,7 @@ class VacationCalendar(HTMLCalendar):
         return f"<tr>{s}</tr>"
 
     def formatmonth(self, theyear, themonth, withyear=True):
-        events = Vacation.objects.filter(start_date__month__gte=themonth).filter(end_date__month__lte=themonth)
+        events = Vacation.objects.filter(start_date__month__gte=themonth)
 
         table = []
         a = table.append

@@ -20,7 +20,7 @@ class CalendarView(ListView):
         return Vacation.objects.order_by('start_date', 'user')
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(vacation_list=None, **kwargs)
+        context = super().get_context_data(**kwargs)
 
         cal = VacationCalendar()
         cal.setfirstweekday(calendar.SUNDAY)

@@ -60,6 +60,15 @@ class VacationAdd(CreateView):
     form_class = VacationForm
     success_url = reverse_lazy('vacation:calendar')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if "day" in self.kwargs.keys():
+            date = datetime.date(self.kwargs['year'], self.kwargs['month'], self.kwargs['day'])
+            context['form'] = VacationForm(data={'start_date': date})
+
+        return context
+
 
 class VacationEdit(UpdateView):
     model = Vacation

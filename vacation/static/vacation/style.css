@@ -1,7 +1,3 @@
-/*table > tbody > tr > td{*/
-/*    border: 1px solid black;*/
-/*}*/
-
 .calendar-event {
     background-color: #1e87f0;
     color: #fff;
@@ -10,6 +6,10 @@
     min-height: 28px;
     text-align: center;
     margin: 5px 0 5px 0;
+}
+
+.today {
+    font-weight: bold;
 }
 
 .multi-day-start {

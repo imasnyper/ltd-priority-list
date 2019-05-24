@@ -13,7 +13,7 @@ class Vacation(models.Model):
         return self.start_date == self.end_date
 
     def event_length_days(self):
-        return (self.end_date - self.start_date).days
+        return (self.end_date - self.start_date).days + 1
 
     def get_absolute_url(self):
         return reverse('vacation:detail', args=[self.pk])

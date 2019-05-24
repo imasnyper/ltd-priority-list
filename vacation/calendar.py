@@ -1,4 +1,8 @@
+import datetime
 from calendar import HTMLCalendar
+from operator import attrgetter, methodcaller
+
+from django.db.models import Q
 
 from vacation.models import Vacation
 
@@ -8,12 +12,15 @@ class VacationCalendar(HTMLCalendar):
         super().__init__()
         self.events = events
 
-    def formatday(self, day, weekday, events):
-        events_start_lte = events.filter(start_date__day__lte=day)
-        events_end_gte = events.filter(end_date__day__gte=day)
-        events_from_day = events_end_gte.intersection(events_start_lte)
-        events_from_day = events_from_day.order_by("start_date")
-        events_from_day = sorted(events_from_day, key=lambda x: x.event_length_days(), reverse=True)
+    def formatday(self, theyear, themonth, day, weekday, events):
+        if day == 0:
+            return '<td class="noday">&nbsp;</td>'
+
+        date = datetime.date(theyear, themonth, day)
+
+        events_from_day = events.filter(Q(start_date__lte=date) & Q(end_date__gte=date))
+        events_from_day = sorted(events_from_day, key=methodcaller('event_length_days'), reverse=True)
+        events_from_day = sorted(events_from_day, key=attrgetter("start_date"))
         events_html = "<ul>"
         for i, event in enumerate(events_from_day):
             # TODO
@@ -28,8 +35,8 @@ class VacationCalendar(HTMLCalendar):
                     events_html += f'<a class="calendar-event multi-day-start" href="{event.get_absolute_url()}">{event.user.username.title()}</a></br>'
                 else:
                     events_html += f'<a class="calendar-event multi-day-start" href="{event.get_absolute_url()}"></a><br>'
-            elif event.start_date.day < day < event.end_date.day:
-                middle = (event.start_date.day + event.end_date.day) // 2
+            elif event.start_date < date < event.end_date:
+                middle = event.event_length_days() // 2
                 if day == middle:
                     events_html += f'<a class="calendar-event multi-day-middle" href="{event.get_absolute_url()}">{event.user.username.title()}</a></br>'
                 else:
@@ -43,17 +50,16 @@ class VacationCalendar(HTMLCalendar):
             events_html += "</li>"
         events_html += "</ul>"
 
-        if day == 0:
-            return '<td class="noday">&nbsp;</td>'
-        else:
-            return f"<td valign='top' class='{self.cssclasses[weekday]}'>{day}{events_html}</td>"
+        return f"<td valign='top' class='{self.cssclasses[weekday]}'>{day}{events_html}</td>"
 
-    def formatweek(self, theweek, events):
-        s = ''.join(self.formatday(d, wd, events) for (d, wd) in theweek)
+    def formatweek(self, theyear, themonth, theweek, events):
+        s = ''.join(self.formatday(theyear, themonth, d, wd, events) for (d, wd) in theweek)
         return f"<tr>{s}</tr>"
 
     def formatmonth(self, theyear, themonth, withyear=True):
-        events = Vacation.objects.filter(start_date__month__gte=themonth)
+        events = Vacation.objects.filter(Q(start_date__month=themonth) | Q(end_date__month=themonth))
+
+
 
         table = []
         a = table.append
@@ -64,7 +70,7 @@ class VacationCalendar(HTMLCalendar):
         a(self.formatweekheader())
         a('\n')
         for week in self.monthdays2calendar(theyear, themonth):
-            a(self.formatweek(week, events))
+            a(self.formatweek(theyear, themonth, week, events))
             a('\n')
         # a("<\table>")
         a("\n")

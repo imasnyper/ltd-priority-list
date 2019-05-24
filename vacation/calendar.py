@@ -54,15 +54,9 @@ class VacationCalendar(HTMLCalendar):
         events_html += "</ul>"
 
         if date == today:
-            return f"<td valign='top' class='{self.cssclasses[weekday]}'><a href='{reverse('vacation:add',
-                                                                                           kwargs={'year': date.year,
-                                                                                                   'month': date.month,
-                                                                                                   'day': date.day})}' class='today'>{day}</a>{events_html}</td>"
+            return f"<td valign='top' class='{self.cssclasses[weekday]}'><a href='{reverse('vacation:add', kwargs={'year': date.year, 'month': date.month, 'day': date.day})}' class='today'>{day}</a>{events_html}</td>"
         else:
-            return f"<td valign='top' class='{self.cssclasses[weekday]}'><a href='{reverse('vacation:add',
-                                                                                           kwargs={'year': date.year,
-                                                                                                   'month': date.month,
-                                                                                                   'day': date.day})}'>{day}</a>{events_html}</td>"
+            return f"<td valign='top' class='{self.cssclasses[weekday]}'><a href='{reverse('vacation:add', kwargs={'year': date.year, 'month': date.month, 'day': date.day})}'>{day}</a>{events_html}</td>"
 
 
     def formatweek(self, theyear, themonth, theweek, events):

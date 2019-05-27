@@ -1,5 +1,5 @@
 import datetime
-from calendar import HTMLCalendar
+from calendar import HTMLCalendar, monthrange
 from operator import attrgetter, methodcaller
 
 from django.db.models import Q
@@ -19,6 +19,7 @@ class VacationCalendar(HTMLCalendar):
 
         date = datetime.date(theyear, themonth, day)
         today = datetime.date.today()
+        last_day_of_month = monthrange(theyear, themonth)[1]
 
         events_from_day = events.filter(Q(start_date__lte=date) & Q(end_date__gte=date))
         events_from_day = sorted(events_from_day, key=methodcaller('event_length_days'), reverse=True)
@@ -33,20 +34,20 @@ class VacationCalendar(HTMLCalendar):
             # event is a multi-day event and the start date is the same as the current day being rendered
             elif event.start_date.day == day:
                 if event.event_length_days() == 2 \
-                        or event.event_length_days() > 5:
+                        or event.event_length_days() > 5 or day == 1 or day == last_day_of_month:
                     events_html += f'<a class="calendar-event multi-day-start" href="{event.get_absolute_url()}">{event.user.username.title()}</a></br>'
                 else:
                     events_html += f'<a class="calendar-event multi-day-start" href="{event.get_absolute_url()}"></a><br>'
             elif event.start_date < date < event.end_date:
                 middle = event.event_length_days() // 2
                 middle_day = (event.start_date + datetime.timedelta(days=middle)).day
-                if day == middle_day:
+                if day == middle_day or day == 1 or day == last_day_of_month:
                     events_html += f'<a class="calendar-event multi-day-middle" href="{event.get_absolute_url()}">{event.user.username.title()}</a></br>'
                 else:
                     events_html += f'<a class="calendar-event multi-day-middle" href="{event.get_absolute_url()}"></a><br>'
             elif event.end_date.day == day:
                 if event.event_length_days() == 2 \
-                        or event.event_length_days() > 5:
+                        or event.event_length_days() > 5 or day == last_day_of_month or day == 1:
                     events_html += f'<a class="calendar-event multi-day-end" href="{event.get_absolute_url()}">{event.user.username.title()}</a></br>'
                 else:
                     events_html += f'<a class="calendar-event multi-day-end" href="{event.get_absolute_url()}"></a></br>'

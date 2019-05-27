@@ -46,7 +46,6 @@ class CalendarView(ListView):
         context['next_month'] = reverse('vacation:calendar',
                                         kwargs={'year': next_month.year, 'month': next_month.month})
 
-        html_calendar = html_calendar.replace('<td ', '<td height="150"')
         context['calendar'] = mark_safe(html_calendar)
         return context
 

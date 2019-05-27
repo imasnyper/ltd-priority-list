@@ -1,0 +1,12 @@
+{% extends 'vacation/vc_base.html' %}
+
+{% block content %}
+    <div class="uk-container uk-inline uk-width-1-1">
+        <form class="uk-align-center uk-width-1-4" method="post">
+            {% csrf_token %}
+            <p>Are you sure you want to delete {{ object.user.username|title }}'s Vacation from {{ object.start_date }} to {{ object.end_date }}?</p>
+            <input class="uk-button uk-button-danger" type="submit" value="Delete">
+            <a href="{% url 'vacation:calendar' %}" class="uk-button uk-button-default">Cancel</a>
+        </form>
+    </div>
+{% endblock content %}

@@ -18,6 +18,8 @@ class VacationCalendar(HTMLCalendar):
         if day == 0:
             return '<td class="noday">&nbsp;</td>'
 
+        empty_rows = 0
+
         date = datetime.date(theyear, themonth, day)
         today = datetime.date.today()
         last_day_of_month = monthrange(theyear, themonth)[1]
@@ -37,13 +39,14 @@ class VacationCalendar(HTMLCalendar):
             if event.id in self.event_dict:
                 order = self.event_dict[event.id]
             else:
-                self.event_dict[event.id] = i  # set the order for future days
+                self.event_dict[event.id] = i + empty_rows  # set the order for future days
                 order = 0  # order for this day stays the same. it will go directly below the previous event for the day
 
             # the the set order is different from the current loop order, add as many empty rows as required to make
             # the events line up when viewed side by side
-            if order != i:
+            if order != i + empty_rows:
                 for _ in range(order):
+                    empty_rows += 1
                     events_html += f"<tr><td><span class='calendar-event-hidden'>{event.user.username}</span></td></tr>"
 
             # event is a single day event

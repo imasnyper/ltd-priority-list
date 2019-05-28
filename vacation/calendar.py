@@ -1,9 +1,10 @@
 import datetime
-from calendar import HTMLCalendar, monthrange
+from calendar import HTMLCalendar, monthrange, month_name, day_abbr
 from operator import attrgetter, methodcaller
 
 from django.db.models import Q
 from django.urls import reverse
+from workalendar.america import Ontario
 
 from vacation.models import Vacation
 
@@ -23,6 +24,8 @@ class VacationCalendar(HTMLCalendar):
         date = datetime.date(theyear, themonth, day)
         today = datetime.date.today()
         last_day_of_month = monthrange(theyear, themonth)[1]
+        ontario = Ontario()
+        ontario_holidays = ontario.holidays(theyear)
 
         events_from_day = events.filter(Q(start_date__lte=date) & Q(end_date__gte=date))
         events_from_day = sorted(events_from_day, key=methodcaller('event_length_days'), reverse=True)
@@ -75,21 +78,36 @@ class VacationCalendar(HTMLCalendar):
                     events_html += f'<a class="calendar-event multi-day-end" href="{event.get_absolute_url()}"></a>'
             events_html += "</td></tr>"
 
+        holidays_html = ""
+
         string = f"<td height=150 valign='top' class='{self.cssclasses[weekday]}'>"
+
+        for d, holiday_name in ontario_holidays:
+            if date == d:
+                holidays_html = f"<span class='canada-holiday'>&nbsp;{holiday_name}</span>"
+                string = f"<td height=150 valign='top' class='holiday {self.cssclasses[weekday]}'>"
+
         string += "<table class='day-table'><tbody>"
-        string += "<tr><td>"
 
         if date == today:
+            string += "<tr><td class='today day-of-month'>"
             string += f"<a href='{reverse('vacation:add', kwargs={'year': date.year, 'month': date.month, 'day': date.day})}' class='today'>{day}</a>"
         else:
+            string += "<tr><td class='day-of-month'>"
             string += f"<a href='{reverse('vacation:add', kwargs={'year': date.year, 'month': date.month, 'day': date.day})}'>{day}</a>"
 
+        string += f"{holidays_html}"
         string += "</td></tr>"
         string += f"{events_html}"
         string += "</tbody></table></td>"
 
         return string
 
+    def formatweekday(self, day):
+        """
+        Return a weekday name as a table header.
+        """
+        return '<th class="%s-header">%s</th>' % (self.cssclasses[day], day_abbr[day])
 
     def formatweek(self, theyear, themonth, theweek, events):
         s = ''.join(self.formatday(theyear, themonth, d, wd, events) for (d, wd) in theweek)
@@ -101,6 +119,16 @@ class VacationCalendar(HTMLCalendar):
         """
         s = ''.join(self.formatweekday(i) for i in self.iterweekdays())
         return '<tr class="week-header">%s</tr>' % s
+
+    def formatmonthname(self, theyear, themonth, withyear=True):
+        """
+        Return a month name as a table row.
+        """
+        if withyear:
+            s = '%s %s' % (month_name[themonth], theyear)
+        else:
+            s = '%s' % month_name[themonth]
+        return '<tr><th colspan="7" class="month-name">%s</th></tr>' % s
 
     def formatmonth(self, theyear, themonth, withyear=True):
         events = Vacation.objects.filter(Q(start_date__month=themonth) | Q(end_date__month=themonth))

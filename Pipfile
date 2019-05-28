@@ -23,5 +23,6 @@ django-debug-toolbar = "*"
 django-extensions = "*"
 django-bower = "*"
 django-scheduler = "*"
+workalendar = "*"
 
 [dev-packages]

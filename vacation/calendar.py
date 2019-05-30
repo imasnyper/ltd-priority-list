@@ -1,5 +1,5 @@
 import datetime
-from calendar import HTMLCalendar, monthrange, month_name, day_abbr
+from calendar import HTMLCalendar, monthrange, month_name, day_abbr, weekday
 from operator import attrgetter, methodcaller
 
 from django.db.models import Q
@@ -15,13 +15,14 @@ class VacationCalendar(HTMLCalendar):
         self.events = events
         self.event_dict = {}
 
-    def formatday(self, theyear, themonth, day, weekday, events):
+    def formatday(self, theyear, themonth, date, events):
+        wday = weekday(date.year, date.month, date.day)
+        day = date.day
         if day == 0:
             return '<td class="noday">&nbsp;</td>'
 
         empty_rows = 0
 
-        date = datetime.date(theyear, themonth, day)
         today = datetime.date.today()
         last_day_of_month = monthrange(theyear, themonth)[1]
         ontario = Ontario()
@@ -33,7 +34,7 @@ class VacationCalendar(HTMLCalendar):
         events_html = ""
         for i, event in enumerate(events_from_day):
             # reset event_dict to empty at the beggining of each week
-            if weekday == 6:
+            if wday == 6:
                 self.event_dict = {}
 
             # check if the current event has been processed in a previous day this week
@@ -80,12 +81,15 @@ class VacationCalendar(HTMLCalendar):
 
         holidays_html = ""
 
-        string = f"<td height=150 valign='top' class='{self.cssclasses[weekday]}'>"
+        if date.month != themonth:
+            string = f"<td height=150 valign='top' class='noday {self.cssclasses[wday]}'>"
+        else:
+            string = f"<td height=150 valign='top' class='{self.cssclasses[wday]}'>"
 
         for d, holiday_name in ontario_holidays:
             if date == d:
                 holidays_html = f"<span class='canada-holiday'>&nbsp;{holiday_name}</span>"
-                string = f"<td height=150 valign='top' class='holiday {self.cssclasses[weekday]}'>"
+                string = f"<td height=150 valign='top' class='holiday {self.cssclasses[wday]}'>"
 
         string += "<table class='day-table'><tbody>"
 
@@ -110,7 +114,7 @@ class VacationCalendar(HTMLCalendar):
         return '<th class="%s-header">%s</th>' % (self.cssclasses[day], day_abbr[day])
 
     def formatweek(self, theyear, themonth, theweek, events):
-        s = ''.join(self.formatday(theyear, themonth, d, wd, events) for (d, wd) in theweek)
+        s = ''.join(self.formatday(theyear, themonth, date, events) for date in theweek)
         return f"<tr>{s}</tr>"
 
     def formatweekheader(self):
@@ -143,7 +147,7 @@ class VacationCalendar(HTMLCalendar):
         a('\n')
         a(self.formatweekheader())
         a('\n')
-        for week in self.monthdays2calendar(theyear, themonth):
+        for week in self.monthdatescalendar(theyear, themonth):
             a(self.formatweek(theyear, themonth, week, events))
             a('\n')
         # a("<\table>")

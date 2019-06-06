@@ -114,12 +114,6 @@ class Job(OrderedModel):
             except Job.DoesNotExist:
                 pass
 
-        else:
-            ordering_queryset = self.get_ordering_queryset(Job.objects.filter(active=True).filter(machine=self.machine))
-
-            for i, job in enumerate(ordering_queryset):
-                job.to(i)
-
     class Meta(OrderedModel.Meta):
 
         pass

@@ -135,7 +135,10 @@ class VacationCalendar(HTMLCalendar):
         return '<tr><th colspan="7" class="month-name">%s</th></tr>' % s
 
     def formatmonth(self, theyear, themonth, withyear=True):
-        events = Vacation.objects.filter(Q(start_date__month=themonth) | Q(end_date__month=themonth))
+        if self.events:
+            events = self.events
+        else:
+            events = Vacation.objects.filter(Q(start_date__month=themonth) | Q(end_date__month=themonth))
 
 
 

@@ -140,8 +140,6 @@ class VacationCalendar(HTMLCalendar):
         else:
             events = Vacation.objects.filter(Q(start_date__month=themonth) | Q(end_date__month=themonth))
 
-
-
         table = []
         a = table.append
         a("<table border='0' cellpadding='0' cellspacing='0' class='month'>")

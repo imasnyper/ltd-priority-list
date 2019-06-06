@@ -84,6 +84,13 @@ class Job(OrderedModel):
         else:
             self.datetime_completed = None
 
+        if old_job is not None:
+            if old_job.active and not self.active:
+                smooth_ordering(old_job)
+            elif not old_job.active and self.active:
+                order = Job.objects.filter(active=True, machine=self.machine).count()
+                self.order = order
+
         super().save(*args, **kwargs)
 
         # if old_job == None:
@@ -104,15 +111,8 @@ class Job(OrderedModel):
             # being moved to.
             self.bot()
 
-            try:
-                # If there were objects after the instance in the OLD subset, move them up in the order by 1 each
-                order = old_job.order + 1
-                while True:
-                    job = Job.objects.get(machine=old_job.machine, order=order)
-                    job.to(order - 1)
-                    order += 1
-            except Job.DoesNotExist:
-                pass
+            # If there were objects after the instance in the OLD subset, move them up in the order by 1 each
+            smooth_ordering(old_job)
 
     class Meta(OrderedModel.Meta):
 
@@ -132,6 +132,22 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username}"
 
+
+def smooth_ordering(instance):
+    """
+    move every job after the given instance up by 1 in the ordering
+    :param instance: the instance that changed machines or was archived
+    :return: None
+    """
+    # If there were objects after the instance in the OLD subset, move them up in the order by 1 each
+    order = instance.order + 1
+    try:
+        while True:
+            job = Job.objects.get(machine=instance.machine, order=order)
+            job.to(order - 1)
+            order += 1
+    except Job.DoesNotExist:
+        pass
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

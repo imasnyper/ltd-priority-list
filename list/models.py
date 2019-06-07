@@ -59,15 +59,33 @@ class Job(OrderedModel):
     def get_absolute_url(self):
         return reverse("list:job-detail", args=[self.pk])
 
-    def bot(self):
-        # Looks for the max value for 'order' in a given subset, or -1(we add 1 before assigning the value)
-        # if the subset is empty
+    def _find_max_order(self, exclude_self=False):
+        """
+        get the max order for the ordering_queryset
+        :return: int - max order
+        """
         oq = self.get_ordering_queryset()
-        last = (oq
-                .exclude(id=self.id)
-                .aggregate(Max('order'))
-                .get('order__max')
-                or -1)
+        if exclude_self:
+            last = (oq
+                    .aggregate(Max('order'))
+                    .get('order__max')
+                    or -1)
+        else:
+            last = (oq
+                    .exclude(id=self.id)
+                    .aggregate(Max('order'))
+                    .get('order__max')
+                    or -1)
+        return last
+
+    def _bot(self):
+        """
+        find the max order of the destination ordering_queryset and set the instance order to one greater.
+        it this method does not change the order of any other instance in the set. meant to be used only
+        from within the save method for setting the order of an instance that just changed machines.
+        :return: None
+        """
+        last = self._find_max_order()
 
         self.order = last + 1
         self.save()
@@ -76,43 +94,36 @@ class Job(OrderedModel):
         # If this instance is being created for the first time, old instance won't exist
         try:
             old_job = Job.objects.get(id=self.pk)
+            super().save(*args, **kwargs)
+            self._save(old_job, *args, **kwargs)
         except Job.DoesNotExist:
-            old_job = None
+            super().save(*args, **kwargs)
 
-        if not self.active:
-            self.datetime_completed = timezone.now()
-        else:
-            self.datetime_completed = None
-
+    def _save(self, old_job, *args, **kwargs):
         if old_job is not None:
             if old_job.active and not self.active:
                 smooth_ordering(old_job)
+                self.datetime_completed = timezone.now()
+                super().save(*args, **kwargs)
             elif not old_job.active and self.active:
-                order = Job.objects.filter(active=True, machine=self.machine).count()
+                order = self._find_max_order(exclude_self=True) + 1
+                self.datetime_completed = None
                 self.order = order
+                super().save(*args, **kwargs)
 
-        super().save(*args, **kwargs)
+            if self.machine.pk != old_job.machine.pk:
+                # If machine changed, the instance is switching to a different subset,
+                # we need to send that instance to the bottom of that subset.
+                # NOTE: not overriding ordered_model's bottom method, since that uses the to() method
+                # to assign the order for the object, and that messes up the order of the machine the job is
+                # being moved to.
+                self._bot()
 
-        # if old_job == None:
-        #     with mail.get_connection() as c:
-        #         mail.EmailMessage(
-        #             f"Job {self.job_number} Added to Priority List for {self.machine.name}",
-        #             f"Job {self.job_number} has been added to the priority list for {self.machine.name}. View it here: https://priority-list.herokuapp.com{self.get_absolute_url()}.",
-        #             "New Job <postmaster@sandboxc3caeaf85ca14955bc3d4a1c3935c1f0.mailgun.org>",
-        #             ['danihaye@gmail.com', ],
-        #             connection=c,
-        #         ).send()
+                # If there were objects after the instance in the OLD subset, move them up in the order by 1 each
+                smooth_ordering(old_job)
 
-        if old_job is not None and self.machine.pk != old_job.machine.pk:
-            # If machine changed, the instance is switching to a different subset,
-            # we need to send that instance to the bottom of that subset.
-            # NOTE: not overriding ordered_model's bottom method, since that uses the to() method
-            # to assign the order for the object, and that messes up the order of the machine the job is
-            # being moved to.
-            self.bot()
+        # if old_job is not None:
 
-            # If there were objects after the instance in the OLD subset, move them up in the order by 1 each
-            smooth_ordering(old_job)
 
     class Meta(OrderedModel.Meta):
 

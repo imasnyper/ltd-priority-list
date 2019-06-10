@@ -24,5 +24,6 @@ django-extensions = "*"
 django-bower = "*"
 django-scheduler = "*"
 workalendar = "*"
+coverage = "*"
 
 [dev-packages]

@@ -59,23 +59,27 @@ class Job(OrderedModel):
     def get_absolute_url(self):
         return reverse("list:job-detail", args=[self.pk])
 
-    def _find_max_order(self, exclude_self=False):
+    def _find_max_order(self, include_self=False):
         """
         get the max order for the ordering_queryset
         :return: int - max order
         """
         oq = self.get_ordering_queryset()
-        if exclude_self:
+        if include_self:
             last = (oq
                     .aggregate(Max('order'))
                     .get('order__max')
-                    or -1)
+                    )
         else:
             last = (oq
                     .exclude(id=self.id)
                     .aggregate(Max('order'))
                     .get('order__max')
-                    or -1)
+                    )
+
+        if last is None:
+            last = -1
+
         return last
 
     def _bot(self):
@@ -106,7 +110,7 @@ class Job(OrderedModel):
                 self.datetime_completed = timezone.now()
                 super().save(*args, **kwargs)
             elif not old_job.active and self.active:
-                order = self._find_max_order(exclude_self=True) + 1
+                order = self._find_max_order(include_self=True)
                 self.datetime_completed = None
                 self.order = order
                 super().save(*args, **kwargs)
@@ -122,11 +126,7 @@ class Job(OrderedModel):
                 # If there were objects after the instance in the OLD subset, move them up in the order by 1 each
                 smooth_ordering(old_job)
 
-        # if old_job is not None:
-
-
     class Meta(OrderedModel.Meta):
-
         pass
 
     def __str__(self):

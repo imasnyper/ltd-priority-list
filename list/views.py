@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, reverse, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
@@ -19,16 +21,16 @@ class PriorityListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        try:
-            user = User.objects.get(id=self.request.user.id)
-            profile = get_object_or_404(Profile, user=user)
-            context['machines'] = profile.machines.all()
-        except User.DoesNotExist:
-            context['machines'] = Machine.objects.all()
 
+        user = get_object_or_404(User, id=self.request.user.id)
+        profile = get_object_or_404(Profile, user=user)
+
+        context['machines'] = profile.machines.all()
         context['customers'] = Customer.objects.all().order_by("name")
         context['form'] = JobForm(auto_id="")
         context['customer_form'] = CustomerForm()
+        context['debug'] = settings.DEBUG
+
         return context
 
 
@@ -58,12 +60,13 @@ class JobCreate(CreateView):
         context = super().get_context_data(**kwargs)
         context['machines'] = Machine.objects.all()
         context['customers'] = Customer.objects.all()
-        if kwargs['form'].is_bound:
-            context['active_machine'] = self.kwargs['machine_pk']
-            context['active_machine_form'] = context['form']
-            context['form'] = JobForm
-        else:
-            context['active_machine'] = None
+        if self.request.method == "POST":
+            if kwargs['form'].is_bound:
+                context['active_machine'] = self.kwargs['machine_pk']
+                context['active_machine_form'] = context['form']
+                context['form'] = JobForm
+            else:
+                context['active_machine'] = None
 
         return context
 
@@ -126,7 +129,7 @@ def job_sort_up(request, pk):
     job.up()
     job.save()
 
-    return redirect(reverse("list:priority-list"))
+    return HttpResponseRedirect(reverse("list:priority-list"))
 
 
 def job_sort_down(request, pk):
@@ -135,7 +138,7 @@ def job_sort_down(request, pk):
     job.down()
     job.save()
 
-    return redirect(reverse("list:priority-list"))
+    return HttpResponseRedirect(reverse("list:priority-list"))
 
 
 def job_archive(request, pk):

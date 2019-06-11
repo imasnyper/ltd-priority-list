@@ -67,11 +67,13 @@ class Job(OrderedModel):
         oq = self.get_ordering_queryset()
         if include_self:
             last = (oq
+                    .filter(active=True)
                     .aggregate(Max('order'))
                     .get('order__max')
                     )
         else:
             last = (oq
+                    .filter(active=True)
                     .exclude(id=self.id)
                     .aggregate(Max('order'))
                     .get('order__max')
@@ -110,9 +112,9 @@ class Job(OrderedModel):
                 self.datetime_completed = timezone.now()
                 super().save(*args, **kwargs)
             elif not old_job.active and self.active:
-                order = self._find_max_order(include_self=True)
+                order = self._find_max_order()
                 self.datetime_completed = None
-                self.order = order
+                self.order = order + 1
                 super().save(*args, **kwargs)
 
             if self.machine.pk != old_job.machine.pk:
@@ -154,7 +156,7 @@ def smooth_ordering(instance):
     order = instance.order + 1
     try:
         while True:
-            job = Job.objects.get(machine=instance.machine, order=order)
+            job = Job.objects.get(machine=instance.machine, order=order, active=True)
             job.to(order - 1)
             order += 1
     except Job.DoesNotExist:

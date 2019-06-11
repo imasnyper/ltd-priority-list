@@ -87,3 +87,29 @@ class JobModelTestCase(TestCase):
 
         self.assertListEqual(old_order_list, old_expected_list)
         self.assertListEqual(new_order_list, new_expected_list)
+
+
+class MachineModelTestCase(TestCase):
+    def setUp(self):
+        self.pin1 = Machine.objects.create(name="Pinnacle 1")
+        self.pin2 = Machine.objects.create(name="Pinnacle 2")
+        self.starvision = Machine.objects.create(name="Starvision")
+
+        self.c1 = Customer.objects.create(name="Custy 1")
+        self.c2 = Customer.objects.create(name="ABC Co.")
+
+        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
+        self.j2 = create_jobs(3, self.pin1, [self.c1, self.c2])
+        self.j3 = create_jobs(3, self.pin1, [self.c1, self.c2])
+
+    def test_active_jobs(self):
+        self.j3.active = False
+        self.j3.save()
+
+        self.assertListEqual(list(self.pin1.active_jobs()), list(Job.objects.filter(machine__pk=self.pin1.pk, active=True)))
+
+    def test_inactive_jobs(self):
+        self.j3.active = False
+        self.j3.save()
+
+        self.assertEqual(list(self.pin1.active_jobs()), list(Job.objects.filter(machine__pk=self.pin1.pk, active=True)))

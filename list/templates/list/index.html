@@ -45,7 +45,7 @@
                                         </td>
                                         <td class="uk-table-link">
                                             <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
-                                                {{ job.description|title }}
+                                                {{ job.description|title }}{% if debug %} - {{ job.order }}{% endif %}
                                             </a>
                                         </td>
                                         <td class="uk-table-link">

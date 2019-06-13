@@ -1,5 +1,6 @@
 from django.conf import settings
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, reverse, get_object_or_404
@@ -8,14 +9,14 @@ from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from list.forms import CustomerForm, JobForm, ProfileForm
+from list.forms import CustomerForm, JobForm, ProfileForm, JobSearchForm
 from list.models import Customer, Job, Machine, Profile
 
 
 # Create your views here.
 
 
-class PriorityListView(ListView):
+class PriorityListView(LoginRequiredMixin, ListView):
     model = Job
     template_name = "list/index.html"
 
@@ -34,23 +35,7 @@ class PriorityListView(ListView):
         return context
 
 
-class ArchiveView(ListView):
-    model = Job
-    template_name = "list/archive.html"
-    context_object_name = "jobs"
-    paginate_by = 10
-
-    def get_queryset(self):
-        user = get_object_or_404(User, id=self.request.user.id)
-        profile = get_object_or_404(Profile, user=user)
-
-        return Job.objects.all() \
-            .filter(active=False) \
-            .filter(machine__in=profile.machines.all()) \
-            .order_by("-datetime_completed")
-
-
-class JobCreate(CreateView):
+class JobCreate(LoginRequiredMixin, CreateView):
     model = Job
     success_url = reverse_lazy("list:priority-list")
     template_name = "list/index.html"
@@ -77,31 +62,11 @@ class JobCreate(CreateView):
         return super().form_valid(form)
 
 
-class JobDetail(DetailView):
+class JobDetail(LoginRequiredMixin, DetailView):
     model = Job
 
 
-class CustomerCreate(CreateView):
-    model = Customer
-    template_name = "list/add_customer.html"
-    form_class = CustomerForm
-    success_url = 'list/index.html'
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['next_url'] = self.request.GET.get('next')
-    #     context['current_customer'] = self.request.GET.get('cust')
-    #     return context
-    #
-    # def get_success_url(self):
-    #     next_url = self.request.GET.get('next')
-    #     if next_url:
-    #         return next_url
-    #     else:
-    #         return reverse("list:priority-list")
-
-
-class JobUpdate(UpdateView):
+class JobUpdate(LoginRequiredMixin, UpdateView):
     model = Job
     fields = ['add_tools', 'job_number', 'description', 'due_date', 'customer',
               'machine', 'active']
@@ -123,6 +88,58 @@ class JobUpdate(UpdateView):
         return context
 
 
+class JobSearch(LoginRequiredMixin, ListView):
+    model = Job
+    template_name = "list/search.html"
+    form_class = JobSearchForm
+    context_object_name = "jobs"
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_form'] = self.form_class()
+        return context
+
+    def get_queryset(self):
+        form = self.form_class(self.request.GET)
+        if form.is_valid():
+            if form.cleaned_data['job_number'] != '':
+                job_number = form.cleaned_data['job_number']
+            else:
+                job_number = None
+            if form.cleaned_data['add_tools'] != '':
+                add_tools = form.cleaned_data['add_tools']
+            else:
+                add_tools = None
+            return Job.objects.filter(
+                job_number=job_number,
+            )
+        return Job.objects.all()
+
+class ArchiveView(LoginRequiredMixin, ListView):
+    model = Job
+    template_name = "list/archive.html"
+    context_object_name = "jobs"
+    paginate_by = 10
+
+    def get_queryset(self):
+        user = get_object_or_404(User, id=self.request.user.id)
+        profile = get_object_or_404(Profile, user=user)
+
+        return Job.objects.all() \
+            .filter(active=False) \
+            .filter(machine__in=profile.machines.all()) \
+            .order_by("-datetime_completed")
+
+
+class CustomerCreate(LoginRequiredMixin, CreateView):
+    model = Customer
+    template_name = "list/add_customer.html"
+    form_class = CustomerForm
+    success_url = 'list/index.html'
+
+
+@login_required()
 def job_sort_up(request, pk):
     job = get_object_or_404(Job, pk=pk)
 
@@ -131,7 +148,7 @@ def job_sort_up(request, pk):
 
     return HttpResponseRedirect(reverse("list:priority-list"))
 
-
+@login_required()
 def job_sort_down(request, pk):
     job = get_object_or_404(Job, pk=pk)
 
@@ -140,7 +157,7 @@ def job_sort_down(request, pk):
 
     return HttpResponseRedirect(reverse("list:priority-list"))
 
-
+@login_required()
 def job_archive(request, pk):
     job = get_object_or_404(Job, pk=pk)
 
@@ -155,7 +172,7 @@ def job_archive(request, pk):
 #     success_url = reverse_lazy("list:priority-list")
 
 
-class ProfileView(UserPassesTestMixin, DetailView):
+class ProfileView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Profile
     template_name = "common/profile.html"
 
@@ -164,7 +181,7 @@ class ProfileView(UserPassesTestMixin, DetailView):
         return user.username == self.request.user.username
 
 
-class ProfileEditView(UserPassesTestMixin, UpdateView):
+class ProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Profile
     form_class = ProfileForm
     template_name = "common/profile_update.html"

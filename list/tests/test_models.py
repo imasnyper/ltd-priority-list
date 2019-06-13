@@ -13,9 +13,9 @@ class JobModelTestCase(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_str(self):
         j = Job.objects.first()
@@ -23,7 +23,7 @@ class JobModelTestCase(TestCase):
 
     def test_find_max_order(self):
         j = Job.objects.first()
-        max = j._find_max_order() + 1
+        max = j._find_max_order()
         self.assertEqual(max, Job.objects.filter(active=True, machine=j.machine).count() - 1)
 
     def test_save_new_job(self):
@@ -73,7 +73,7 @@ class JobModelTestCase(TestCase):
         self.assertEqual(j.order, len(order_list) - 1)
 
     def test_change_job_machine(self):
-        j = self.j1
+        j = Job.objects.get(machine=self.pin1, order=1, active=True)
         j.machine = self.pin2
         j.save()
 
@@ -98,18 +98,20 @@ class MachineModelTestCase(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_active_jobs(self):
-        self.j3.active = False
-        self.j3.save()
+        job = Job.objects.get(machine=self.pin2, order=1, active=True)
+        job.active = False
+        job.save()
 
         self.assertListEqual(list(self.pin1.active_jobs()), list(Job.objects.filter(machine__pk=self.pin1.pk, active=True)))
 
     def test_inactive_jobs(self):
-        self.j3.active = False
-        self.j3.save()
+        job = Job.objects.get(machine=self.starvision, order=2, active=True)
+        job.active = False
+        job.save()
 
-        self.assertEqual(list(self.pin1.active_jobs()), list(Job.objects.filter(machine__pk=self.pin1.pk, active=True)))
+        self.assertEqual(list(self.starvision.active_jobs()), list(Job.objects.filter(machine__pk=self.starvision.pk, active=True)))

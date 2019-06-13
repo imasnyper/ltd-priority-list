@@ -1,0 +1,44 @@
+{% extends "list/list_base.html" %}
+
+{% block priority_list_active %}
+    uk-active
+{% endblock %}
+
+{% block content %}
+    {{ jobs }}
+    <form class="uk-form" action="{% url 'list:search' %}" method="get">
+    {% csrf_token %}
+    {{ search_form.non_field_errors }}
+    <div class="form-job-number">
+        {{ search_form.job_number.errors }}
+        <span class="job-number-label">{{ search_form.job_number.label_tag }}</span>
+        <span class="job-number-input">{{ search_form.job_number }}</span>
+    </div>
+    <div class="form-description">
+        {{ search_form.description.errors }}
+        <span class="description-label">{{ search_form.description.label_tag }}</span>
+        <span class="description-input">{{ search_form.description }}</span>
+    </div>
+    <div class="form-customer">
+        {{ search_form.customer.errors }}
+        <span class="customer-label">{{ search_form.customer.label_tag }}</span>
+        <div class="input-field customer-input">{{ search_form.customer }}</div>
+    </div>
+    <div class="form-due-date">
+        {{ search_form.due_date.errors }}
+        <span class="due-date-label">{{ search_form.due_date.label_tag }}</span>
+        <span class="due-date-input">{{ search_form.due_date }}</span>
+    </div>
+    <div class="form-add-tools">
+        {{ search_form.add_tools.errors }}
+        <span class="uk-form-label">{{ search_form.add_tools.label_tag }}</span>
+        <span class="add-tools-input">{{ search_form.add_tools }}</span>
+    </div>
+    <div class="form-active">
+        {{ search_form.active.errors }}
+        <span class="uk-form-label">{{ search_form.active.label_tag }}</span>
+        <span class="add-tools-input">{{ search_form.active }}</span>
+    </div>
+    <button class="uk-button uk-button-primary uk-align-right" type="submit">Save</button>
+</form>
+{% endblock content %}

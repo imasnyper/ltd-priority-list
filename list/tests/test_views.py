@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from list.models import Machine, Customer, Profile
+from list.models import Machine, Customer, Profile, Job
 from list.tests.util import create_jobs
 
 
@@ -21,9 +21,11 @@ class TestPriorityListView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        # create referenced jobs for useing in testing
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
+
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.get(reverse("list:priority-list"))
@@ -43,8 +45,8 @@ class TestPriorityListView(TestCase):
         response = self.client.get(reverse('list:priority-list'))
 
         self.assertListEqual(list(response.context['machines']), list(self.p1.machines.all()))
-        # for machine in response.context['machines']:
-            # self.assertEqual(list(response.context['']))
+        for machine in response.context['machines']:
+            self.assertListEqual(list(machine.active_jobs()), list(Job.objects.filter(machine=machine, active=True)))
         self.assertListEqual(list(response.context['customers']), list(Customer.objects.all().order_by('name')))
         self.assertEqual(
             response.context['form']
@@ -57,7 +59,7 @@ class TestPriorityListView(TestCase):
 
 class TestArchiveView(TestCase):
     def setUp(self):
-        self.u1 = User.objects.create_user(username='testuser1', password="testing123").save()
+        self.u1 = User.objects.create_user(username='testuser1', password="testing123")
 
         self.pin1 = Machine.objects.create(name="Pinnacle 1")
         self.pin2 = Machine.objects.create(name="Pinnacle 2")
@@ -66,9 +68,18 @@ class TestArchiveView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(5, self.pin1, [self.c1, self.c2])
+        create_jobs(5, self.pin2, [self.c1, self.c2])
+        create_jobs(5, self.starvision, [self.c1, self.c2])
+
+        jobs = Job.objects.all()
+        for job in jobs:
+            job.active = False
+            job.save()
+
+        profile = Profile.objects.get(user=self.u1)
+        profile.machines.set([self.pin1, self.pin2, self.starvision])
+        profile.save()
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.get(reverse("list:archive-view"))
@@ -83,6 +94,23 @@ class TestArchiveView(TestCase):
 
         self.assertTemplateUsed(response, 'list/archive.html')
 
+    def test_pagination_is_ten(self):
+        login = self.client.login(username="testuser1", password="testing123")
+
+        response = self.client.get(reverse("list:archive-view"))
+        self.assertTrue('is_paginated' in response.context)
+        self.assertTrue(response.context['is_paginated'])
+        self.assertTrue(len(response.context['jobs']) == 10)
+
+    def test_lists_all_jobs(self):
+        login = self.client.login(username='testuser1', password='testing123')
+
+        response = self.client.get(reverse("list:archive-view") + "?page=2")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('is_paginated' in response.context)
+        self.assertTrue(response.context['is_paginated'])
+        self.assertTrue(len(response.context['jobs']) == 5)
+
 
 class TestJobCreateView(TestCase):
     def setUp(self):
@@ -95,9 +123,9 @@ class TestJobCreateView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.post(reverse("list:add", kwargs={"machine_pk": 1}))
@@ -124,9 +152,9 @@ class TestJobDetailView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.get(reverse("list:job-detail", kwargs={"pk": 1}))
@@ -153,9 +181,9 @@ class TestCustomerCreateView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.post(reverse("list:add_customer"))
@@ -182,9 +210,9 @@ class TestJobUpdateView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.post(reverse("list:edit", kwargs={"pk": 1}))
@@ -211,9 +239,9 @@ class TestJobSortUpView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.get(reverse("list:sort_up", kwargs={"pk": 1}))
@@ -224,6 +252,46 @@ class TestJobSortUpView(TestCase):
         response = self.client.get(reverse('list:sort_up', kwargs={"pk": 1}))
 
         self.assertRedirects(response, reverse("list:priority-list"))
+
+    def test_sort_up(self):
+        login = self.client.login(username="testuser1", password="testing123")
+
+        test_job = Job.objects.get(machine=self.pin1, order=1, active=True)
+        initial_order = test_job.order
+
+        self.client.get(reverse('list:sort_up', kwargs={"pk": test_job.pk}))
+
+        test_job = Job.objects.get(pk=test_job.pk)
+
+        self.assertNotEqual(initial_order, test_job.order)
+        self.assertEqual(initial_order - 1, test_job.order)
+
+        order_list = [_.order for _ in test_job.get_ordering_queryset()]
+
+        self.assertListEqual(order_list, [_ for _ in range(Job.objects.filter(machine=self.pin1, active=True).count())])
+
+    def test_sort_up_after_machine_change(self):
+        login = self.client.login(username="testuser1", password="testing123")
+
+        test_job = Job.objects.get(machine=self.pin1, order=1, active=True)
+        initial_order = test_job.order
+
+        pin2_job = Job.objects.filter(machine=self.pin2).first()
+        destination_machine_initial_order = list(pin2_job.get_ordering_queryset())
+
+        test_job.machine = self.pin2
+        test_job.save()
+
+        self.assertEqual(destination_machine_initial_order[-1].order + 1, test_job.order)
+
+        self.client.get(reverse('list:sort_up', kwargs={"pk": test_job.pk}))
+        test_job = Job.objects.get(pk=test_job.pk)
+
+        self.assertEqual(destination_machine_initial_order[-1].order, test_job.order)
+
+        order_list = [_.order for _ in test_job.get_ordering_queryset()]
+
+        self.assertListEqual(order_list, [_ for _ in range(Job.objects.filter(machine=self.pin2, active=True).count())])
 
 
 class TestJobSortDownView(TestCase):
@@ -237,9 +305,9 @@ class TestJobSortDownView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.get(reverse("list:sort_down", kwargs={"pk": 1}))
@@ -250,6 +318,23 @@ class TestJobSortDownView(TestCase):
         response = self.client.get(reverse('list:sort_down', kwargs={"pk": 1}))
 
         self.assertRedirects(response, reverse("list:priority-list"))
+
+    def test_sort_down(self):
+        login = self.client.login(username="testuser1", password="testing123")
+
+        test_job = Job.objects.get(machine=self.pin1, order=1, active=True)
+        initial_order = test_job.order
+
+        self.client.get(reverse('list:sort_down', kwargs={"pk": test_job.pk}))
+
+        test_job = Job.objects.get(pk=test_job.pk)
+
+        self.assertNotEqual(initial_order, test_job.order)
+        self.assertEqual(initial_order + 1, test_job.order)
+
+        order_list = [_.order for _ in test_job.get_ordering_queryset()]
+
+        self.assertListEqual(order_list, [_ for _ in range(Job.objects.filter(machine=self.pin1, active=True).count())])
 
 
 class TestJobArchiveView(TestCase):
@@ -263,9 +348,9 @@ class TestJobArchiveView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.get(reverse("list:archive", kwargs={"pk": 1}))
@@ -289,9 +374,9 @@ class TestProfileView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.post(reverse("list:profile", kwargs={"pk": 1}))
@@ -318,9 +403,9 @@ class TestProfileEditView(TestCase):
         self.c1 = Customer.objects.create(name="Custy 1")
         self.c2 = Customer.objects.create(name="ABC Co.")
 
-        self.j1 = create_jobs(3, self.pin1, [self.c1, self.c2])
-        self.j2 = create_jobs(3, self.pin2, [self.c1, self.c2])
-        self.j3 = create_jobs(3, self.starvision, [self.c1, self.c2])
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
 
     def test_redirect_if_not_logged_in(self):
         response = self.client.post(reverse("list:profile-edit", kwargs={"pk": 1}))

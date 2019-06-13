@@ -8,7 +8,7 @@ def create_jobs(num_jobs, machine, customers):
         rand_job_number = random.randrange(1000, 9999)
         rand_customer = random.choice(customers)
         rand_tools = random.choice([True, False])
-        return Job.objects.create(
+        Job.objects.create(
             job_number=rand_job_number,
             machine=machine,
             customer=rand_customer,

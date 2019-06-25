@@ -5,40 +5,163 @@
 {% endblock %}
 
 {% block content %}
-    {{ jobs }}
-    <form class="uk-form" action="{% url 'list:search' %}" method="get">
-    {% csrf_token %}
-    {{ search_form.non_field_errors }}
-    <div class="form-job-number">
-        {{ search_form.job_number.errors }}
-        <span class="job-number-label">{{ search_form.job_number.label_tag }}</span>
-        <span class="job-number-input">{{ search_form.job_number }}</span>
+    <div class="uk-container uk-inline uk-width-1-1 uk-padding">
+        <div class="uk-card uk-width-xlarge uk-align-center">
+            <p>Enter search criteria in one or more fields.</p>
+            <form class="uk-form" id="search-form" action="{% url 'list:search' %}" method="get">
+                {{ search_form.non_field_errors }}
+                <div class="form-job-number">
+                    {{ search_form.job_number.errors }}
+                    <span class="job-number-label">{{ search_form.job_number.label_tag }}</span>
+                    <span class="input job-number-input">{{ search_form.job_number }}</span>
+                </div>
+                <div class="form-description">
+                    {{ search_form.description.errors }}
+                    <span class="description-label">{{ search_form.description.label_tag }}</span>
+                    <span class="input description-input">{{ search_form.description }}</span>
+                </div>
+                <div class="form-machine">
+                    {{ search_form.machine.errors }}
+                    <span class="machine-label">{{ search_form.machine.label_tag }}</span>
+                    <div class="input input-field machine-input">{{ search_form.machine }}</div>
+                </div>
+                <div class="form-customer">
+                    {{ search_form.customer.errors }}
+                    <span class="customer-label">{{ search_form.customer.label_tag }}</span>
+                    <div class="input input-field customer-input">{{ search_form.customer }}</div>
+                </div>
+                <button class="date-expander uk-button uk-button-secondary uk-width-1-1 uk-margin" type="button" uk-toggle="target: .date-inputs">
+                    <span class="down date-inputs" uk-icon="chevron-down"></span>
+                    <span class="up date-inputs" uk-icon="chevron-up" hidden></span>
+                    Search by Dates
+                    <span class="down date-inputs" uk-icon="chevron-down"></span>
+                    <span class="up date-inputs" uk-icon="chevron-up" hidden></span>
+                </button>
+                <div hidden class="date-inputs">
+                    <div class="form-date-added">
+                        {{ search_form.date_added.errors }}
+                        <span class="date-added-label">{{ search_form.date_added.label_tag }}</span>
+                        <div class="input input-field date-input">{{ search_form.date_added }}</div>
+                        <span class="date-added-lte">Date <= {{ search_form.date_added_lte }}</span>
+                        <span class="date-added-gte uk-float-right">Date >= {{ search_form.date_added_gte }}</span>
+                    </div>
+                    <div class="form-due-date">
+                        {{ search_form.due_date.errors }}
+                        <span class="due-date-label">{{ search_form.due_date.label_tag }}</span>
+                        <div class="input input-field date-input">{{ search_form.due_date }}</div>
+                        <span class="due-date-lte">Date <= {{ search_form.due_date_lte }}</span>
+                        <span class="due-date-gte uk-float-right">Date >= {{ search_form.due_date_gte }}</span>
+                    </div>
+                    <div class="form-datetime-completed">
+                        {{ search_form.datetime_completed.errors }}
+                        <span class="date-completed-label">{{ search_form.datetime_completed.label_tag }}</span>
+                        <div class="input input-field date-input">{{ search_form.datetime_completed }}</div>
+                        <span class="date-completed-lte">Date <= {{ search_form.datetime_completed_lte }}</span>
+                        <span class="date-completed-gte uk-float-right">Date >= {{ search_form.datetime_completed_gte }}</span>
+                    </div>
+                </div>
+                <br />
+                <button class="uk-button uk-button-primary uk-align-right" id="search-submit" type="submit">Search</button>
+            </form>
+        </div>
     </div>
-    <div class="form-description">
-        {{ search_form.description.errors }}
-        <span class="description-label">{{ search_form.description.label_tag }}</span>
-        <span class="description-input">{{ search_form.description }}</span>
-    </div>
-    <div class="form-customer">
-        {{ search_form.customer.errors }}
-        <span class="customer-label">{{ search_form.customer.label_tag }}</span>
-        <div class="input-field customer-input">{{ search_form.customer }}</div>
-    </div>
-    <div class="form-due-date">
-        {{ search_form.due_date.errors }}
-        <span class="due-date-label">{{ search_form.due_date.label_tag }}</span>
-        <span class="due-date-input">{{ search_form.due_date }}</span>
-    </div>
-    <div class="form-add-tools">
-        {{ search_form.add_tools.errors }}
-        <span class="uk-form-label">{{ search_form.add_tools.label_tag }}</span>
-        <span class="add-tools-input">{{ search_form.add_tools }}</span>
-    </div>
-    <div class="form-active">
-        {{ search_form.active.errors }}
-        <span class="uk-form-label">{{ search_form.active.label_tag }}</span>
-        <span class="add-tools-input">{{ search_form.active }}</span>
-    </div>
-    <button class="uk-button uk-button-primary uk-align-right" type="submit">Save</button>
-</form>
+    {{ search_terms }}
+    <table class="uk-table-small uk-table-hover uk-table-middle uk-width-1-1 uk-margin-bottom">
+        <thead>
+            <tr>
+                <th>
+
+                </th>
+                <th class="uk-table-shrink uk-text-nowrap">
+                    Job #
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Customer
+                </th>
+                <th>
+                    Machine
+                </th>
+                <th>
+                    Date Added
+                </th>
+                <th>
+                    Date Due
+                </th>
+                <th>
+                    Date Completed
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for job in jobs %}
+            <tr class="job-row">
+                <td class="uk-table-link">
+                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                        {{ page_obj.start_index|add:forloop.counter|add:"-1" }}.
+                    </a>
+                </td>
+                <td class="uk-table-link">
+                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                        {{ job.job_number }}
+                    </a>
+                </td>
+                <td class="uk-table-link">
+                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                        {{ job.description|title }}
+                    </a>
+                </td>
+                <td class="uk-table-link">
+                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                        {{ job.customer.name|title }}
+                    </a>
+                </td>
+                <td class="uk-table-link">
+                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                        {{ job.machine.name|title }}
+                    </a>
+                </td>
+                <td class="uk-table-link">
+                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                        {{ job.date_added }}
+                    </a>
+                </td>
+                <td class="uk-table-link">
+                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                        {{ job.due_date }}
+                    </a>
+                </td>
+                <td class="uk-table-link">
+                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                        {{ job.datetime_completed }}
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if is_paginated %}
+        <ul class="uk-pagination uk-flex-center uk-margin-bottom">
+            {% if page_obj.has_previous %}
+                <li><a href="?page={{ page_obj.previous_page_number }}{{ args }}"><span uk-pagination-previous></span></a>
+                </li>
+            {% else %}
+                <div class="uk-disabled"><a href="#"><span uk-pagination-previous></span></a></div>
+            {% endif %}
+            {% for i in paginator.page_range %}
+                {% if page_obj.number == i %}
+                    <li class="uk-active"><span>{{ i }}</span></li>
+                {% else %}
+                    <li><a href="?page={{ i }}{{ args }}">{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li><a href="?page={{ page_obj.next_page_number }}{{ args }}"><span uk-pagination-next></span></a></li>
+            {% else %}
+                <li class="uk-disabled"><a href="#"><span uk-pagination-next></span></a></li>
+            {% endif %}
+        </ul>
+    {% endif %}
 {% endblock content %}

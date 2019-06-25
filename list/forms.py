@@ -84,36 +84,73 @@ class JobSearchForm(forms.ModelForm):
         widget=forms.TextInput(
             attrs={'min': 1000, 'max': 9999, 'type': 'number',
                    'class': 'uk-input'}))
-    due_date = forms.DateField(
-        label="Due Date:",
-        widget=forms.widgets.DateInput(
-            attrs={'type': 'text', 'class': 'uk-input date-input',
-                   'data-uk-datepicker': "{format: 'MM/DD/YYYY'}"}),
-        required=False)
     machine = forms.ModelChoiceField(
         label="Machine:",
         required=False,
         queryset=Machine.objects.all(),
         widget=forms.widgets.Select(attrs={'class': 'uk-select'})
     )
-    add_tools = forms.BooleanField(
-        widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'}),
-        required=False,
-    )
     description = forms.CharField(
         widget=forms.widgets.TextInput(attrs={'class': 'uk-input'}),
         required=False
     )
-    active = forms.BooleanField(
+    due_date = forms.DateField(
+        label="Due Date:",
+        widget=forms.widgets.DateInput(
+            attrs={'type': 'text', 'class': 'uk-input date-input',
+                   'data-uk-datepicker': "{format: 'MM/DD/YYYY'}"}),
+        required=False)
+    due_date_lte = forms.BooleanField(
+        label="Dates less than or equal to selected date",
         widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'}),
-        required=False,
-        initial=True
+        required=False
+    )
+    due_date_gte = forms.BooleanField(
+        label="Dates greater than or equal to selected date",
+        widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'}),
+        required=False
+    )
+    date_added = forms.DateField(
+        label="Date Added:",
+        widget=forms.widgets.DateInput(
+            attrs={'type': 'text', 'class': 'uk-input date-input',
+                   'data-uk-datepicker': "{format: 'MM/DD/YYYY'}"}),
+        required=False)
+    date_added_lte = forms.BooleanField(
+        label="Dates less than or equal to selected date",
+        widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'}),
+        required=False
+    )
+    date_added_gte = forms.BooleanField(
+        label="Dates greater than or equal to selected date",
+        widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'}),
+        required=False
+    )
+    datetime_completed = forms.DateField(
+        label="Datetime Completed:",
+        widget=forms.widgets.DateInput(
+            attrs={'type': 'text', 'class': 'uk-input date-input',
+                   'data-uk-datepicker': "{format: 'MM/DD/YYYY'}"}),
+        required=False)
+    datetime_completed_lte = forms.BooleanField(
+        label="Dates less than or equal to selected date",
+        widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'}),
+        required=False
+    )
+    datetime_completed_gte = forms.BooleanField(
+        label="Dates greater than or equal to selected date",
+        widget=forms.widgets.CheckboxInput(attrs={'class': 'uk-checkbox'}),
+        required=False
     )
 
     class Meta:
         model = Job
         fields = ['job_number', 'description',
-                  'customer', 'machine', 'due_date', 'add_tools', 'active']
+                  'customer', 'machine', 'date_added', 'due_date',
+                  'datetime_completed', 'date_added_lte', 'date_added_gte',
+                  'due_date_lte', 'due_date_gte', 'datetime_completed_lte',
+                  'datetime_completed_gte',
+                  ]
 
 
 class CustomerForm(forms.ModelForm):

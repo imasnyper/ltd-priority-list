@@ -7,11 +7,11 @@
 {% block content %}
     <div class="uk-grid-small uk-grid-match" uk-grid="masonry: true">
         {% for machine in machines %}
-            <div class="uk-width-1-2">
+            <div class="uk-width-1-2@l uk-width-1-1@s">
                 <div class="uk-card uk-card-small uk-card-default uk-card-body">
                     {% with job_set=machine.active_jobs %}
                         {% if job_set|length > 0 %}
-                            <table class="machine-table uk-table-small uk-table-hover uk-table-middle">
+                            <table class="uk-width-1-1 machine-table uk-table-small uk-table-hover uk-table-middle">
                                 <thead>
                                 <tr>
                                     <th class="uk-text-center uk-text-large" colspan="9">{{ machine.name|title }}</th>

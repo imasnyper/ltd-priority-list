@@ -6,7 +6,7 @@ from vacation.models import Vacation
 
 class VacationForm(forms.ModelForm):
     user = forms.ModelChoiceField(
-        queryset=User.objects.all(),
+        queryset=User.objects.all().order_by("username"),
         widget=forms.widgets.Select(attrs={'class': 'uk-select'}),
         required=True,
     )

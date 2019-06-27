@@ -109,6 +109,7 @@ class Job(OrderedModel):
         if old_job is not None:
             if old_job.active and not self.active:
                 smooth_ordering(old_job)
+                self.order = 0
                 self.datetime_completed = timezone.now()
                 super().save(*args, **kwargs)
             elif not old_job.active and self.active:

@@ -9,13 +9,13 @@
         {% for machine in machines %}
             <div class="uk-width-1-2">
                 <div class="uk-card uk-card-small uk-card-default uk-card-body">
-                    <div class="uk-card-title">
-                        <h3>{{ machine.name }}</h3>
-                    </div>
                     {% with job_set=machine.active_jobs %}
                         {% if job_set|length > 0 %}
-                            <table class="uk-table-small uk-table-hover uk-table-middle">
+                            <table class="machine-table uk-table-small uk-table-hover uk-table-middle">
                                 <thead>
+                                <tr>
+                                    <th class="uk-text-center uk-text-large" colspan="9">{{ machine.name|title }}</th>
+                                </tr>
                                 <tr>
                                     <th></th>
                                     <th class="uk-table-shrink uk-text-nowrap">Job #</th>
@@ -87,7 +87,18 @@
                                 </tbody>
                             </table>
                         {% else %}
-                            <p class="empty-job-list">Currently no jobs for {{ machine.name|title }}</p>
+                            <table class="empty-job-list uk-table-small uk-table-hover uk-table-middle">
+                                <thead>
+                                    <tr>
+                                        <th class="uk-text-middle uk-text-large">{{ machine.name|title }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Currently no jobs for {{ machine.name|title }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         {% endif %}
                     {% endwith %}
                     <br/>

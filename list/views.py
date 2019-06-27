@@ -93,28 +93,69 @@ class JobSearch(LoginRequiredMixin, ListView):
     template_name = "list/search.html"
     form_class = JobSearchForm
     context_object_name = "jobs"
-    paginate_by = 10
+    paginate_by = 5
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_form'] = self.form_class()
+        get = self.request.GET
+        context['search_terms'] = {k: v for k, v in self.request.GET.items()
+                                   if v is not None and v != ""
+                                   and k != "page"}
+        context['args'] = "&" + "&".join([f"{k}={v}" for k, v in get.items()
+                                          if v is not None
+                                          and v != "" and k != "page"])
         return context
 
     def get_queryset(self):
         form = self.form_class(self.request.GET)
         if form.is_valid():
-            if form.cleaned_data['job_number'] != '':
-                job_number = form.cleaned_data['job_number']
+            data = form.cleaned_data
+            data = {k: v for k, v in data.items() if v is not None and v != ""}
+            due_date_lte = data.pop('due_date_lte', False)
+            due_date_gte = data.pop('due_date_gte', False)
+            date_added_lte = data.pop('date_added_lte', False)
+            date_added_gte = data.pop('date_added_gte', False)
+            datetime_completed_lte = data.pop('datetime_completed_lte', False)
+            datetime_completed_gte = data.pop('datetime_completed_gte', False)
+            if 'description' in data.keys():
+                description = data.pop('description')
+                qs = Job.objects.filter(description__contains=description, **data)
+            elif 'datetime_completed' in data.keys():
+                datetime = data.pop('datetime_completed')
+                if datetime_completed_lte and datetime_completed_gte:
+                    qs = Job.objects.filter(**data)
+                elif datetime_completed_lte:
+                    qs = Job.objects.filter(datetime_completed__lte=datetime, **data)
+                elif datetime_completed_gte:
+                    qs = Job.objects.filter(datetime_completed__gte=datetime, **data)
+                else:
+                    qs = Job.objects.filter(datetime_completed__date=datetime, **data)
+            elif 'date_added' in data.keys():
+                date = data.pop('date_added')
+                if date_added_lte and date_added_gte:
+                    qs = Job.objects.filter(**data)
+                elif date_added_lte:
+                    qs = Job.objects.filter(date_added__lte=date, **data)
+                elif date_added_gte:
+                    qs = Job.objects.filter(date_added__gte=date, **data)
+                else:
+                    qs = Job.objects.filter(date_added__date=date, **data)
+            elif 'due_date' in data.keys():
+                date = data.pop('due_date')
+                if due_date_lte and due_date_gte:
+                    qs = Job.objects.filter(**data)
+                elif due_date_lte:
+                    qs = Job.objects.filter(due_date__lte=date, **data)
+                elif due_date_gte:
+                    qs = Job.objects.filter(due_date__gte=date, **data)
+                else:
+                    qs = Job.objects.filter(due_date__date=date, **data)
             else:
-                job_number = None
-            if form.cleaned_data['add_tools'] != '':
-                add_tools = form.cleaned_data['add_tools']
-            else:
-                add_tools = None
-            return Job.objects.filter(
-                job_number=job_number,
-            )
-        return Job.objects.all()
+                qs = Job.objects.filter(**data)
+            return qs.order_by('date_added')
+        return super().get_queryset()
+
 
 class ArchiveView(LoginRequiredMixin, ListView):
     model = Job
@@ -158,8 +199,23 @@ def job_sort_down(request, pk):
     return HttpResponseRedirect(reverse("list:priority-list"))
 
 @login_required()
+def job_to(request, pk, to):
+    job = get_object_or_404(Job, pk=pk)
+
+    if to > job.order:
+        job.to(to)
+        job.down()
+    else:
+        job.to(to)
+
+    job.save()
+
+    return HttpResponseRedirect(reverse("list:priority-list"))
+
+@login_required()
 def job_archive(request, pk):
     job = get_object_or_404(Job, pk=pk)
+
 
     job.active = False
     job.save()

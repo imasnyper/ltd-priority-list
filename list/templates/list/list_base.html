@@ -4,8 +4,8 @@
     <ul class="uk-navbar-nav">
         <li class="{% block priority_list_active %}{% endblock %}"><a href="{% url 'list:priority-list' %}">Priority
             List</a></li>
-        <li class="{% block archive_list_active %}{% endblock %}"><a href="{% url 'list:archive-view' %}">Archive</a>
-        </li>
+        <li class="{% block archive_list_active %}{% endblock %}"><a href="{% url 'list:archive-view' %}">Archive</a></li>
+        <li><a href="{% url 'list:search' %}"><span uk-icon="search"></span></a></li>
 
         <li>
             <a href="#">{{ user.username|title }}</a>

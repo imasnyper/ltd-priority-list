@@ -3,42 +3,36 @@ table {
     border-spacing: 0;
 }
 
-/*.delete-form, .sort-up-link, .sort-down-link, .edit-link {*/
-/*	display: inline-block;*/
-/*	width: 15px;*/
-/*	height: 15px;*/
-/*}*/
+.dragging, .dragging * {
+    cursor: move !important;
+}
 
-/*.delete-button, .sort-up-button, .sort-down-button, .sort-up-button-placeholder, .edit-button {*/
-/*	width: 15px;*/
-/*	height: 15px;*/
-/*	-webkit-appearance: none;*/
-/*	-moz-appearance: none;*/
-/*	appearance: none;*/
-/*	border: none;*/
-/*	padding: 0;*/
-/*	margin: 0;*/
-/*	background-color: rgba(0,0,0,0);*/
-/*	background-size: cover;*/
-/*	cursor: pointer;*/
-/*}*/
+.dragged {
+    position: absolute;
+    opacity: 0.5;
+    z-index: 2000;
+}
 
-/*.sort-up-button-placeholder {*/
-/*	cursor: default;*/
-/*}*/
+.placeholder {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
 
-/*.sort-up-button {*/
-/*	background-image: url('img/sort-up.svg');*/
-/*}*/
+.placeholder::before {
+    position: absolute;
+    content: "";
+    width: 0;
+    height: 0;
+    /*margin-top: -5px;*/
+    /*left: -5px;*/
+    /*top: -4px;*/
+    border: 5px solid transparent;
+    border-left-color: red;
+    border-right: none
+}
 
-/*.sort-down-button {*/
-/*	background-image: url('img/sort-down.svg');*/
-/*}*/
-
-/*.delete-button {*/
-/*	background-image: url('img/icon-deletelink.svg');*/
-/*}*/
-
-/*.edit-button {*/
-/*	background-image: url('img/icon-changelink.svg');*/
-/*}*/
+.empty-job-list {
+    margin: 0 auto 0 auto;
+}

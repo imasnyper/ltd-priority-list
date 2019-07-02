@@ -189,6 +189,7 @@ def job_sort_up(request, pk):
 
     return HttpResponseRedirect(reverse("list:priority-list"))
 
+
 @login_required()
 def job_sort_down(request, pk):
     job = get_object_or_404(Job, pk=pk)
@@ -197,6 +198,7 @@ def job_sort_down(request, pk):
     job.save()
 
     return HttpResponseRedirect(reverse("list:priority-list"))
+
 
 @login_required()
 def job_to(request, pk, to):
@@ -215,7 +217,6 @@ def job_to(request, pk, to):
 @login_required()
 def job_archive(request, pk):
     job = get_object_or_404(Job, pk=pk)
-
 
     job.active = False
     job.save()

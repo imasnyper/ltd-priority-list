@@ -46,8 +46,11 @@ class TestPriorityListView(TestCase):
 
         self.assertListEqual(list(response.context['machines']), list(self.p1.machines.all()))
         for machine in response.context['machines']:
-            self.assertListEqual(list(machine.active_jobs()), list(Job.objects.filter(machine=machine, active=True)))
-        self.assertListEqual(list(response.context['customers']), list(Customer.objects.all().order_by('name')))
+            self.assertListEqual(list(machine.active_jobs()),
+                                 list(Job.objects.filter(machine=machine,
+                                                         active=True)))
+        self.assertListEqual(list(response.context['customers']),
+                             list(Customer.objects.all().order_by('name')))
         self.assertEqual(
             response.context['form']
                 .get_initial_for_field(
@@ -114,7 +117,8 @@ class TestArchiveView(TestCase):
 
 class TestJobCreateView(TestCase):
     def setUp(self):
-        self.u1 = User.objects.create_user(username='testuser1', password="testing123").save()
+        self.u1 = User.objects.create_user(username='testuser1',
+                                           password="testing123").save()
 
         self.pin1 = Machine.objects.create(name="Pinnacle 1")
         self.pin2 = Machine.objects.create(name="Pinnacle 2")
@@ -143,7 +147,8 @@ class TestJobCreateView(TestCase):
 
 class TestJobDetailView(TestCase):
     def setUp(self):
-        self.u1 = User.objects.create_user(username='testuser1', password="testing123").save()
+        self.u1 = User.objects.create_user(username='testuser1',
+                                           password="testing123").save()
 
         self.pin1 = Machine.objects.create(name="Pinnacle 1")
         self.pin2 = Machine.objects.create(name="Pinnacle 2")
@@ -172,7 +177,8 @@ class TestJobDetailView(TestCase):
 
 class TestCustomerCreateView(TestCase):
     def setUp(self):
-        self.u1 = User.objects.create_user(username='testuser1', password="testing123").save()
+        self.u1 = User.objects.create_user(username='testuser1',
+                                           password="testing123").save()
 
         self.pin1 = Machine.objects.create(name="Pinnacle 1")
         self.pin2 = Machine.objects.create(name="Pinnacle 2")
@@ -201,7 +207,8 @@ class TestCustomerCreateView(TestCase):
 
 class TestJobUpdateView(TestCase):
     def setUp(self):
-        self.u1 = User.objects.create_user(username='testuser1', password="testing123").save()
+        self.u1 = User.objects.create_user(username='testuser1',
+                                           password="testing123").save()
 
         self.pin1 = Machine.objects.create(name="Pinnacle 1")
         self.pin2 = Machine.objects.create(name="Pinnacle 2")
@@ -230,7 +237,8 @@ class TestJobUpdateView(TestCase):
 
 class TestJobSortUpView(TestCase):
     def setUp(self):
-        self.u1 = User.objects.create_user(username='testuser1', password="testing123").save()
+        self.u1 = User.objects.create_user(username='testuser1',
+                                           password="testing123").save()
 
         self.pin1 = Machine.objects.create(name="Pinnacle 1")
         self.pin2 = Machine.objects.create(name="Pinnacle 2")
@@ -268,7 +276,10 @@ class TestJobSortUpView(TestCase):
 
         order_list = [_.order for _ in test_job.get_ordering_queryset()]
 
-        self.assertListEqual(order_list, [_ for _ in range(Job.objects.filter(machine=self.pin1, active=True).count())])
+        num_jobs = [_ for _ in
+         range(Job.objects.filter(machine=self.pin1, active=True).count())]
+
+        self.assertListEqual(order_list, num_jobs)
 
     def test_sort_up_after_machine_change(self):
         login = self.client.login(username="testuser1", password="testing123")
@@ -291,12 +302,16 @@ class TestJobSortUpView(TestCase):
 
         order_list = [_.order for _ in test_job.get_ordering_queryset()]
 
-        self.assertListEqual(order_list, [_ for _ in range(Job.objects.filter(machine=self.pin2, active=True).count())])
+        num_jobs = [_ for _ in
+         range(Job.objects.filter(machine=self.pin2, active=True).count())]
+
+        self.assertListEqual(order_list, num_jobs)
 
 
 class TestJobSortDownView(TestCase):
     def setUp(self):
-        self.u1 = User.objects.create_user(username='testuser1', password="testing123").save()
+        self.u1 = User.objects.create_user(username='testuser1',
+                                           password="testing123").save()
 
         self.pin1 = Machine.objects.create(name="Pinnacle 1")
         self.pin2 = Machine.objects.create(name="Pinnacle 2")
@@ -334,12 +349,89 @@ class TestJobSortDownView(TestCase):
 
         order_list = [_.order for _ in test_job.get_ordering_queryset()]
 
-        self.assertListEqual(order_list, [_ for _ in range(Job.objects.filter(machine=self.pin1, active=True).count())])
+        num_jobs = [_ for _ in range(Job.objects.filter(machine=self.pin1,
+                                                        active=True).count())]
+
+        self.assertListEqual(order_list, num_jobs)
+
+
+class TestJobToView(TestCase):
+    def setUp(self):
+        self.u1 = User.objects.create_user(username='testuser1',
+                                           password="testing123").save()
+
+        self.pin1 = Machine.objects.create(name="Pinnacle 1")
+        self.pin2 = Machine.objects.create(name="Pinnacle 2")
+        self.starvision = Machine.objects.create(name="Starvision")
+
+        self.c1 = Customer.objects.create(name="Custy 1")
+        self.c2 = Customer.objects.create(name="ABC Co.")
+
+        create_jobs(3, self.pin1, [self.c1, self.c2])
+        create_jobs(3, self.pin2, [self.c1, self.c2])
+        create_jobs(3, self.starvision, [self.c1, self.c2])
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.get(reverse("list:job_to", kwargs={"pk": 1,
+                                                                  "to": 1}))
+        self.assertRedirects(response,
+                             '/accounts/login/?next=/job/to/1/1/')
+
+    def test_redirect_if_logged_in(self):
+        login = self.client.login(username="testuser1", password="testing123")
+        response = self.client.get(reverse('list:job_to', kwargs={"pk": 1,
+                                                                  "to": 1}))
+
+        self.assertRedirects(response, reverse("list:priority-list"))
+
+    def test_to_move_down(self):
+        login = self.client.login(username="testuser1", password="testing123")
+
+        test_job = Job.objects.get(machine=self.pin1, order=1, active=True)
+        initial_order = test_job.order
+
+        self.client.get(reverse('list:job_to', kwargs={"pk": test_job.pk,
+                                                       "to": initial_order + 1}))
+
+        test_job = Job.objects.get(pk=test_job.pk)
+
+        self.assertNotEqual(initial_order, test_job.order)
+        self.assertEqual(initial_order + 1, test_job.order)
+
+        order_list = [_.order for _ in test_job.get_ordering_queryset()]
+
+        num_jobs = [_ for _ in range(Job.objects.filter(machine=self.pin1,
+                                                        active=True).count())]
+
+        self.assertListEqual(order_list, num_jobs)
+
+    def test_to_move_up(self):
+        login = self.client.login(username="testuser1", password="testing123")
+
+        test_job = Job.objects.get(machine=self.pin1, order=2, active=True)
+        initial_order = test_job.order
+
+        self.client.get(reverse('list:job_to', kwargs={"pk": test_job.pk,
+                                                       "to": initial_order - 1}))
+
+        test_job = Job.objects.get(pk=test_job.pk)
+
+        self.assertNotEqual(initial_order, test_job.order)
+        self.assertEqual(initial_order - 1, test_job.order)
+
+        order_list = [_.order for _ in test_job.get_ordering_queryset()]
+
+        num_jobs = [_ for _ in range(Job.objects.filter(machine=self.pin1,
+                                                        active=True).count())]
+
+        self.assertListEqual(order_list, num_jobs)
+
 
 
 class TestJobArchiveView(TestCase):
     def setUp(self):
-        self.u1 = User.objects.create_user(username='testuser1', password="testing123").save()
+        self.u1 = User.objects.create_user(username='testuser1',
+                                           password="testing123").save()
 
         self.pin1 = Machine.objects.create(name="Pinnacle 1")
         self.pin2 = Machine.objects.create(name="Pinnacle 2")
@@ -365,7 +457,8 @@ class TestJobArchiveView(TestCase):
 
 class TestProfileView(TestCase):
     def setUp(self):
-        self.u1 = User.objects.create_user(username='testuser1', password="testing123").save()
+        self.u1 = User.objects.create_user(username='testuser1',
+                                           password="testing123").save()
 
         self.pin1 = Machine.objects.create(name="Pinnacle 1")
         self.pin2 = Machine.objects.create(name="Pinnacle 2")
@@ -394,7 +487,8 @@ class TestProfileView(TestCase):
 
 class TestProfileEditView(TestCase):
     def setUp(self):
-        self.u1 = User.objects.create_user(username='testuser1', password="testing123").save()
+        self.u1 = User.objects.create_user(username='testuser1',
+                                           password="testing123").save()
 
         self.pin1 = Machine.objects.create(name="Pinnacle 1")
         self.pin2 = Machine.objects.create(name="Pinnacle 2")

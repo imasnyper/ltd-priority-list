@@ -147,7 +147,7 @@
     {% if is_paginated %}
         <ul class="uk-pagination uk-flex-center uk-margin-bottom">
             {% if page_obj.has_previous %}
-                <li><a href="?page=1"><span uk-icon="chevron-double-left"></span></a></li>
+                <li><a href="?page=1{{ args }}"><span uk-icon="chevron-double-left"></span></a></li>
                 <li><a href="?page={{ page_obj.previous_page_number }}{{ args }}"><span uk-pagination-previous></span></a></li>
             {% endif %}
 

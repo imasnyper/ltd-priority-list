@@ -97,11 +97,11 @@ class JobSearch(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['search_form'] = self.form_class()
         get = self.request.GET
-        context['search_terms'] = {k: v for k, v in self.request.GET.items()
+        context['search_terms'] = {k: v for k, v in get.items()
                                    if v is not None and v != ""
                                    and k != "page"}
+        context['search_form'] = self.form_class(context['search_terms'])
         context['args'] = "&" + "&".join([f"{k}={v}" for k, v in get.items()
                                           if v is not None
                                           and v != "" and k != "page"])
@@ -118,41 +118,36 @@ class JobSearch(LoginRequiredMixin, ListView):
             date_added_gte = data.pop('date_added_gte', False)
             datetime_completed_lte = data.pop('datetime_completed_lte', False)
             datetime_completed_gte = data.pop('datetime_completed_gte', False)
-            if 'description' in data.keys():
-                description = data.pop('description')
-                qs = Job.objects.filter(description__contains=description, **data)
-            elif 'datetime_completed' in data.keys():
-                datetime = data.pop('datetime_completed')
-                if datetime_completed_lte and datetime_completed_gte:
-                    qs = Job.objects.filter(**data)
-                elif datetime_completed_lte:
-                    qs = Job.objects.filter(datetime_completed__lte=datetime, **data)
+
+            description = data.pop('description', None)
+            datetime_completed = data.pop('datetime_completed', None)
+            date_added = data.pop('date_added', None)
+            due_date = data.pop('due_date', None)
+
+            qs = Job.objects.filter(**data)
+            if description is not None:
+                qs = qs.filter(description__contains=description)
+            if datetime_completed is not None:
+                if datetime_completed_lte:
+                    qs = qs.filter(datetime_completed__lte=datetime_completed)
                 elif datetime_completed_gte:
-                    qs = Job.objects.filter(datetime_completed__gte=datetime, **data)
+                    qs = qs.filter(datetime_completed__gte=datetime_completed)
                 else:
-                    qs = Job.objects.filter(datetime_completed__date=datetime, **data)
-            elif 'date_added' in data.keys():
-                date = data.pop('date_added')
-                if date_added_lte and date_added_gte:
-                    qs = Job.objects.filter(**data)
-                elif date_added_lte:
-                    qs = Job.objects.filter(date_added__lte=date, **data)
+                    qs = qs.filter(datetime_completed__date=datetime_completed)
+            if date_added is not None:
+                if date_added_lte:
+                    qs = qs.filter(date_added__lte=date_added)
                 elif date_added_gte:
-                    qs = Job.objects.filter(date_added__gte=date, **data)
+                    qs = qs.filter(date_added__gte=date_added)
                 else:
-                    qs = Job.objects.filter(date_added__date=date, **data)
-            elif 'due_date' in data.keys():
-                date = data.pop('due_date')
-                if due_date_lte and due_date_gte:
-                    qs = Job.objects.filter(**data)
-                elif due_date_lte:
-                    qs = Job.objects.filter(due_date__lte=date, **data)
+                    qs = qs.filter(date_added__date=date_added)
+            if due_date is not None:
+                if due_date_lte:
+                    qs = qs.filter(due_date__lte=due_date)
                 elif due_date_gte:
-                    qs = Job.objects.filter(due_date__gte=date, **data)
+                    qs = qs.filter(due_date__gte=due_date)
                 else:
-                    qs = Job.objects.filter(due_date__date=date, **data)
-            else:
-                qs = Job.objects.filter(**data)
+                    qs = qs.filter(due_date__date=due_date)
             return qs.order_by('date_added')
         return super().get_queryset()
 
@@ -185,7 +180,6 @@ def job_sort_up(request, pk):
     job = get_object_or_404(Job, pk=pk)
 
     job.up()
-    job.save()
 
     return HttpResponseRedirect(reverse("list:priority-list"))
 
@@ -195,7 +189,6 @@ def job_sort_down(request, pk):
     job = get_object_or_404(Job, pk=pk)
 
     job.down()
-    job.save()
 
     return HttpResponseRedirect(reverse("list:priority-list"))
 
@@ -204,13 +197,7 @@ def job_sort_down(request, pk):
 def job_to(request, pk, to):
     job = get_object_or_404(Job, pk=pk)
 
-    if to > job.order:
-        job.to(to)
-        job.down()
-    else:
-        job.to(to)
-
-    job.save()
+    job.to(to)
 
     return HttpResponseRedirect(reverse("list:priority-list"))
 

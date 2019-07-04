@@ -102,9 +102,13 @@ class JobSearch(LoginRequiredMixin, ListView):
                                    if v is not None and v != ""
                                    and k != "page"}
         context['search_form'] = self.form_class(context['search_terms'])
-        context['args'] = "&" + "&".join([f"{k}={v}" for k, v in get.items()
-                                          if v is not None
-                                          and v != "" and k != "page"])
+
+        # create key=value pairs for all search arguments that are not empty
+        # join them all together with '&' for url args which will be added to pagination links
+        context['args'] = "&".join([f"{k}={v}" for k, v in
+                                    context['search_terms'].items()])
+        if len(context['args']) > 0:
+            context['args'] = '&' + context['args']
         return context
 
     def get_queryset(self):

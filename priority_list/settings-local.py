@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from datetime import timedelta
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -46,6 +48,8 @@ INSTALLED_APPS = [
     'list',
     'vacation',
     'ordered_model',
+    'graphene_django',
+    'graphql_jwt',
 ]
 
 MIDDLEWARE = [
@@ -155,3 +159,21 @@ EMAIL_BACKEND = 'utils.mailgun_backend.MailgunBackend'
 MAILGUN_API_KEY = os.environ.get("MAILGUN_API_KEY")
 MAILGUN_API_URL = "https://api.mailgun.net/v3/sandboxc3caeaf85ca14955bc3d4a1c3935c1f0.mailgun.org/messages"
 DEFAULT_FROM_EMAIL = "Postmaster <postmaster@sandboxc3caeaf85ca14955bc3d4a1c3935c1f0.mailgun.org>"
+
+GRAPHENE = {
+    'SCHEMA': 'priority_list.schema.schema',
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ]
+}
+
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+GRAPHQL_JWT = {
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_EXPIRATION_DELTA': timedelta(minutes=5),
+    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
+}

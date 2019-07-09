@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'list',
     'vacation',
     'ordered_model',
+    'graphene_django',
+    'graphql_jwt',
 ]
 
 MIDDLEWARE = [
@@ -153,3 +155,8 @@ EMAIL_BACKEND = 'utils.mailgun_backend.MailgunBackend'
 MAILGUN_API_KEY = os.environ.get("MAILGUN_API_KEY")
 MAILGUN_API_URL = "https://api.mailgun.net/v3/sandboxc3caeaf85ca14955bc3d4a1c3935c1f0.mailgun.org/messages"
 DEFAULT_FROM_EMAIL = "Postmaster <postmaster@sandboxc3caeaf85ca14955bc3d4a1c3935c1f0.mailgun.org>"
+
+GRAPHENE = {
+    'SCHEMA': 'priority_list.schema.schema'
+}
+

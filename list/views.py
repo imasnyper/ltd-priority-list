@@ -8,12 +8,17 @@ from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+from graphene_django.views import GraphQLView
 
 from list.forms import CustomerForm, JobForm, ProfileForm, JobSearchForm
 from list.models import Customer, Job, Machine, Profile
 
 
 # Create your views here.
+class GQLView(GraphQLView):
+    # @csrf_exempt
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 
 class PriorityListView(LoginRequiredMixin, ListView):

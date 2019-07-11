@@ -18,10 +18,10 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
-from graphene_django.views import GraphQLView
-from graphql_jwt.decorators import jwt_cookie
 
+from list.views import GQLView
 from priority_list.forms import MyPasswordChangeForm, MyLoginForm
+from .views import csrf
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -37,7 +37,8 @@ urlpatterns = [
     path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(),
          name='password_reset_confirm'),
     path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
-    path('graphql', jwt_cookie(GraphQLView.as_view(graphiql=True))),
+    path('graphql/', GQLView.as_view(graphiql=True)),
+    path('csrf/', csrf),
 ]
 #
 if settings.DEBUG:

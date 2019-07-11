@@ -50,11 +50,13 @@ INSTALLED_APPS = [
     'ordered_model',
     'graphene_django',
     'graphql_jwt',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -177,3 +179,9 @@ GRAPHQL_JWT = {
     'JWT_EXPIRATION_DELTA': timedelta(minutes=5),
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
 }
+
+CORS_EXPOSE_HEADERS = ['*']
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000/']
+SESSION_COOKIE_SAMESITE = None

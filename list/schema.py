@@ -1,6 +1,7 @@
 import graphene
 from django.contrib.auth.models import User
 from graphene_django.types import DjangoObjectType
+from graphql_jwt.decorators import login_required
 
 from list.models import Job, Customer, Machine
 
@@ -32,6 +33,7 @@ class Query(object):
     all_machines = graphene.List(MachineType)
     all_users = graphene.List(UserType)
 
+    @login_required
     def resolve_jobs(self, info, **kwargs):
         job_number = kwargs.get('job_number')
         description = kwargs.get('description')
@@ -44,14 +46,18 @@ class Query(object):
             job = Job.objects.filter(description=description)
             return job
 
+    @login_required
     def resolve_all_jobs(self, info, **kwargs):
         return Job.objects.all()
 
+    @login_required
     def resolve_all_customers(self, info, **kwargs):
         return Customer.objects.all()
 
+    @login_required
     def resolve_all_machines(self, info, **kwargs):
         return Machine.objects.all()
 
+    @login_required
     def resolve_all_users(self, info, **kwargs):
         return User.objects.all()

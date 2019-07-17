@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'list.util.csrf_header_middleware',
+    # 'list.util.react_header_middleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -181,8 +182,12 @@ GRAPHQL_JWT = {
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
 }
 
-CORS_EXPOSE_HEADERS = ['X-CSRFToken']
+# CORS_EXPOSE_HEADERS = ['X-CSRFToken']
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = ['http://localhost:3000']
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000/']
-SESSION_COOKIE_SAMESITE = None
+
+REACT_SUPER_SECRET_KEY = 'supersupersecret'
+
+# CSRF_TRUSTED_ORIGINS = ['http://localhost:3000/']
+# SESSION_COOKIE_SAMESITE = None

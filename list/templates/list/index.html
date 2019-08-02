@@ -16,7 +16,7 @@
                                 <tr>
                                     <th class="uk-text-center uk-text-large" colspan="9">{{ machine.name|title }}</th>
                                 </tr>
-                                <tr>
+                                <tr class="uk-text-small">
                                     <th></th>
                                     <th class="uk-table-shrink uk-text-nowrap">Job #</th>
                                     <th>Description</th>
@@ -28,7 +28,7 @@
                                 </thead>
                                 <tbody>
                                 {% for job in job_set %}
-                                    <tr class="job-row">
+                                    <tr class="job-row uk-text-small">
                                         <td class="uk-table-link uk-text-bold">
                                             <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
                                                 {{ forloop.counter }}.
@@ -101,7 +101,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
+                                <tr class="uk-text-small">
                                     <td>Currently no jobs for {{ machine.name|title }}</td>
                                 </tr>
                                 </tbody>

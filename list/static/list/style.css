@@ -3,6 +3,10 @@ table {
     border-spacing: 0;
 }
 
+.setup-sheets {
+    min-width: 100px;
+}
+
 .dragging, .dragging * {
     cursor: move !important;
 }

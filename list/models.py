@@ -42,17 +42,29 @@ class Machine(OrderedModel):
 
 
 class Job(OrderedModel):
+    YES = "Y"
+    NO = "N"
+    NA = "-"
+    SETUP_SHEETS_CHOICES = [
+        (YES, "Yes"),
+        (NO, "No"),
+        (NA, "N/A"),
+    ]
+
     job_number = models.PositiveIntegerField(
         validators=[validators.MinValueValidator(1000),
                     validators.MaxValueValidator(9999)])
     description = models.CharField(max_length=50)
     add_tools = models.BooleanField()
+    setup_sheets = models.CharField(max_length=1, choices=SETUP_SHEETS_CHOICES,
+                                    default=NO, blank=True)
     customer = models.ForeignKey('Customer', on_delete=models.CASCADE)
     machine = models.ForeignKey("Machine", on_delete=models.CASCADE)
     date_added = models.DateField(
         default=timezone.now, blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
-    datetime_completed = models.DateTimeField(default=None, blank=True, null=True)
+    datetime_completed = models.DateTimeField(default=None, blank=True,
+                                              null=True)
     order_with_respect_to = 'machine'
     active = models.BooleanField(blank=True, default=True)
 
@@ -86,9 +98,12 @@ class Job(OrderedModel):
 
     def _bot(self):
         """
-        find the max order of the destination ordering_queryset and set the instance order to one greater.
-        it this method does not change the order of any other instance in the set. meant to be used only
-        from within the save method for setting the order of an instance that just changed machines.
+        find the max order of the destination ordering_queryset and set the
+        instance order to one greater.
+        it this method does not change the order of any other instance in the
+        set. meant to be used only
+        from within the save method for setting the order of an instance that
+        just changed machines.
         :return: None
         """
         last = self._find_max_order()
@@ -97,7 +112,8 @@ class Job(OrderedModel):
         self.save()
 
     def save(self, *args, **kwargs):
-        # If this instance is being created for the first time, old instance won't exist
+        # If this instance is being created for the first time, old instance
+        # won't exist
         try:
             old_job = Job.objects.get(id=self.pk)
             super().save(*args, **kwargs)
@@ -119,14 +135,18 @@ class Job(OrderedModel):
                 super().save(*args, **kwargs)
 
             if self.machine.pk != old_job.machine.pk:
-                # If machine changed, the instance is switching to a different subset,
+                # If machine changed, the instance is switching to a
+                # different subset,
                 # we need to send that instance to the bottom of that subset.
-                # NOTE: not overriding ordered_model's bottom method, since that uses the to() method
-                # to assign the order for the object, and that messes up the order of the machine the job is
+                # NOTE: not overriding ordered_model's bottom method,
+                # since that uses the to() method
+                # to assign the order for the object, and that messes up the
+                # order of the machine the job is
                 # being moved to.
                 self._bot()
 
-                # If there were objects after the instance in the OLD subset, move them up in the order by 1 each
+                # If there were objects after the instance in the OLD subset,
+                # move them up in the order by 1 each
                 smooth_ordering(old_job)
 
     class Meta(OrderedModel.Meta):
@@ -153,15 +173,18 @@ def smooth_ordering(instance):
     :param instance: the instance that changed machines or was archived
     :return: None
     """
-    # If there were objects after the instance in the OLD subset, move them up in the order by 1 each
+    # If there were objects after the instance in the OLD subset, move them
+    # up in the order by 1 each
     order = instance.order + 1
     try:
         while True:
-            job = Job.objects.get(machine=instance.machine, order=order, active=True)
+            job = Job.objects.get(machine=instance.machine, order=order,
+                                  active=True)
             job.to(order - 1)
             order += 1
     except Job.DoesNotExist:
         pass
+
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

@@ -73,22 +73,6 @@
                                                class="uk-link-reset uk-padding-remove" uk-icon="pencil">
                                             </a>
                                         </td>
-                                        {#                                        <td class="uk-padding-remove">#}
-                                        {#                                            {% if forloop.counter > 1 %}#}
-                                        {#                                                <a href="{% url 'list:sort_up' job.pk %}"#}
-                                        {#                                                   class="uk-link-reset uk-padding-remove" uk-icon="triangle-up"></a>#}
-                                        {#                                            {% else %}#}
-                                        {#                                                <div class="sort-up-link">#}
-                                        {#                                                    <div class="sort-up-button-placeholder"></div>#}
-                                        {#                                                </div>#}
-                                        {#                                            {% endif %}#}
-                                        {#                                        </td>#}
-                                        {#                                        <td class="uk-padding-remove">#}
-                                        {#                                            {% if forloop.counter < job_set|length %}#}
-                                        {#                                                <a href="{% url 'list:sort_down' job.pk %}"#}
-                                        {#                                                   class="uk-link-reset uk-padding-remove" uk-icon="triangle-down"></a>#}
-                                        {#                                            {% endif %}#}
-                                        {#                                        </td>#}
                                     </tr>
                                 {% endfor %}
                                 </tbody>
@@ -97,12 +81,12 @@
                             <table class="empty-job-list uk-table-small uk-table-middle">
                                 <thead>
                                 <tr>
-                                    <th class="uk-text-middle uk-text-large">{{ machine.name|title }}</th>
+                                    <th class="uk-text-center uk-text-large">{{ machine.name|title }}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr class="uk-text-small">
-                                    <td>Currently no jobs for {{ machine.name|title }}</td>
+                                    <td class="uk-text-center">Currently no jobs for {{ machine.name|title }}</td>
                                 </tr>
                                 </tbody>
                             </table>

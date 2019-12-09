@@ -38,13 +38,18 @@
                     {% else %}
                         <span uk-icon="close"></span>
                     {% endif %}
-            </div>
-            <br/>
-            <a class="uk-button uk-button-default" href="{% url 'list:edit' job.pk %}"><span uk-icon="file-edit"></span>
-                Edit Job</a>
+                </div>
+                <div>
+                    <span class="uk-text-bold">Setup Sheets Made?: </span>
+                    <span>{{ job.get_setup_sheets_display }}</span>
+                </div>
+                <br/>
+                <a class="uk-button uk-button-default" href="{% url 'list:edit' job.pk %}"><span
+                        uk-icon="file-edit"></span>
+                    Edit Job</a>
                 {# TODO: add url to unarchive a job, and show the correct button based on whether it's active or not.#}
                 <a class="uk-button uk-button-danger uk-float-right" href="{% url 'list:archive' job.pk %}"><span
-                    uk-icon="trash"></span> Job Finished</a>
+                        uk-icon="trash"></span> Job Finished</a>
+            </div>
         </div>
-    </div>
 {% endblock %}

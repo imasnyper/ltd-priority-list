@@ -47,6 +47,11 @@
                     <span class="active-label">{{ job_form.active.label_tag }}</span>
                     <span class="active-input">{{ job_form.active }}</span>
                 </div>
+                <div class="uk-padding-small">
+                    {{ job_form.setup_sheets.errors }}
+                    <span class="setup-sheets-label">{{ job_form.setup_sheets.label_tag }}</span>
+                    <span class="setup-sheets-input">{{ job_form.setup_sheets }}</span>
+                </div>
                 <button class="uk-button uk-button-primary" type="submit">Save</button>
                 <a class="uk-button uk-button-secondary uk-float-right" href="{% url 'list:priority-list' %}">Cancel</a>
             </form>

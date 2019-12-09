@@ -64,11 +64,19 @@ class JobForm(forms.ModelForm):
         required=False,
         initial=True
     )
+    setup_sheets = forms.ChoiceField(
+        label="Setup Sheets Completed:",
+        required=False,
+        choices=[("Y", "Yes"),
+                 ("N", "No"),
+                 ("-", "N/A")],
+        widget=forms.widgets.Select(attrs={'class': 'uk-select'})
+    )
 
     class Meta:
         model = Job
         fields = ['job_number', 'description',
-                  'customer', 'machine', 'due_date', 'add_tools', 'active']
+                  'customer', 'machine', 'due_date', 'add_tools', 'active', 'setup_sheets']
 
 
 class JobSearchForm(forms.ModelForm):

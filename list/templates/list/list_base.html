@@ -11,8 +11,8 @@
             <a href="#">{{ user.username|title }}</a>
             <div class="uk-navbar-dropdown">
                 <ul class="uk-nav uk-navbar-dropdown-nav">
-                    <li><a href="{% url 'list:profile' user.id %}">Profile</a></li>
-                    <li><a href="{% url 'list:profile-edit' user.id %}">Edit Profile</a></li>
+                    <li><a href="{% url 'list:profile' user.profile.id %}">Profile</a></li>
+                    <li><a href="{% url 'list:profile-edit' user.profile.id %}">Edit Profile</a></li>
                     <li><a href="{% url 'password_change' %}">Change Password</a></li>
                     <li><a href="{% url 'logout' %}">Logout</a></li>
                 </ul>

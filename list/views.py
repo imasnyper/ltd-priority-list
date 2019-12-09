@@ -35,7 +35,7 @@ class PriorityListView(LoginRequiredMixin, ListView):
 
         context['machines'] = profile.machines.all()
         context['customers'] = Customer.objects.all().order_by("name")
-        context['form'] = JobForm(auto_id="")
+        context['form'] = JobForm(auto_id="", initial={'setup_sheets': 'N'})
         context['customer_form'] = CustomerForm()
         context['debug'] = settings.DEBUG
 
@@ -76,7 +76,7 @@ class JobDetail(LoginRequiredMixin, DetailView):
 class JobUpdate(LoginRequiredMixin, UpdateView):
     model = Job
     fields = ['add_tools', 'job_number', 'description', 'due_date', 'customer',
-              'machine', 'active']
+              'machine', 'active', 'setup_sheets']
     success_url = reverse_lazy("list:priority-list")
     template_name_suffix = "_update_form"
 
@@ -91,7 +91,8 @@ class JobUpdate(LoginRequiredMixin, UpdateView):
                                        'due_date': job.due_date,
                                        'customer': job.customer.id,
                                        'machine': job.machine.id,
-                                       'active': job.active})
+                                       'active': job.active,
+                                       'setup_sheets': job.setup_sheets})
         return context
 
 
@@ -111,7 +112,8 @@ class JobSearch(LoginRequiredMixin, ListView):
         context['search_form'] = self.form_class(context['search_terms'])
 
         # create key=value pairs for all search arguments that are not empty
-        # join them all together with '&' for url args which will be added to pagination links
+        # join them all together with '&' for url args which will be added to
+        # pagination links
         context['args'] = "&".join([f"{k}={v}" for k, v in
                                     context['search_terms'].items()])
         if len(context['args']) > 0:
@@ -212,6 +214,7 @@ def job_to(request, pk, to):
 
     return HttpResponseRedirect(reverse("list:priority-list"))
 
+
 @login_required()
 def job_archive(request, pk):
     job = get_object_or_404(Job, pk=pk)
@@ -220,6 +223,7 @@ def job_archive(request, pk):
     job.save()
 
     return redirect(reverse("list:priority-list"))
+
 
 # class JobDelete(DeleteView):
 #     model = Job
@@ -232,7 +236,8 @@ class ProfileView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     template_name = "common/profile.html"
 
     def test_func(self):
-        user = get_object_or_404(User, pk=self.request.resolver_match.kwargs['pk'])
+        user = get_object_or_404(User,
+                                 pk=self.request.resolver_match.kwargs['pk'])
         return user.username == self.request.user.username
 
 
@@ -242,5 +247,6 @@ class ProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = "common/profile_update.html"
 
     def test_func(self):
-        user = get_object_or_404(User, pk=self.request.resolver_match.kwargs['pk'])
+        user = get_object_or_404(User,
+                                 pk=self.request.resolver_match.kwargs['pk'])
         return user.username == self.request.user.username

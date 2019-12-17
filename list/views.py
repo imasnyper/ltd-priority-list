@@ -33,11 +33,11 @@ class PriorityListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, id=self.request.user.id)
         profile = get_object_or_404(Profile, user=user)
 
-        context['machines'] = profile.machines.all()
-        context['customers'] = Customer.objects.all().order_by("name")
-        context['form'] = JobForm(auto_id="", initial={'setup_sheets': 'N'})
-        context['customer_form'] = CustomerForm()
-        context['debug'] = settings.DEBUG
+        context["machines"] = profile.machines.all()
+        context["customers"] = Customer.objects.all().order_by("name")
+        context["form"] = JobForm(auto_id="", initial={"setup_sheets": "N"})
+        context["customer_form"] = CustomerForm()
+        context["debug"] = settings.DEBUG
 
         return context
 
@@ -50,21 +50,20 @@ class JobCreate(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['machines'] = Machine.objects.all()
-        context['customers'] = Customer.objects.all()
+        context["machines"] = Machine.objects.all()
+        context["customers"] = Customer.objects.all()
         if self.request.method == "POST":
-            if kwargs['form'].is_bound:
-                context['active_machine'] = self.kwargs['machine_pk']
-                context['active_machine_form'] = context['form']
-                context['form'] = JobForm
+            if kwargs["form"].is_bound:
+                context["active_machine"] = self.kwargs["machine_pk"]
+                context["active_machine_form"] = context["form"]
+                context["form"] = JobForm
             else:
-                context['active_machine'] = None
+                context["active_machine"] = None
 
         return context
 
     def form_valid(self, form):
-        form.instance.machine = Machine.objects.get(
-            pk=self.kwargs['machine_pk'])
+        form.instance.machine = Machine.objects.get(pk=self.kwargs["machine_pk"])
         form.save()
         return super().form_valid(form)
 
@@ -75,24 +74,36 @@ class JobDetail(LoginRequiredMixin, DetailView):
 
 class JobUpdate(LoginRequiredMixin, UpdateView):
     model = Job
-    fields = ['add_tools', 'job_number', 'description', 'due_date', 'customer',
-              'machine', 'active', 'setup_sheets']
+    fields = [
+        "add_tools",
+        "job_number",
+        "description",
+        "due_date",
+        "customer",
+        "machine",
+        "active",
+        "setup_sheets",
+    ]
     success_url = reverse_lazy("list:priority-list")
     template_name_suffix = "_update_form"
 
     def get_context_data(self, **kwargs):
         job = self.object
         context = super().get_context_data(**kwargs)
-        context['machines'] = Machine.objects.all()
-        context['customers'] = Customer.objects.all().order_by("name")
-        context['job_form'] = JobForm({'add_tools': job.add_tools,
-                                       'job_number': job.job_number,
-                                       'description': job.description,
-                                       'due_date': job.due_date,
-                                       'customer': job.customer.id,
-                                       'machine': job.machine.id,
-                                       'active': job.active,
-                                       'setup_sheets': job.setup_sheets})
+        context["machines"] = Machine.objects.all()
+        context["customers"] = Customer.objects.all().order_by("name")
+        context["job_form"] = JobForm(
+            {
+                "add_tools": job.add_tools,
+                "job_number": job.job_number,
+                "description": job.description,
+                "due_date": job.due_date,
+                "customer": job.customer.id,
+                "machine": job.machine.id,
+                "active": job.active,
+                "setup_sheets": job.setup_sheets,
+            }
+        )
         return context
 
 
@@ -106,18 +117,19 @@ class JobSearch(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         get = self.request.GET
-        context['search_terms'] = {k: v for k, v in get.items()
-                                   if v is not None and v != ""
-                                   and k != "page"}
-        context['search_form'] = self.form_class(context['search_terms'])
+        context["search_terms"] = {
+            k: v for k, v in get.items() if v is not None and v != "" and k != "page"
+        }
+        context["search_form"] = self.form_class(context["search_terms"])
 
         # create key=value pairs for all search arguments that are not empty
         # join them all together with '&' for url args which will be added to
         # pagination links
-        context['args'] = "&".join([f"{k}={v}" for k, v in
-                                    context['search_terms'].items()])
-        if len(context['args']) > 0:
-            context['args'] = '&' + context['args']
+        context["args"] = "&".join(
+            [f"{k}={v}" for k, v in context["search_terms"].items()]
+        )
+        if len(context["args"]) > 0:
+            context["args"] = "&" + context["args"]
         return context
 
     def get_queryset(self):
@@ -125,17 +137,17 @@ class JobSearch(LoginRequiredMixin, ListView):
         if form.is_valid():
             data = form.cleaned_data
             data = {k: v for k, v in data.items() if v is not None and v != ""}
-            due_date_lte = data.pop('due_date_lte', False)
-            due_date_gte = data.pop('due_date_gte', False)
-            date_added_lte = data.pop('date_added_lte', False)
-            date_added_gte = data.pop('date_added_gte', False)
-            datetime_completed_lte = data.pop('datetime_completed_lte', False)
-            datetime_completed_gte = data.pop('datetime_completed_gte', False)
+            due_date_lte = data.pop("due_date_lte", False)
+            due_date_gte = data.pop("due_date_gte", False)
+            date_added_lte = data.pop("date_added_lte", False)
+            date_added_gte = data.pop("date_added_gte", False)
+            datetime_completed_lte = data.pop("datetime_completed_lte", False)
+            datetime_completed_gte = data.pop("datetime_completed_gte", False)
 
-            description = data.pop('description', None)
-            datetime_completed = data.pop('datetime_completed', None)
-            date_added = data.pop('date_added', None)
-            due_date = data.pop('due_date', None)
+            description = data.pop("description", None)
+            datetime_completed = data.pop("datetime_completed", None)
+            date_added = data.pop("date_added", None)
+            due_date = data.pop("due_date", None)
 
             qs = Job.objects.filter(**data)
             if description is not None:
@@ -161,7 +173,7 @@ class JobSearch(LoginRequiredMixin, ListView):
                     qs = qs.filter(due_date__gte=due_date)
                 else:
                     qs = qs.filter(due_date__date=due_date)
-            return qs.order_by('date_added')
+            return qs.order_by("date_added")
         return super().get_queryset()
 
 
@@ -175,17 +187,19 @@ class ArchiveView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, id=self.request.user.id)
         profile = get_object_or_404(Profile, user=user)
 
-        return Job.objects.all() \
-            .filter(active=False) \
-            .filter(machine__in=profile.machines.all()) \
+        return (
+            Job.objects.all()
+            .filter(active=False)
+            .filter(machine__in=profile.machines.all())
             .order_by("-datetime_completed")
+        )
 
 
 class CustomerCreate(LoginRequiredMixin, CreateView):
     model = Customer
     template_name = "list/add_customer.html"
     form_class = CustomerForm
-    success_url = 'list/index.html'
+    success_url = "list/index.html"
 
 
 @login_required()
@@ -236,8 +250,7 @@ class ProfileView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     template_name = "common/profile.html"
 
     def test_func(self):
-        user = get_object_or_404(User,
-                                 pk=self.request.resolver_match.kwargs['pk'])
+        user = get_object_or_404(User, pk=self.request.resolver_match.kwargs["pk"])
         return user.username == self.request.user.username
 
 
@@ -247,6 +260,5 @@ class ProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = "common/profile_update.html"
 
     def test_func(self):
-        user = get_object_or_404(User,
-                                 pk=self.request.resolver_match.kwargs['pk'])
+        user = get_object_or_404(User, pk=self.request.resolver_match.kwargs["pk"])
         return user.username == self.request.user.username

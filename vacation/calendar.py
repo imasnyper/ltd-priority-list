@@ -29,7 +29,9 @@ class VacationCalendar(HTMLCalendar):
         ontario_holidays = ontario.holidays(theyear)
 
         events_from_day = events.filter(Q(start_date__lte=date) & Q(end_date__gte=date))
-        events_from_day = sorted(events_from_day, key=methodcaller('event_length_days'), reverse=True)
+        events_from_day = sorted(
+            events_from_day, key=methodcaller("event_length_days"), reverse=True
+        )
         events_from_day = sorted(events_from_day, key=attrgetter("start_date"))
         events_html = ""
         for i, event in enumerate(events_from_day):
@@ -43,7 +45,9 @@ class VacationCalendar(HTMLCalendar):
             if event.id in self.event_dict:
                 order = self.event_dict[event.id]
             else:
-                self.event_dict[event.id] = i + empty_rows  # set the order for future days
+                self.event_dict[event.id] = (
+                    i + empty_rows
+                )  # set the order for future days
                 order = 0  # order for this day stays the same. it will go directly below the previous event for the day
 
             # the the set order is different from the current loop order, add as many empty rows as required to make
@@ -59,8 +63,12 @@ class VacationCalendar(HTMLCalendar):
                 events_html += f'<a class="calendar-event single-day-event" href="{event.get_absolute_url()}">{event.user.username.title()}</a>'
             # event is a multi-day event and the start date is the same as the current day being rendered
             elif event.start_date.day == day:
-                if event.event_length_days() == 2 \
-                        or event.event_length_days() > 5 or day == 1 or day == last_day_of_month:
+                if (
+                    event.event_length_days() == 2
+                    or event.event_length_days() > 5
+                    or day == 1
+                    or day == last_day_of_month
+                ):
                     events_html += f'<a class="calendar-event multi-day-start" href="{event.get_absolute_url()}">{event.user.username.title()}</a>'
                 else:
                     events_html += f'<a class="calendar-event multi-day-start" href="{event.get_absolute_url()}"></a>'
@@ -72,8 +80,12 @@ class VacationCalendar(HTMLCalendar):
                 else:
                     events_html += f'<a class="calendar-event multi-day-middle" href="{event.get_absolute_url()}"></a>'
             elif event.end_date.day == day:
-                if event.event_length_days() == 2 \
-                        or event.event_length_days() > 5 or day == last_day_of_month or day == 1:
+                if (
+                    event.event_length_days() == 2
+                    or event.event_length_days() > 5
+                    or day == last_day_of_month
+                    or day == 1
+                ):
                     events_html += f'<a class="calendar-event multi-day-end" href="{event.get_absolute_url()}">{event.user.username.title()}</a>'
                 else:
                     events_html += f'<a class="calendar-event multi-day-end" href="{event.get_absolute_url()}"></a>'
@@ -82,13 +94,17 @@ class VacationCalendar(HTMLCalendar):
         holidays_html = ""
 
         if date.month != themonth:
-            string = f"<td height=150 valign='top' class='noday {self.cssclasses[wday]}'>"
+            string = (
+                f"<td height=150 valign='top' class='noday {self.cssclasses[wday]}'>"
+            )
         else:
             string = f"<td height=150 valign='top' class='{self.cssclasses[wday]}'>"
 
         for d, holiday_name in ontario_holidays:
             if date == d:
-                holidays_html = f"<span class='canada-holiday'>&nbsp;{holiday_name}</span>"
+                holidays_html = (
+                    f"<span class='canada-holiday'>&nbsp;{holiday_name}</span>"
+                )
                 string = f"<td height=150 valign='top' class='holiday {self.cssclasses[wday]}'>"
 
         string += "<table class='day-table'><tbody>"
@@ -114,14 +130,14 @@ class VacationCalendar(HTMLCalendar):
         return '<th class="%s-header">%s</th>' % (self.cssclasses[day], day_abbr[day])
 
     def formatweek(self, theyear, themonth, theweek, events):
-        s = ''.join(self.formatday(theyear, themonth, date, events) for date in theweek)
+        s = "".join(self.formatday(theyear, themonth, date, events) for date in theweek)
         return f"<tr>{s}</tr>"
 
     def formatweekheader(self):
         """
         Return a header for a week as a table row.
         """
-        s = ''.join(self.formatweekday(i) for i in self.iterweekdays())
+        s = "".join(self.formatweekday(i) for i in self.iterweekdays())
         return '<tr class="week-header">%s</tr>' % s
 
     def formatmonthname(self, theyear, themonth, withyear=True):
@@ -129,28 +145,30 @@ class VacationCalendar(HTMLCalendar):
         Return a month name as a table row.
         """
         if withyear:
-            s = '%s %s' % (month_name[themonth], theyear)
+            s = "%s %s" % (month_name[themonth], theyear)
         else:
-            s = '%s' % month_name[themonth]
+            s = "%s" % month_name[themonth]
         return '<tr><th colspan="7" class="month-name">%s</th></tr>' % s
 
     def formatmonth(self, theyear, themonth, withyear=True):
         if self.events:
             events = self.events
         else:
-            events = Vacation.objects.filter(Q(start_date__month=themonth) | Q(end_date__month=themonth))
+            events = Vacation.objects.filter(
+                Q(start_date__month=themonth) | Q(end_date__month=themonth)
+            )
 
         table = []
         a = table.append
         a("<table border='0' cellpadding='0' cellspacing='0' class='month'>")
-        a('\n')
+        a("\n")
         a(self.formatmonthname(theyear, themonth, withyear=withyear))
-        a('\n')
+        a("\n")
         a(self.formatweekheader())
-        a('\n')
+        a("\n")
         for week in self.monthdatescalendar(theyear, themonth):
             a(self.formatweek(theyear, themonth, week, events))
-            a('\n')
+            a("\n")
         # a("<\table>")
         a("\n")
-        return ''.join(table)
+        return "".join(table)

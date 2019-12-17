@@ -15,7 +15,7 @@ class Customer(OrderedModel):
     name = models.CharField(max_length=50, unique=True)
 
     class Meta(OrderedModel.Meta):
-        ordering = ('name',)
+        ordering = ("name",)
 
     def save(self, *args, **kwargs):
         self.name = self.name.lower()
@@ -29,10 +29,18 @@ class Machine(OrderedModel):
     name = models.CharField(max_length=50, unique=True)
 
     def active_jobs(self):
-        return Job.objects.filter(machine__pk=self.pk).filter(active=True)
+        return (
+            Job.objects.filter(active=True)
+            .filter(details__machine__pk=self.pk)
+            .distinct()
+        )
 
     def inactive_jobs(self):
-        return Job.objects.filter(machine__pk=self.pk).filter(active=False)
+        return (
+            Job.objects.filter(active=False)
+            .filter(details__machine__pk=self.pk)
+            .distinct()
+        )
 
     class Meta(OrderedModel.Meta):
         ordering = ("order",)
@@ -52,20 +60,22 @@ class Job(OrderedModel):
     ]
 
     job_number = models.PositiveIntegerField(
-        validators=[validators.MinValueValidator(1000),
-                    validators.MaxValueValidator(9999)])
+        validators=[
+            validators.MinValueValidator(1000),
+            validators.MaxValueValidator(9999),
+        ]
+    )
     description = models.CharField(max_length=50)
     add_tools = models.BooleanField()
-    setup_sheets = models.CharField(max_length=1, choices=SETUP_SHEETS_CHOICES,
-                                    default=NO, blank=True)
-    customer = models.ForeignKey('Customer', on_delete=models.CASCADE)
-    machine = models.ForeignKey("Machine", on_delete=models.CASCADE)
-    date_added = models.DateField(
-        default=timezone.now, blank=True, null=True)
+    setup_sheets = models.CharField(
+        max_length=1, choices=SETUP_SHEETS_CHOICES, default=NO, blank=True
+    )
+    customer = models.ForeignKey("Customer", on_delete=models.CASCADE)
+    # machine = models.ForeignKey("Machine", on_delete=models.CASCADE)
+    date_added = models.DateField(default=timezone.now, blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
-    datetime_completed = models.DateTimeField(default=None, blank=True,
-                                              null=True)
-    order_with_respect_to = 'machine'
+    datetime_completed = models.DateTimeField(default=None, blank=True, null=True)
+    order_with_respect_to = "details__order"
     active = models.BooleanField(blank=True, default=True)
 
     def get_absolute_url(self):
@@ -78,18 +88,14 @@ class Job(OrderedModel):
         """
         oq = self.get_ordering_queryset()
         if include_self:
-            last = (oq
-                    .filter(active=True)
-                    .aggregate(Max('order'))
-                    .get('order__max')
-                    )
+            last = oq.filter(active=True).aggregate(Max("order")).get("order__max")
         else:
-            last = (oq
-                    .filter(active=True)
-                    .exclude(id=self.id)
-                    .aggregate(Max('order'))
-                    .get('order__max')
-                    )
+            last = (
+                oq.filter(active=True)
+                .exclude(id=self.id)
+                .aggregate(Max("order"))
+                .get("order__max")
+            )
 
         if last is None:
             last = -1
@@ -134,26 +140,44 @@ class Job(OrderedModel):
                 self.order = order + 1
                 super().save(*args, **kwargs)
 
-            if self.machine.pk != old_job.machine.pk:
-                # If machine changed, the instance is switching to a
-                # different subset,
-                # we need to send that instance to the bottom of that subset.
-                # NOTE: not overriding ordered_model's bottom method,
-                # since that uses the to() method
-                # to assign the order for the object, and that messes up the
-                # order of the machine the job is
-                # being moved to.
-                self._bot()
-
-                # If there were objects after the instance in the OLD subset,
-                # move them up in the order by 1 each
-                smooth_ordering(old_job)
+            # if self.machine.pk != old_job.machine.pk:
+            #     # If machine changed, the instance is switching to a
+            #     # different subset,
+            #     # we need to send that instance to the bottom of that subset.
+            #     # NOTE: not overriding ordered_model's bottom method,
+            #     # since that uses the to() method
+            #     # to assign the order for the object, and that messes up the
+            #     # order of the machine the job is
+            #     # being moved to.
+            #     self._bot()
+            #
+            #     # If there were objects after the instance in the OLD subset,
+            #     # move them up in the order by 1 each
+            #     smooth_ordering(old_job)
 
     class Meta(OrderedModel.Meta):
         pass
 
     def __str__(self):
         return f"{self.job_number} {self.description}"
+
+
+class Detail(OrderedModel):
+    job = models.ForeignKey(
+        Job, on_delete=models.CASCADE, related_name="details", blank=False
+    )
+    ltd_item_number = models.IntegerField(blank=False)
+    outsource_detail_number = models.CharField(max_length=24, blank=False)
+    description = models.CharField(max_length=64, blank=True)
+    machine = models.ForeignKey(
+        Machine, on_delete=models.CASCADE, blank=True, null=True
+    )
+
+    def get_absolute_url(self):
+        return reverse("list:item-detail", args=[self.pk])
+
+    def __str__(self):
+        return f"[{self.job.job_number}] - Item {self.ltd_item_number}"
 
 
 class Profile(models.Model):
@@ -178,8 +202,7 @@ def smooth_ordering(instance):
     order = instance.order + 1
     try:
         while True:
-            job = Job.objects.get(machine=instance.machine, order=order,
-                                  active=True)
+            job = Job.objects.get(machine=instance.machine, order=order, active=True)
             job.to(order - 1)
             order += 1
     except Job.DoesNotExist:

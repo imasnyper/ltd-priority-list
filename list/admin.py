@@ -8,9 +8,11 @@ from list.models import Customer, Job, Machine, Profile
 
 
 class JobAdmin(OrderedModelAdmin):
-    list_display = ('job_number', 'description', 'customer',
-                    'machine', 'move_up_down_links')
-    ordering = ("machine__order", "order",)
+    list_display = ("job_number", "description", "customer", "move_up_down_links")
+    ordering = (
+        "machine__order",
+        "order",
+    )
 
 
 class MachineAdmin(OrderedModelAdmin):

@@ -22,7 +22,6 @@ requests = "*"
 django-debug-toolbar = "*"
 django-extensions = "*"
 django-bower = "*"
-django-scheduler = "*"
 workalendar = "*"
 coverage = "*"
 graphene-django = "*"
@@ -30,3 +29,4 @@ django-graphql-jwt = "*"
 django-cors-headers = "*"
 
 [dev-packages]
+black = "*"

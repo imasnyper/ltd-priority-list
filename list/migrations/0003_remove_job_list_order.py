@@ -6,12 +6,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('list', '0002_auto_20181211_1756'),
+        ("list", "0002_auto_20181211_1756"),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='job',
-            name='list_order',
-        ),
+        migrations.RemoveField(model_name="job", name="list_order",),
     ]

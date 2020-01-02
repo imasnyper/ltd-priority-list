@@ -4,7 +4,13 @@ import datetime
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone as tz
 from django.utils.safestring import mark_safe
-from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
+from django.views.generic import (
+    CreateView,
+    ListView,
+    UpdateView,
+    DeleteView,
+    DetailView,
+)
 
 from vacation.calendar import VacationCalendar
 from vacation.forms import VacationForm
@@ -14,10 +20,10 @@ from vacation.models import Vacation
 # Create your views here.
 class CalendarView(ListView):
     model = Vacation
-    template_name = 'vacation/index.html'
+    template_name = "vacation/index.html"
 
     def get_queryset(self, *args, **kwargs):
-        return Vacation.objects.order_by('start_date', 'user')
+        return Vacation.objects.order_by("start_date", "user")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -25,9 +31,11 @@ class CalendarView(ListView):
         cal = VacationCalendar()
         cal.setfirstweekday(calendar.SUNDAY)
 
-        if 'year' in self.kwargs.keys():
-            now = tz.datetime(self.kwargs['year'], self.kwargs['month'], 1)
-            html_calendar = cal.formatmonth(self.kwargs['year'], self.kwargs['month'], withyear=True)
+        if "year" in self.kwargs.keys():
+            now = tz.datetime(self.kwargs["year"], self.kwargs["month"], 1)
+            html_calendar = cal.formatmonth(
+                self.kwargs["year"], self.kwargs["month"], withyear=True
+            )
         else:
             now = tz.now()
             html_calendar = cal.formatmonth(now.year, now.month, withyear=True)
@@ -41,12 +49,16 @@ class CalendarView(ListView):
         next_month = next_month + datetime.timedelta(days=1)
         next_month = tz.datetime(next_month.year, next_month.month, 1)
 
-        context['prev_month'] = reverse('vacation:calendar',
-                                        kwargs={'year': prev_month.year, 'month': prev_month.month})
-        context['next_month'] = reverse('vacation:calendar',
-                                        kwargs={'year': next_month.year, 'month': next_month.month})
+        context["prev_month"] = reverse(
+            "vacation:calendar",
+            kwargs={"year": prev_month.year, "month": prev_month.month},
+        )
+        context["next_month"] = reverse(
+            "vacation:calendar",
+            kwargs={"year": next_month.year, "month": next_month.month},
+        )
 
-        context['calendar'] = mark_safe(html_calendar)
+        context["calendar"] = mark_safe(html_calendar)
         return context
 
 
@@ -57,14 +69,16 @@ class VacationDetail(DetailView):
 class VacationAdd(CreateView):
     model = Vacation
     form_class = VacationForm
-    success_url = reverse_lazy('vacation:calendar')
+    success_url = reverse_lazy("vacation:calendar")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         if "day" in self.kwargs.keys():
-            date = datetime.date(self.kwargs['year'], self.kwargs['month'], self.kwargs['day'])
-            context['form'] = VacationForm(data={'start_date': date})
+            date = datetime.date(
+                self.kwargs["year"], self.kwargs["month"], self.kwargs["day"]
+            )
+            context["form"] = VacationForm(data={"start_date": date})
 
         return context
 
@@ -73,9 +87,9 @@ class VacationEdit(UpdateView):
     model = Vacation
     form_class = VacationForm
     template_name_suffix = "_update_form"
-    success_url = reverse_lazy('vacation:calendar')
+    success_url = reverse_lazy("vacation:calendar")
 
 
 class VacationDelete(DeleteView):
     model = Vacation
-    success_url = reverse_lazy('vacation:calendar')
+    success_url = reverse_lazy("vacation:calendar")

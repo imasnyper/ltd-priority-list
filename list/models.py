@@ -3,19 +3,15 @@
 from django.contrib.auth.models import User
 from django.core import validators
 from django.db import models
-from django.db.models import Max
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.shortcuts import reverse
 from django.utils import timezone
 from ordered_model.models import OrderedModel
 
 
-class Customer(OrderedModel):
+class Customer(models.Model):
     name = models.CharField(max_length=50, unique=True)
-
-    class Meta(OrderedModel.Meta):
-        ordering = ("name",)
 
     def save(self, *args, **kwargs):
         self.name = self.name.lower()
@@ -25,8 +21,34 @@ class Customer(OrderedModel):
         return f"{self.name.title()}"
 
 
-class Machine(OrderedModel):
+class Machine(models.Model):
     name = models.CharField(max_length=50, unique=True)
+
+    def get_ordered_jobs(self):
+        jobs = []
+        mo = self.get_ordering_queryset()
+        for order in mo:
+            jobs.append(order.job)
+
+        return jobs
+
+    def get_ordering_queryset(self):
+        return (
+            MachineOrder.objects.filter(machine=self)
+            .filter(job__active=True)
+            .order_by("order")
+        )
+
+    def max_order(self):
+        mo = (
+            MachineOrder.objects.filter(machine=self)
+            .filter(job__active=True)
+            .order_by("order")
+            .last()
+        )
+        if not mo:
+            return 0
+        return mo.order
 
     def active_jobs(self):
         return (
@@ -42,14 +64,11 @@ class Machine(OrderedModel):
             .distinct()
         )
 
-    class Meta(OrderedModel.Meta):
-        ordering = ("order",)
-
     def __str__(self):
         return f"{self.name}"
 
 
-class Job(OrderedModel):
+class Job(models.Model):
     YES = "Y"
     NO = "N"
     NA = "-"
@@ -66,103 +85,82 @@ class Job(OrderedModel):
         ]
     )
     description = models.CharField(max_length=50)
-    add_tools = models.BooleanField()
+    add_tools = models.BooleanField(default=True)
     setup_sheets = models.CharField(
         max_length=1, choices=SETUP_SHEETS_CHOICES, default=NO, blank=True
     )
     customer = models.ForeignKey("Customer", on_delete=models.CASCADE)
-    # machine = models.ForeignKey("Machine", on_delete=models.CASCADE)
     date_added = models.DateField(default=timezone.now, blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
     datetime_completed = models.DateTimeField(default=None, blank=True, null=True)
-    order_with_respect_to = "details__order"
     active = models.BooleanField(blank=True, default=True)
+
+    def order(self, machine):
+        return MachineOrder.objects.get(machine=machine, job=self).order
 
     def get_absolute_url(self):
         return reverse("list:job-detail", args=[self.pk])
-
-    def _find_max_order(self, include_self=False):
-        """
-        get the max order for the ordering_queryset
-        :return: int - max order
-        """
-        oq = self.get_ordering_queryset()
-        if include_self:
-            last = oq.filter(active=True).aggregate(Max("order")).get("order__max")
-        else:
-            last = (
-                oq.filter(active=True)
-                .exclude(id=self.id)
-                .aggregate(Max("order"))
-                .get("order__max")
-            )
-
-        if last is None:
-            last = -1
-
-        return last
-
-    def _bot(self):
-        """
-        find the max order of the destination ordering_queryset and set the
-        instance order to one greater.
-        it this method does not change the order of any other instance in the
-        set. meant to be used only
-        from within the save method for setting the order of an instance that
-        just changed machines.
-        :return: None
-        """
-        last = self._find_max_order()
-
-        self.order = last + 1
-        self.save()
-
-    def save(self, *args, **kwargs):
-        # If this instance is being created for the first time, old instance
-        # won't exist
-        try:
-            old_job = Job.objects.get(id=self.pk)
-            super().save(*args, **kwargs)
-            self._save(old_job, *args, **kwargs)
-        except Job.DoesNotExist:
-            super().save(*args, **kwargs)
-
-    def _save(self, old_job, *args, **kwargs):
-        if old_job is not None:
-            if old_job.active and not self.active:
-                smooth_ordering(old_job)
-                self.order = 0
-                self.datetime_completed = timezone.now()
-                super().save(*args, **kwargs)
-            elif not old_job.active and self.active:
-                order = self._find_max_order()
-                self.datetime_completed = None
-                self.order = order + 1
-                super().save(*args, **kwargs)
-
-            # if self.machine.pk != old_job.machine.pk:
-            #     # If machine changed, the instance is switching to a
-            #     # different subset,
-            #     # we need to send that instance to the bottom of that subset.
-            #     # NOTE: not overriding ordered_model's bottom method,
-            #     # since that uses the to() method
-            #     # to assign the order for the object, and that messes up the
-            #     # order of the machine the job is
-            #     # being moved to.
-            #     self._bot()
-            #
-            #     # If there were objects after the instance in the OLD subset,
-            #     # move them up in the order by 1 each
-            #     smooth_ordering(old_job)
-
-    class Meta(OrderedModel.Meta):
-        pass
 
     def __str__(self):
         return f"{self.job_number} {self.description}"
 
 
-class Detail(OrderedModel):
+class MachineOrder(models.Model):
+    machine = models.ForeignKey(Machine, related_name="order", on_delete=models.CASCADE)
+    job = models.ForeignKey(Job, related_name="order", on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(blank=True, null=True)
+
+    def up(self):
+        order = self.order - 1
+        if order < 1:
+            return
+        old_job = MachineOrder.objects.get(machine=self.machine, order=order)
+        self.order = order
+        self.save()
+        old_job.order += 1
+        old_job.save()
+
+    def down(self):
+        max_order = self.machine.max_order()
+        order = self.order + 1
+        if order > max_order:
+            return
+        old_job = MachineOrder.objects.get(machine=self.machine, order=order)
+        self.order = order
+        self.save()
+        old_job.order -= 1
+        old_job.save()
+
+    def to(self, order):
+        # moving down
+        if order > self.order:
+            if order > self.machine.max_order():
+                return
+            for i in range(self.order, order + 1):
+                if i != self.order:
+                    mo = MachineOrder.objects.get(machine=self.machine, order=i)
+                    mo.order -= 1
+                    mo.save()
+            self.order = order
+            self.save()
+
+        # moving up
+        if order < self.order:
+            if order < 1:
+                return
+            # move in reverse order so only one object exists for a given order
+            for i in range(self.order - 1, order - 1, -1):
+                mo = MachineOrder.objects.get(machine=self.machine, order=i)
+                mo.order += 1
+                mo.save()
+            self.order = order
+            self.save()
+
+    def __repr__(self):
+        return f"[{self.machine.name}] - [{self.job.job_number}] - <{self.order}>"
+
+
+class Detail(models.Model):
     job = models.ForeignKey(
         Job, on_delete=models.CASCADE, related_name="details", blank=False
     )
@@ -170,8 +168,61 @@ class Detail(OrderedModel):
     outsource_detail_number = models.CharField(max_length=24, blank=False)
     description = models.CharField(max_length=64, blank=True)
     machine = models.ForeignKey(
+        Machine, on_delete=models.CASCADE, blank=True, null=True, related_name="details"
+    )
+
+    original_machine = models.ForeignKey(
         Machine, on_delete=models.CASCADE, blank=True, null=True
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        if self.original_machine is None and self.machine is not None:
+            try:
+                mo = MachineOrder.objects.get(job=self.job, machine=self.machine)
+            except MachineOrder.DoesNotExist:
+                order = self.machine.max_order() + 1
+                MachineOrder.objects.create(
+                    job=self.job, machine=self.machine, order=order
+                )
+
+        elif self.original_machine != self.machine:
+            # check if MachineOrder exists for self.machine and self.job,
+            # if not create it
+            new_order = self.machine.max_order() + 1
+            new_mo, created = MachineOrder.objects.get_or_create(
+                job=self.job, machine=self.machine
+            )
+            if created:
+                new_mo.order = new_order
+                new_mo.save()
+
+            # check if any details still exist for self.original_machine and
+            # self.job, if not delete the old MachineOrder object
+            # if MachineOrder object is deleted, check if any machine order
+            # objects exist with a higher order and move them up
+            old_machine_jobs_detail_count = (
+                self.job.details.filter(machine=self.original_machine)
+                .exclude(pk=self.pk)
+                .count()
+            )
+
+            if old_machine_jobs_detail_count == 0:
+                old_mo = MachineOrder.objects.get(
+                    job=self.job, machine=self.original_machine
+                )
+                old_mo.delete()
+
+        self.original_machine = self.machine
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        job = self.job
+        super().delete(*args, **kwargs)
+        if job.details.count() == 0:
+            job.delete()
 
     def get_absolute_url(self):
         return reverse("list:item-detail", args=[self.pk])
@@ -191,24 +242,6 @@ class Profile(models.Model):
         return f"{self.user.username}"
 
 
-def smooth_ordering(instance):
-    """
-    move every job after the given instance up by 1 in the ordering
-    :param instance: the instance that changed machines or was archived
-    :return: None
-    """
-    # If there were objects after the instance in the OLD subset, move them
-    # up in the order by 1 each
-    order = instance.order + 1
-    try:
-        while True:
-            job = Job.objects.get(machine=instance.machine, order=order, active=True)
-            job.to(order - 1)
-            order += 1
-    except Job.DoesNotExist:
-        pass
-
-
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -220,3 +253,24 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+@receiver(post_delete, sender=MachineOrder)
+def delete(sender, instance, **kwargs):
+    order = instance.order
+    mo = instance.machine.get_ordering_queryset()
+    for moi in mo:
+        if moi.order > order:
+            moi.order -= 1
+            moi.save()
+
+
+# @receiver(post_save, sender=Detail)
+# def create_machine_order(sender, instance, created, **kwargs):
+#     if created and instance.job not in [
+#         x.job for x in MachineOrder.objects.filter(machine=instance.machine)
+#     ] and instance.machine is not None:
+#         order = instance.machine.max_order() + 1
+#         mo = MachineOrder.objects.create(
+#             machine=instance.machine, job=instance.job, order=order
+#         )

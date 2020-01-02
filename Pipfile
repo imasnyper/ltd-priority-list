@@ -27,6 +27,8 @@ coverage = "*"
 graphene-django = "*"
 django-graphql-jwt = "*"
 django-cors-headers = "*"
+pandas = "*"
+xlrd = "*"
+djangorestframework = "*"
 
 [dev-packages]
-black = "*"

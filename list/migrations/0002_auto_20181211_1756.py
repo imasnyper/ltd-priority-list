@@ -6,18 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('list', '0001_initial'),
+        ("list", "0001_initial"),
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='job',
-            options={'ordering': ('order',)},
-        ),
+        migrations.AlterModelOptions(name="job", options={"ordering": ("order",)},),
         migrations.AddField(
-            model_name='job',
-            name='order',
-            field=models.PositiveIntegerField(db_index=True, default=1, editable=False, verbose_name='order'),
+            model_name="job",
+            name="order",
+            field=models.PositiveIntegerField(
+                db_index=True, default=1, editable=False, verbose_name="order"
+            ),
             preserve_default=False,
         ),
     ]

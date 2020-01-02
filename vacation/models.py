@@ -16,7 +16,7 @@ class Vacation(models.Model):
         return (self.end_date - self.start_date).days + 1
 
     def get_absolute_url(self):
-        return reverse('vacation:detail', args=[self.pk])
+        return reverse("vacation:detail", args=[self.pk])
 
     def __repr__(self):
         return f"{self.user.username.title()}: {self.start_date} - {self.end_date}"

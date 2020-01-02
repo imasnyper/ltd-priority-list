@@ -13,7 +13,7 @@ from django.views.generic.list import ListView
 from graphene_django.views import GraphQLView
 
 from list.forms import CustomerForm, JobForm, ProfileForm, JobSearchForm
-from list.models import Customer, Job, Machine, Profile
+from list.models import Customer, Job, Machine, Profile, MachineOrder
 
 
 # Create your views here.
@@ -221,10 +221,11 @@ def job_sort_down(request, pk):
 
 
 @login_required()
-def job_to(request, pk, to):
+def job_to(request, pk, machine_name, to):
+    machine = get_object_or_404(Machine, name=machine_name)
     job = get_object_or_404(Job, pk=pk)
-
-    job.to(to)
+    machine_order = get_object_or_404(MachineOrder, machine=machine, job=job)
+    machine_order.to(to)
 
     return HttpResponseRedirect(reverse("list:priority-list"))
 

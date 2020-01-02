@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('list', '0015_profile'),
+        ("list", "0015_profile"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='job',
-            name='active',
+            model_name="job",
+            name="active",
             field=models.BooleanField(blank=True, default=True),
         ),
     ]

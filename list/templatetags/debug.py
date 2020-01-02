@@ -6,10 +6,9 @@ register = Library()
 
 
 class PdbNode(Node):
-
     def render(self, context):
         pdb_module.set_trace()
-        return ''
+        return ""
 
 
 @register.tag

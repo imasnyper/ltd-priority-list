@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('list', '0012_job_active'),
+        ("list", "0012_job_active"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='job',
-            name='date_completed',
+            model_name="job",
+            name="date_completed",
             field=models.DateField(blank=True, default=None, null=True),
         ),
     ]

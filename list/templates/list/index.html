@@ -1,173 +1,172 @@
 {% extends "list/list_base.html" %}
+{% load job_order %}
 
 {% block priority_list_active %}
-    uk-active
+uk-active
 {% endblock %}
 
 {% block content %}
-    <div class="uk-grid-small uk-grid-match" uk-grid="masonry: true">
-        {% for machine in machines %}
-            <div class="uk-width-1-2@l uk-width-1-1@s">
-                <div class="uk-card uk-card-small uk-card-default uk-card-body">
-                    {% with job_set=machine.active_jobs %}
-                        {% if job_set|length > 0 %}
-                            <table class="uk-width-1-1 machine-table uk-table-small uk-table-hover uk-table-middle">
-                                <thead>
-                                <tr>
-                                    <th class="uk-text-center uk-text-large" colspan="9">{{ machine.name|title }}</th>
-                                </tr>
-                                <tr class="uk-text-small">
-                                    <th></th>
-                                    <th class="uk-table-shrink uk-text-nowrap">Job #</th>
-                                    <th>Description</th>
-                                    <th>Customer</th>
-                                    <th>Tools?</th>
-                                    <th class="setup-sheets">SS Made?</th>
-                                    <th colspan="2" class="edit-col">Edit/Delete</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for job in job_set %}
-                                    <tr class="job-row uk-text-small">
-                                        <td class="uk-table-link uk-text-bold">
-                                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
-                                                {{ forloop.counter }}.
-                                            </a>
-                                        </td>
-                                        <td class="uk-table-link">
-                                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
-                                                {{ job.job_number }}
-                                            </a>
-                                        </td>
-                                        <td class="uk-table-link">
-                                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
-                                                {{ job.description|title }}{% if debug %} - {{ job.order }}{% endif %}
-                                            </a>
-                                        </td>
-                                        <td class="uk-table-link">
-                                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
-                                                {{ job.customer.name|title }}
-                                            </a>
-                                        </td>
-                                        <td class="uk-table-link uk-text-center uk-padding-small">
-                                            {% if job.add_tools %}
-                                                <a href="{% url 'list:job-detail' job.pk %}"
-                                                   class="uk-link-reset uk-padding-remove" uk-icon="check"></a>
-                                            {% else %}
-                                                <a href="{% url 'list:job-detail' job.pk %}"
-                                                   class="uk-link-reset uk-padding-remove" uk-icon="close"></a>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <a href="{% url 'list:job-detail' job.pk %}"
-                                               class="uk-link-reset uk-padding-remove">
-                                                {{ job.get_setup_sheets_display }}
-                                            </a>
-                                        </td>
-                                        <td class="uk-padding-remove uk-text-danger">
-                                            <a href="{% url 'list:archive' job.pk %}"
-                                               class="uk-link-reset uk-padding-remove" uk-icon="trash"></a>
-                                        </td>
-                                        <td class="uk-padding-remove uk-text-warning">
-                                            <a href="{% url 'list:edit' job.pk %}"
-                                               class="uk-link-reset uk-padding-remove" uk-icon="pencil">
-                                            </a>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        {% else %}
-                            <table class="empty-job-list uk-table-small uk-table-middle">
-                                <thead>
-                                <tr>
-                                    <th class="uk-text-center uk-text-large">{{ machine.name|title }}</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr class="uk-text-small">
-                                    <td class="uk-text-center">Currently no jobs for {{ machine.name|title }}</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        {% endif %}
-                    {% endwith %}
-                    <br/>
-                    <button class="uk-button uk-button-primary uk-width-1-1" type="button"
-                            uk-toggle="target: #form-modal-{{ machine.id }}">Add Job
-                        for {{ machine.name|title }}</button>
-                    <div id="form-modal-{{ machine.id }}" uk-modal>
-                        <div class="uk-modal-dialog uk-modal-body">
-                            <button class="uk-modal-close-default" type="button" uk-close></button>
-                            <div class="uk-modal-header">
-                                <h3 class="uk-modal-title">Add Job for {{ machine.name|title }}</h3>
-                            </div>
-                            <form class="uk-form" action="{% url 'list:add' machine.pk %}" method="post">
-                                {% csrf_token %}
-                                {{ form.non_field_errors }}
-                                <div class="form-job-number">
-                                    {{ form.job_number.errors }}
-                                    <span class="job-number-label">{{ form.job_number.label_tag }}</span>
-                                    <span class="job-number-input">{{ form.job_number }}</span>
-                                </div>
-                                <div class="form-description">
-                                    {{ form.description.errors }}
-                                    <span class="description-label">{{ form.description.label_tag }}</span>
-                                    <span class="description-input">{{ form.description }}</span>
-                                </div>
-                                <div class="form-customer">
-                                    {{ form.customer.errors }}
-                                    <span class="customer-label">{{ form.customer.label_tag }}</span>
-                                    <div class="input-field customer-input">{{ form.customer }}</div>
-                                </div>
-                                <div class="form-due-date">
-                                    {{ form.due_date.errors }}
-                                    <span class="due-date-label">{{ form.due_date.label_tag }}</span>
-                                    <span class="due-date-input">{{ form.due_date }}</span>
-                                </div>
-                                <div class="form-add-tools">
-                                    {{ form.add_tools.errors }}
-                                    <span class="uk-form-label">{{ form.add_tools.label_tag }}</span>
-                                    <span class="add-tools-input">{{ form.add_tools }}</span>
-                                </div>
-                                <div class="form-active">
-                                    {{ form.active.errors }}
-                                    <span class="uk-form-label">{{ form.active.label_tag }}</span>
-                                    <span class="add-tools-input">{{ form.active }}</span>
-                                </div>
-                                <div>
-                                    {{ form.setup_sheets.errors }}
-                                    <span class="uk-form-label">{{ form.setup_sheets.label_tag }}</span>
-                                    <span class="setup-sheets-input">{{ form.setup_sheets }}</span>
-                                </div>
-                                <button class="uk-button uk-button-primary uk-align-right" type="submit">Save</button>
-                            </form>
-                        </div>
+<div class="uk-grid-small uk-grid-match" uk-grid="masonry: true">
+    {% for machine in machines %}
+    <div class="uk-width-1-2@l uk-width-1-1@s">
+        <div class="uk-card uk-card-small uk-card-default uk-card-body">
+            {% with job_set=machine.get_ordered_jobs %}
+            {% if job_set|length > 0 %}
+            <table class="uk-width-1-1 machine-table uk-table-small uk-table-hover uk-table-middle">
+                <thead>
+                    <tr>
+                        <th class="uk-text-center uk-text-large machine-name" colspan="9">{{ machine.name|title }}</th>
+                    </tr>
+                    <tr class="uk-text-small">
+                        <th></th>
+                        <th class="uk-table-shrink uk-text-nowrap">Job #</th>
+                        <th>Description</th>
+                        <th>Customer</th>
+                        <th>Tools?</th>
+                        <th class="setup-sheets">SS Made?</th>
+                        <th colspan="2" class="edit-col">Edit/Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in job_set %}
+                    <tr class="job-row uk-text-small">
+                        <td class="uk-table-link uk-text-bold">
+                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                                {{ forloop.counter }}.
+                            </a>
+                        </td>
+                        <td class="uk-table-link">
+                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                                {{ job.job_number }}
+                            </a>
+                        </td>
+                        <td class="uk-table-link">
+                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                                {{ job.description|title }}{% if debug %} - {{ job|order:machine.pk }}{% endif %}
+                            </a>
+                        </td>
+                        <td class="uk-table-link">
+                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                                {{ job.customer.name|title }}
+                            </a>
+                        </td>
+                        <td class="uk-table-link uk-text-center uk-padding-small">
+                            {% if job.add_tools %}
+                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset uk-padding-remove"
+                                uk-icon="check"></a>
+                            {% else %}
+                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset uk-padding-remove"
+                                uk-icon="close"></a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset uk-padding-remove">
+                                {{ job.get_setup_sheets_display }}
+                            </a>
+                        </td>
+                        <td class="uk-padding-remove uk-text-danger">
+                            <a href="{% url 'list:archive' job.pk %}" class="uk-link-reset uk-padding-remove"
+                                uk-icon="trash"></a>
+                        </td>
+                        <td class="uk-padding-remove uk-text-warning">
+                            <a href="{% url 'list:edit' job.pk %}" class="uk-link-reset uk-padding-remove"
+                                uk-icon="pencil">
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <table class="empty-job-list uk-table-small uk-table-middle">
+                <thead>
+                    <tr>
+                        <th class="uk-text-center uk-text-large">{{ machine.name|title }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="uk-text-small">
+                        <td class="uk-text-center">Currently no jobs for {{ machine.name|title }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
+            {% endwith %}
+            <br />
+            <button class="uk-button uk-button-primary uk-width-1-1" type="button"
+                uk-toggle="target: #form-modal-{{ machine.id }}">Add Job
+                for {{ machine.name|title }}</button>
+            <div id="form-modal-{{ machine.id }}" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <div class="uk-modal-header">
+                        <h3 class="uk-modal-title">Add Job for {{ machine.name|title }}</h3>
                     </div>
-                    <div id="form-modal-customer" uk-modal>
-                        <div class="uk-modal-dialog uk-modal-body">
-                            <button class="uk-modal-close-default" type="button" uk-close></button>
-                            <div class="uk-modal-header">
-                                <h3 class="uk-modal-title">Add New Customer</h3>
-                            </div>
-                            <form action="{% url 'list:add_customer' %}"
-                                  method="POST">
-                                {% csrf_token %}
-                                {{ customer_form.non_field_errors }}
-                                {{ customer_form.name.errors }}
-                                {{ customer_form.name.label_tag }}
-                                {{ customer_form.name }}
-                                <br/>
-                                <br/>
-                                <input class="uk-button uk-button-primary uk-float-right" id="customer_add"
-                                       type="submit" value="Save">
-                            </form>
+                    <form class="uk-form" action="{% url 'list:add' machine.pk %}" method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        <div class="form-job-number">
+                            {{ form.job_number.errors }}
+                            <span class="job-number-label">{{ form.job_number.label_tag }}</span>
+                            <span class="job-number-input">{{ form.job_number }}</span>
                         </div>
-                    </div>
+                        <div class="form-description">
+                            {{ form.description.errors }}
+                            <span class="description-label">{{ form.description.label_tag }}</span>
+                            <span class="description-input">{{ form.description }}</span>
+                        </div>
+                        <div class="form-customer">
+                            {{ form.customer.errors }}
+                            <span class="customer-label">{{ form.customer.label_tag }}</span>
+                            <div class="input-field customer-input">{{ form.customer }}</div>
+                        </div>
+                        <div class="form-due-date">
+                            {{ form.due_date.errors }}
+                            <span class="due-date-label">{{ form.due_date.label_tag }}</span>
+                            <span class="due-date-input">{{ form.due_date }}</span>
+                        </div>
+                        <div class="form-add-tools">
+                            {{ form.add_tools.errors }}
+                            <span class="uk-form-label">{{ form.add_tools.label_tag }}</span>
+                            <span class="add-tools-input">{{ form.add_tools }}</span>
+                        </div>
+                        <div class="form-active">
+                            {{ form.active.errors }}
+                            <span class="uk-form-label">{{ form.active.label_tag }}</span>
+                            <span class="add-tools-input">{{ form.active }}</span>
+                        </div>
+                        <div>
+                            {{ form.setup_sheets.errors }}
+                            <span class="uk-form-label">{{ form.setup_sheets.label_tag }}</span>
+                            <span class="setup-sheets-input">{{ form.setup_sheets }}</span>
+                        </div>
+                        <button class="uk-button uk-button-primary uk-align-right" type="submit">Save</button>
+                    </form>
                 </div>
             </div>
-        {% endfor %}
+            <div id="form-modal-customer" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body">
+                    <button class="uk-modal-close-default" type="button" uk-close></button>
+                    <div class="uk-modal-header">
+                        <h3 class="uk-modal-title">Add New Customer</h3>
+                    </div>
+                    <form action="{% url 'list:add_customer' %}" method="POST">
+                        {% csrf_token %}
+                        {{ customer_form.non_field_errors }}
+                        {{ customer_form.name.errors }}
+                        {{ customer_form.name.label_tag }}
+                        {{ customer_form.name }}
+                        <br />
+                        <br />
+                        <input class="uk-button uk-button-primary uk-float-right" id="customer_add" type="submit"
+                            value="Save">
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    {#    </div>#}
+    {% endfor %}
+</div>
+{#    </div>#}
 {% endblock content %}
 {% block login %}{% endblock login %}

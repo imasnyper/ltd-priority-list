@@ -6,18 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('list', '0003_remove_job_list_order'),
+        ("list", "0003_remove_job_list_order"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='job',
-            name='description',
-            field=models.CharField(max_length=50),
+            model_name="job", name="description", field=models.CharField(max_length=50),
         ),
         migrations.AlterField(
-            model_name='job',
-            name='job_number',
-            field=models.PositiveIntegerField(),
+            model_name="job", name="job_number", field=models.PositiveIntegerField(),
         ),
     ]

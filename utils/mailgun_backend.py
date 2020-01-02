@@ -37,16 +37,20 @@ class MailgunBackend(BaseEmailBackend):
             return False
         encoding = email_message.encoding or settings.DEFAULT_CHARSET
         from_email = sanitize_address(email_message.from_email, encoding)
-        recipients = [sanitize_address(addr, encoding) for addr in email_message.recipients()]
+        recipients = [
+            sanitize_address(addr, encoding) for addr in email_message.recipients()
+        ]
         body = email_message.body
         try:
             requests.post(
                 self.url,
                 auth=("api", self.api_key),
-                data={"from": from_email,
-                      "to": recipients,
-                      "subject": email_message.subject,
-                      "text": body}
+                data={
+                    "from": from_email,
+                    "to": recipients,
+                    "subject": email_message.subject,
+                    "text": body,
+                },
             )
         except:
             if not self.fail_silently:

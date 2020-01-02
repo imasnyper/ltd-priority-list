@@ -27,7 +27,9 @@ class UserType(DjangoObjectType):
 
 
 class Query(object):
-    jobs = graphene.List(JobType, job_number=graphene.Int(), description=graphene.String())
+    jobs = graphene.List(
+        JobType, job_number=graphene.Int(), description=graphene.String()
+    )
     all_jobs = graphene.List(JobType)
     all_customers = graphene.List(CustomerType)
     all_machines = graphene.List(MachineType)
@@ -35,8 +37,8 @@ class Query(object):
 
     @login_required
     def resolve_jobs(self, info, **kwargs):
-        job_number = kwargs.get('job_number')
-        description = kwargs.get('description')
+        job_number = kwargs.get("job_number")
+        description = kwargs.get("description")
 
         if job_number:
             job = Job.objects.filter(job_number=job_number)

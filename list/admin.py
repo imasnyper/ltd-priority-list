@@ -1,5 +1,4 @@
 from django.contrib import admin
-from ordered_model.admin import OrderedModelAdmin
 
 from list.models import Customer, Job, Machine, Profile
 
@@ -7,17 +6,12 @@ from list.models import Customer, Job, Machine, Profile
 # Register your models here.
 
 
-class JobAdmin(OrderedModelAdmin):
-    list_display = ("job_number", "description", "customer", "move_up_down_links")
-    ordering = (
-        "machine__order",
-        "order",
-    )
+class JobAdmin(admin.ModelAdmin):
+    list_display = ("job_number", "description", "customer")
 
 
-class MachineAdmin(OrderedModelAdmin):
-    list_display = ("name", "move_up_down_links")
-    ordering = ("order",)
+class MachineAdmin(admin.ModelAdmin):
+    list_display = ("name",)
 
 
 admin.site.register(Job, JobAdmin)

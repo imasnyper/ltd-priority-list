@@ -7,13 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('list', '0004_auto_20181213_2215'),
+        ("list", "0004_auto_20181213_2215"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='job',
-            name='job_number',
-            field=models.PositiveIntegerField(validators=[django.core.validators.MinValueValidator(1000), django.core.validators.MaxValueValidator(9999)]),
+            model_name="job",
+            name="job_number",
+            field=models.PositiveIntegerField(
+                validators=[
+                    django.core.validators.MinValueValidator(1000),
+                    django.core.validators.MaxValueValidator(9999),
+                ]
+            ),
         ),
     ]

@@ -6,13 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('list', '0017_job_setup_sheets'),
+        ("list", "0017_job_setup_sheets"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='job',
-            name='setup_sheets',
-            field=models.CharField(blank=True, choices=[('Y', 'Yes'), ('N', 'No'), ('-', 'N/A')], default='N', max_length=1),
+            model_name="job",
+            name="setup_sheets",
+            field=models.CharField(
+                blank=True,
+                choices=[("Y", "Yes"), ("N", "No"), ("-", "N/A")],
+                default="N",
+                max_length=1,
+            ),
         ),
     ]

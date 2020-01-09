@@ -45,8 +45,7 @@ INSTALLED_APPS = [
     "list",
     "vacation",
     "ordered_model",
-    "graphene_django",
-    "graphql_jwt",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -149,4 +148,7 @@ DEFAULT_FROM_EMAIL = (
     "Postmaster <postmaster@sandboxc3caeaf85ca14955bc3d4a1c3935c1f0.mailgun.org>"
 )
 
-GRAPHENE = {"SCHEMA": "priority_list.schema.schema"}
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+}

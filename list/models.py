@@ -95,8 +95,23 @@ class Job(models.Model):
     datetime_completed = models.DateTimeField(default=None, blank=True, null=True)
     active = models.BooleanField(blank=True, default=True)
 
+    def up(self, machine):
+        MachineOrder.objects.get(machine=machine, job=self).up()
+
+    def down(self, machine):
+        MachineOrder.objects.get(machine=machine, job=self).down()
+
+    def to(self, machine, order):
+        MachineOrder.objects.get(machine=machine, job=self).to(order)
+
     def order(self, machine):
         return MachineOrder.objects.get(machine=machine, job=self).order
+
+    def change_machine(self, original_machine, new_machine):
+        details = self.details.filter(machine=original_machine)
+        for d in details:
+            d.machine = new_machine
+            d.save()
 
     def get_absolute_url(self):
         return reverse("list:job-detail", args=[self.pk])
@@ -106,8 +121,10 @@ class Job(models.Model):
 
 
 class MachineOrder(models.Model):
-    machine = models.ForeignKey(Machine, related_name="order", on_delete=models.CASCADE)
-    job = models.ForeignKey(Job, related_name="order", on_delete=models.CASCADE)
+    machine = models.ForeignKey(
+        Machine, related_name="machine_order", on_delete=models.CASCADE
+    )
+    job = models.ForeignKey(Job, related_name="machine_order", on_delete=models.CASCADE)
     order = models.PositiveIntegerField(blank=True, null=True)
 
     def up(self):
@@ -178,6 +195,9 @@ class Detail(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def get_absolute_url(self, *args, **kwargs):
+        return reverse("list:detail", args=[self.pk])
+
     def save(self, *args, **kwargs):
         if self.original_machine is None and self.machine is not None:
             try:
@@ -223,9 +243,6 @@ class Detail(models.Model):
         super().delete(*args, **kwargs)
         if job.details.count() == 0:
             job.delete()
-
-    def get_absolute_url(self):
-        return reverse("list:item-detail", args=[self.pk])
 
     def __str__(self):
         return f"[{self.job.job_number}] - Item {self.ltd_item_number}"

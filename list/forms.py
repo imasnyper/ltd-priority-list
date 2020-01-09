@@ -2,7 +2,7 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from list.models import Job, Customer, Machine, Profile
+from list.models import Job, Customer, Machine, Profile, Detail
 
 
 class RelatedFieldWidgetCanAdd(forms.widgets.Select):
@@ -51,11 +51,11 @@ class JobForm(forms.ModelForm):
         ),
         required=False,
     )
-    machine = forms.ModelChoiceField(
-        label="Machine:",
+    details = forms.ModelMultipleChoiceField(
+        label="Details:",
         required=False,
-        queryset=Machine.objects.all(),
-        widget=forms.widgets.Select(attrs={"class": "uk-select"}),
+        queryset=Detail.objects.all(),
+        widget=forms.widgets.SelectMultiple(attrs={"class": "uk-select"}),
     )
     add_tools = forms.BooleanField(
         widget=forms.widgets.CheckboxInput(attrs={"class": "uk-checkbox"}),
@@ -82,7 +82,7 @@ class JobForm(forms.ModelForm):
             "job_number",
             "description",
             "customer",
-            "machine",
+            "details",
             "due_date",
             "add_tools",
             "active",

@@ -18,14 +18,21 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
-from graphql_jwt.decorators import jwt_cookie
+from rest_framework import routers
 
-from list.views import GQLView
+from list import views
 from priority_list.forms import MyPasswordChangeForm, MyLoginForm
+
+router = routers.DefaultRouter()
+router.register(r"users", views.UserViewSet)
+router.register(r"groups", views.GroupViewSet)
+router.register(r"details", views.DetailViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("list.urls")),
+    path("api/", include(router.urls)),
+    path("auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("vacation/", include("vacation.urls")),
     path(
         "accounts/login/",
@@ -63,7 +70,6 @@ urlpatterns = [
         auth_views.PasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
-    path("graphql/", jwt_cookie(GQLView.as_view(graphiql=True))),
 ]
 #
 if settings.DEBUG:

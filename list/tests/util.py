@@ -18,6 +18,7 @@ def create_details(num_details, job, machine):
         Detail.objects.create(
             job=job,
             machine=machine,
+            quantity=1,
             ltd_item_number=i,
             outsource_detail_number=str(i * 10),
         )

@@ -10,7 +10,6 @@
     <div class="uk-container uk-inline uk-width-1-1">
         <div class="uk-card uk-width-large uk-align-center">
             <h1 class="uk-card-title uk-text-bold"><a class="uk-link-reset" href="{% url 'list:job-overview' job.pk %}">{{ job.customer.name|title }} {{ job.job_number }}</a></h1>
-            <h3>{{ machine.name }}</h3>
             <p>
                 {{ job.description|title }}
             </p>
@@ -20,7 +19,7 @@
             </div>
             <div>
                 <span class="uk-text-bold">Total # of Details:</span>
-                {{ job|details_for_machine:machine }}
+                {{ job|all_job_details }}
             </div>
             <div>
                 <span class="uk-text-bold">Completed: </span>
@@ -58,12 +57,26 @@
                         uk-icon="trash"></span> Job Finished</a>
             </div>
         </div>
-        <div class="uk-card-card uk-width-xlarge uk-align-center">
+        <div class="uk-card-card uk-width-xxlarge uk-align-center">
             <table class="uk-table uk-table-striped uk-table-middle">
                 <thead>
                     <tr>
-                        <th colspan="6">
-                            <h2 class="uk-text-center">{{ job.job_number }} Details on {{ machine.name }}</h2>
+                        <th colspan="5">
+                            <h2 class="uk-text-center">{{ job.job_number }} - All Details</h2>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan="5">
+                            <h4 class="uk-text-center">
+                                View details for machine:
+                                {% for machine in job.using_machines %}
+                                    {% if not forloop.last %}
+                                        <span><a href="{% url 'list:job-detail' job.pk machine.pk %}">{{ machine.name }},</a> </span></span>
+                                    {% else %}
+                                        <span><a href="{% url 'list:job-detail' job.pk machine.pk %}">{{ machine.name }}</a></span></span>
+                                    {% endif %}
+                                {% endfor %}
+                            </h4>
                         </th>
                     </tr>
                     <tr>
@@ -71,23 +84,25 @@
                         <th class="rotate"><div><span>Customer Detail #</span></div></th>
                         <th class="rotate"><div><span>Quantity</span></div></th>
                         <th class="rotate"><div><span>Description</span></div></th>
+                        <th class="rotate"><div><span>Machine</span></div></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for detail in details %}
                         <tr>
-                            <td class="uk-table-shrink table-bordered uk-table-link uk-link-reset"><a href="{% url "list:detail" detail.pk %}">{{ detail.ltd_item_number }}</a></td>
-                            <td class="uk-table-shrink table-bordered uk-table-link uk-link-reset"><a href="{% url "list:detail" detail.pk %}">{{ detail.outsource_detail_number }}</a></td>
-                            <td class="uk-table-shrink table-bordered uk-table-link uk-link-reset"><a href="{% url "list:detail" detail.pk %}">{{ detail.quantity }}</a></td>
+                            <td class="uk-table-shrink table-bordered uk-table-link uk-link-reset"><a href="{% url 'list:detail' detail.pk %}">{{ detail.ltd_item_number }}</a></td>
+                            <td class="uk-table-shrink table-bordered uk-table-link uk-link-reset"><a href="{% url 'list:detail' detail.pk %}">{{ detail.outsource_detail_number }}</a></td>
+                            <td class="uk-table-shrink table-bordered uk-table-link uk-link-reset"><a href="{% url 'list:detail' detail.pk %}">{{ detail.quantity }}</a></td>
                             {% if detail.description|length > 0 %}
-                                <td class="uk-table-expand table-bordered uk-table-link uk-link-reset"><a href="{% url "list:detail" detail.pk %}">{{ detail.description }}</a></td>
+                                <td class="uk-table-expand table-bordered uk-table-link uk-link-reset"><a href="{% url 'list:detail' detail.pk %}">{{ detail.description|truncatechars:32 }}</a></td>
                             {% else %}
-                                <td class="uk-table-expand table-bordered uk-table-link uk-link-reset"><a href="{% url "list:detail" detail.pk %}">&lt;No description provided&gt;</a></td>
+                                <td class="uk-table-expand table-bordered uk-table-link uk-link-reset"><a href="{% url 'list:detail' detail.pk %}">&lt;No description provided&gt;</a></td>
                             {% endif %}
+                            <td class="uk-table-expand table-bordered uk-table-link uk-link-reset"><a href="{% url 'list:detail' detail.pk %}">{{ detail.machine }}</a></td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}

@@ -7,7 +7,10 @@ app_name = "list"
 urlpatterns = [
     path("", views.PriorityListView.as_view(), name="priority-list"),
     path("job/add/<int:machine_pk>/", views.JobCreate.as_view(), name="add"),
-    path("job/<int:pk>/", views.JobDetail.as_view(), name="job-detail"),
+    path(
+        "job/<int:pk>/<int:machine_pk>/", views.JobDetail.as_view(), name="job-detail"
+    ),
+    path("job/<int:pk>/", views.JobOverview.as_view(), name="job-overview"),
     path("job/edit/<int:pk>/", views.JobUpdate.as_view(), name="edit"),
     path("detail/<int:pk>/", views.DetailDetail.as_view(), name="detail"),
     path("search/", views.JobSearch.as_view(), name="search"),
@@ -19,7 +22,9 @@ urlpatterns = [
         views.job_sort_down,
         name="sort_down",
     ),
-    path("job/to/<int:job_pk>/<int:machine_pk>/<int:to>/", views.job_to, name="job_to"),
+    path(
+        "job/to/<int:job_pk>/<int:machine_pk>/<int:to>/", views.job_to, name="job_to",
+    ),
     path("job/archive/<int:pk>/", views.job_archive, name="archive"),
     path("archive/", views.ArchiveView.as_view(), name="archive-view"),
     path("customer/add/", views.CustomerCreate.as_view(), name="add_customer"),

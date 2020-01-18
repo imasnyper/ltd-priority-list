@@ -1,5 +1,3 @@
-# import pdb
-
 from django.contrib.auth.models import User
 from django.core import validators
 from django.db import models
@@ -84,7 +82,7 @@ class Job(models.Model):
             validators.MaxValueValidator(9999),
         ]
     )
-    description = models.CharField(max_length=50)
+    description = models.CharField(max_length=50, blank=True)
     add_tools = models.BooleanField(default=True)
     setup_sheets = models.CharField(
         max_length=1, choices=SETUP_SHEETS_CHOICES, default=NO, blank=True
@@ -107,14 +105,32 @@ class Job(models.Model):
     def order(self, machine):
         return MachineOrder.objects.get(machine=machine, job=self).order
 
+    def using_machines(self):
+        job = Job.objects.get(job_number=self.job_number)
+        details = Detail.objects.filter(job=job)
+        machines = [detail.machine for detail in details]
+        return machines
+
     def change_machine(self, original_machine, new_machine):
         details = self.details.filter(machine=original_machine)
         for d in details:
             d.machine = new_machine
             d.save()
 
+    def details_for_machine(self, machine):
+        details = Detail.objects.filter(job=self, machine=machine)
+        count = 0
+        for detail in details:
+            count += detail.quantity
+
+        return count
+
     def get_absolute_url(self):
         return reverse("list:job-detail", args=[self.pk])
+
+    def save(self, **kwargs):
+        self.full_clean()
+        super().save(**kwargs)
 
     def __str__(self):
         return f"{self.job_number} {self.description}"
@@ -126,6 +142,11 @@ class MachineOrder(models.Model):
     )
     job = models.ForeignKey(Job, related_name="machine_order", on_delete=models.CASCADE)
     order = models.PositiveIntegerField(blank=True, null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["machine", "job"], name="unique_order")
+        ]
 
     def up(self):
         order = self.order - 1
@@ -165,7 +186,7 @@ class MachineOrder(models.Model):
         if order < self.order:
             if order < 1:
                 return
-            # move in reverse order so only one object exists for a given order
+            # move in reverse order so only one object exists for a given order value
             for i in range(self.order - 1, order - 1, -1):
                 mo = MachineOrder.objects.get(machine=self.machine, order=i)
                 mo.order += 1
@@ -183,7 +204,19 @@ class Detail(models.Model):
     )
     ltd_item_number = models.IntegerField(blank=False)
     outsource_detail_number = models.CharField(max_length=24, blank=False)
+    quantity = models.PositiveIntegerField(blank=False)
     description = models.CharField(max_length=64, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["job", "ltd_item_number"], name="unique_item"
+            ),
+            models.UniqueConstraint(
+                fields=["job", "outsource_detail_number"], name="unique_detail"
+            ),
+        ]
+
     machine = models.ForeignKey(
         Machine, on_delete=models.CASCADE, blank=True, null=True, related_name="details"
     )
@@ -191,9 +224,6 @@ class Detail(models.Model):
     original_machine = models.ForeignKey(
         Machine, on_delete=models.CASCADE, blank=True, null=True
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     def get_absolute_url(self, *args, **kwargs):
         return reverse("list:detail", args=[self.pk])

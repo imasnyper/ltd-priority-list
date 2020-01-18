@@ -1,5 +1,5 @@
 {% extends "list/list_base.html" %}
-{% load job_order %}
+{% load custom_tags %}
 
 {% block priority_list_active %}
 uk-active
@@ -22,6 +22,7 @@ uk-active
                         <th class="uk-table-shrink uk-text-nowrap">Job #</th>
                         <th>Description</th>
                         <th>Customer</th>
+                        <th># Details</th>
                         <th>Tools?</th>
                         <th class="setup-sheets">SS Made?</th>
                         <th colspan="2" class="edit-col">Edit/Delete</th>
@@ -31,36 +32,41 @@ uk-active
                     {% for job in job_set %}
                     <tr class="job-row uk-text-small">
                         <td class="uk-table-link uk-text-bold">
-                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                            <a href="{% url 'list:job-detail' job.pk machine.pk %}" class="uk-link-reset">
                                 {{ forloop.counter }}.
                             </a>
                         </td>
                         <td class="uk-table-link">
-                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                            <a href="{% url 'list:job-detail' job.pk machine.pk %}" class="uk-link-reset">
                                 {{ job.job_number }}
                             </a>
                         </td>
                         <td class="uk-table-link">
-                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                            <a href="{% url 'list:job-detail' job.pk machine.pk %}" class="uk-link-reset">
                                 {{ job.description|title }}{% if debug %} - {{ job|order:machine.pk }}{% endif %}
                             </a>
                         </td>
                         <td class="uk-table-link">
-                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                            <a href="{% url 'list:job-detail' job.pk machine.pk %}" class="uk-link-reset">
                                 {{ job.customer.name|title }}
+                            </a>
+                        </td>
+                        <td class="uk-table-link">
+                            <a href="{% url 'list:job-detail' job.pk machine.pk%}" class="uk-link-reset">
+                                {{ job|details_for_machine:machine }}
                             </a>
                         </td>
                         <td class="uk-table-link uk-text-center uk-padding-small">
                             {% if job.add_tools %}
-                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset uk-padding-remove"
+                            <a href="{% url 'list:job-detail' job.pk machine.pk %}" class="uk-link-reset uk-padding-remove"
                                 uk-icon="check"></a>
                             {% else %}
-                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset uk-padding-remove"
+                            <a href="{% url 'list:job-detail' job.pk machine.pk %}" class="uk-link-reset uk-padding-remove"
                                 uk-icon="close"></a>
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset uk-padding-remove">
+                            <a href="{% url 'list:job-detail' job.pk machine.pk %}" class="uk-link-reset uk-padding-remove">
                                 {{ job.get_setup_sheets_display }}
                             </a>
                         </td>
@@ -69,7 +75,7 @@ uk-active
                                 uk-icon="trash"></a>
                         </td>
                         <td class="uk-padding-remove uk-text-warning">
-                            <a href="{% url 'list:edit' job.pk %}" class="uk-link-reset uk-padding-remove"
+                            <a href="{% url 'list:edit' job.pk%}" class="uk-link-reset uk-padding-remove"
                                 uk-icon="pencil">
                             </a>
                         </td>

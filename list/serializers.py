@@ -50,26 +50,6 @@ class JobSerializer(serializers.ModelSerializer):
                 )
         return data
 
-    # def validate_customer(self, value):
-    #     if value is None:
-    #         try:
-    #             Job.objects.get(job_number=self.job_number)
-    #         except Job.DoesNotExist:
-    #             return serializers.ValidationError(
-    #                 "Customer may only be blank if job already exists. Select a different job number, or input the Customer name for Customer object creation."
-    #             )
-    #     else:
-    #         try:
-    #             Job.objects.get(
-    #                 job_number=self.job_number, customer__name__iexact=value
-    #             )
-    #         except Job.DoesNotExist:
-    #             return serializers.ValidationError(
-    #                 "Job matching given job number and customer name does not exist."
-    #             )
-    #
-    #     return value
-
 
 class DetailSerializer(serializers.ModelSerializer):
     job = JobSerializer(many=False, read_only=False, validators=[])

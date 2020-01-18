@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.test import TestCase
 
 from list.models import *
@@ -22,10 +23,18 @@ class JobModelTestCase(CustomTestCase):
 
     def test_delete_job_cascade(self):
         d1 = Detail.objects.create(
-            job=self.j1, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         d2 = Detail.objects.create(
-            job=self.j2, machine=self.m2, ltd_item_number=1, outsource_detail_number=10
+            job=self.j2,
+            machine=self.m2,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
 
         self.assertNotEqual(MachineOrder.objects.count(), 0)
@@ -35,9 +44,17 @@ class JobModelTestCase(CustomTestCase):
         self.j1.delete()
         self.j2.delete()
 
+        self.assertEqual(MachineOrder.objects.count(), 0)
+        self.assertEqual(Detail.objects.count(), 0)
         self.assertEqual(Job.objects.count(), 0)
-        self.assertEqual(Job.objects.count(), 0)
-        self.assertEqual(Job.objects.count(), 0)
+
+    def test_job_number_validation(self):
+        self.assertRaises(
+            ValidationError, Job.objects.create, job_number=12345, customer=self.c1
+        )
+        self.assertRaises(
+            ValidationError, Job.objects.create, job_number=999, customer=self.c1
+        )
 
 
 class DetailModelTestCase(CustomTestCase):
@@ -53,10 +70,18 @@ class DetailModelTestCase(CustomTestCase):
         # check that there's only 1 MachineOrder object
         # and the order is 1
         d = Detail.objects.create(
-            job=self.j1, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         d2 = Detail.objects.create(
-            job=self.j1, machine=self.m1, ltd_item_number=2, outsource_detail_number=20
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=2,
+            outsource_detail_number=20,
         )
         self.assertEqual(MachineOrder.objects.count(), 1)
         mo = MachineOrder.objects.get(job=d.job, machine=d.machine)
@@ -65,7 +90,11 @@ class DetailModelTestCase(CustomTestCase):
         # create a new detail of the same job for a different machine
         # check that there are 1 MachineOrder objects for each machine
         d3 = Detail.objects.create(
-            job=self.j1, machine=self.m2, ltd_item_number=3, outsource_detail_number=30
+            job=self.j1,
+            machine=self.m2,
+            quantity=1,
+            ltd_item_number=3,
+            outsource_detail_number=30,
         )
         self.assertEqual(
             MachineOrder.objects.filter(job__active=True)
@@ -84,7 +113,11 @@ class DetailModelTestCase(CustomTestCase):
         # check that there are now 2 machine order objects for the second machine
         # and the order for the first job is 1 and the order for the second job is 2
         d4 = Detail.objects.create(
-            job=self.j2, machine=self.m2, ltd_item_number=1, outsource_detail_number=10
+            job=self.j2,
+            machine=self.m2,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         self.assertEqual(
             MachineOrder.objects.filter(job__active=True)
@@ -99,10 +132,18 @@ class DetailModelTestCase(CustomTestCase):
 
     def test_delete_detail(self):
         d1 = Detail.objects.create(
-            job=self.j1, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         d2 = Detail.objects.create(
-            job=self.j1, machine=self.m1, ltd_item_number=2, outsource_detail_number=20
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=2,
+            outsource_detail_number=20,
         )
 
         self.assertEqual(MachineOrder.objects.count(), 1)
@@ -120,14 +161,26 @@ class DetailModelTestCase(CustomTestCase):
 
     def test_delete_order_change(self):
         d1 = Detail.objects.create(
-            job=self.j1, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         d2 = Detail.objects.create(
-            job=self.j2, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j2,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         j3 = Job.objects.create(job_number=3333, customer=self.c1)
         d3 = Detail.objects.create(
-            job=j3, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=j3,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
 
         mo1 = MachineOrder.objects.get(job=d1.job, machine=d1.machine)
@@ -144,13 +197,25 @@ class DetailModelTestCase(CustomTestCase):
 
     def test_machine_change_order_update(self):
         d1 = Detail.objects.create(
-            job=self.j1, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         d2 = Detail.objects.create(
-            job=self.j2, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j2,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         d3 = Detail.objects.create(
-            job=self.j3, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j3,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
 
         d1.machine = self.m2
@@ -178,19 +243,44 @@ class MachineOrderTestCase(CustomTestCase):
         self.j4 = Job.objects.create(job_number=4444, customer=self.c1)
         self.j5 = Job.objects.create(job_number=5555, customer=self.c1)
         self.d1 = Detail.objects.create(
-            job=self.j1, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         self.d2 = Detail.objects.create(
-            job=self.j2, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j2,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         self.d3 = Detail.objects.create(
-            job=self.j3, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j3,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         self.d4 = Detail.objects.create(
-            job=self.j4, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j4,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         self.d5 = Detail.objects.create(
-            job=self.j5, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j5,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
+        )
+
+    def test_unique_order_validation(self):
+        self.assertRaises(
+            IntegrityError, MachineOrder.objects.create, job=self.j1, machine=self.m1
         )
 
     def test_machine_order_up(self):
@@ -298,10 +388,18 @@ class MachineModelTestCase(CustomTestCase):
     def setUp(self):
         super().setUp()
         self.d1 = Detail.objects.create(
-            job=self.j1, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
         self.d2 = Detail.objects.create(
-            job=self.j2, machine=self.m1, ltd_item_number=1, outsource_detail_number=10
+            job=self.j2,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number=10,
         )
 
     def test_get_ordered_jobs(self):

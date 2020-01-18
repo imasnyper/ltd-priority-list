@@ -87,7 +87,6 @@ class PriorityListView(LoginRequiredMixin, ListView):
     template_name = "list/index.html"
 
     def get_context_data(self, **kwargs):
-        print("in context data")
         context = super().get_context_data(**kwargs)
 
         user = get_object_or_404(User, id=self.request.user.id)
@@ -131,9 +130,35 @@ class JobCreate(LoginRequiredMixin, CreateView):
 class JobDetail(LoginRequiredMixin, DetailView):
     model = Job
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["details"] = self.object.details.filter(
+            machine=self.kwargs["machine_pk"]
+        ).order_by("ltd_item_number")
+        context["machine"] = Machine.objects.get(pk=self.kwargs["machine_pk"])
+
+        return context
+
+
+class JobOverview(LoginRequiredMixin, DetailView):
+    model = Job
+    template_name = "list/job_overview.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["details"] = Detail.objects.filter(
+            job=Job.objects.get(pk=self.kwargs["pk"])
+        ).order_by("machine__name")
+        context["machines"] = Machine.objects.filter(
+            details__in=Detail.objects.filter(job=Job.objects.get(pk=self.kwargs["pk"]))
+        )
+
+        return context
+
 
 class DetailDetail(LoginRequiredMixin, DetailView):
     model = Detail
+    context_object_name = "detail"
 
 
 class JobUpdate(LoginRequiredMixin, UpdateView):
@@ -253,6 +278,7 @@ class ArchiveView(LoginRequiredMixin, ListView):
             .filter(active=False)
             .filter(details__machine__in=profile.machines.all())
             .order_by("-datetime_completed")
+            .distinct()
         )
 
 

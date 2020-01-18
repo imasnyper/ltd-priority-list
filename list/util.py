@@ -1,9 +1,14 @@
+import random
+
 from django.conf import settings
 from django.http import HttpResponseForbidden
 from django.middleware.csrf import get_token
 
+from list.models import Customer, Machine, Job
 
-# https://dan.lousqui.fr/legitimate-cross-site-request-a-cors-and-csrf-story-en.html
+
+# https://dan.lousqui.fr/legitimate-cross-site-request-a-cors-and-csrf-story
+# -en.html
 
 
 def csrf_header_middleware(get_response):
@@ -39,3 +44,38 @@ def react_header_middleware(get_response):
             return get_response(request)
 
     return middleware
+
+
+def create_customers():
+    customer_names = [
+        "Aarkel",
+        "Canadian Engineering",
+        "Absolute",
+        "Reko",
+        "Windsor Mold",
+    ]
+    for c_name in customer_names:
+        Customer.objects.get_or_create(name=c_name)
+
+
+def create_machines():
+    machine_names = ["Pinnacle 1", "Pinnacle 2", "Starvision", "Midbay Big Starvision"]
+    for m_name in machine_names:
+        Machine.objects.get_or_create(name=m_name)
+
+
+def create_jobs(num_jobs=10):
+    for _ in num_jobs:
+        job_number = random.randrange(1000, 10000)
+        Job.objects.create(job_number=job_number)
+
+
+def populate_db():
+    customer_list = Customer.objects.all()
+    if customer_list == Customer.objects.none():
+        create_customers()
+    machine_list = Machine.objects.all()
+    if machine_list == Machine.objects.none():
+        create_machines()
+    create_jobs()
+    create_details()

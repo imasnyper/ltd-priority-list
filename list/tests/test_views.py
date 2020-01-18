@@ -1,3 +1,5 @@
+from itertools import cycle
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -22,18 +24,13 @@ class CustomTestCase(TestCase):
         self.c2 = Customer.objects.create(name="ABC Co.")
 
         # create referenced jobs for using in testing
-        create_jobs(5, [self.c1, self.c2])
+        create_jobs(15, [self.c1, self.c2])
 
-        # for job in Job.objects.all():
-        #     create_details(
-        #         5, job, random.choice([self.pin1, self.pin2, self.starvision])
-        #     )
         jobs = Job.objects.all()
-        create_details(5, jobs[0], self.pin1)
-        create_details(5, jobs[1], self.pin2)
-        create_details(5, jobs[2], self.starvision)
-        create_details(5, jobs[3], self.pin1)
-        create_details(5, jobs[4], self.pin2)
+        machines = cycle(list(Machine.objects.all()))
+
+        for job in jobs:
+            create_details(5, job, next(machines))
 
 
 class TestPriorityListView(CustomTestCase):
@@ -112,11 +109,12 @@ class TestArchiveView(CustomTestCase):
     def test_lists_all_jobs(self):
         login = self.client.login(username="testuser1", password="testing123")
 
-        response = self.client.get(reverse("list:archive-view") + "?page=3")
+        base_url = reverse("list:archive-view")
+
+        response = self.client.get(base_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("is_paginated" in response.context)
         self.assertTrue(response.context["is_paginated"])
-        self.assertEqual(len(response.context["jobs"]), 5)
+        self.assertEqual(len(response.context["jobs"]), 10)
 
 
 class TestJobCreateView(CustomTestCase):
@@ -136,12 +134,16 @@ class TestJobCreateView(CustomTestCase):
 
 class TestJobDetailView(CustomTestCase):
     def test_redirect_if_not_logged_in(self):
-        response = self.client.get(reverse("list:job-detail", kwargs={"pk": 1}))
-        self.assertRedirects(response, "/accounts/login/?next=/job/1/")
+        response = self.client.get(
+            reverse("list:job-detail", kwargs={"pk": 1, "machine_pk": 1})
+        )
+        self.assertRedirects(response, "/accounts/login/?next=/job/1/1/")
 
     def test_view_uses_correct_template_if_logged_in(self):
         login = self.client.login(username="testuser1", password="testing123")
-        response = self.client.get(reverse("list:job-detail", kwargs={"pk": 1}))
+        response = self.client.get(
+            reverse("list:job-detail", kwargs={"pk": 1, "machine_pk": 1})
+        )
 
         self.assertEqual(str(response.context["user"]), "testuser1")
         self.assertEqual(response.status_code, 200)
@@ -236,9 +238,9 @@ class TestJobSortUpView(CustomTestCase):
             machine=self.pin1, job__active=True
         )
 
-        pin2_job = (
-            MachineOrder.objects.filter(machine=self.pin2, job__active=True).first().job
-        )
+        # pin2_job = (
+        #     MachineOrder.objects.filter(machine=self.pin2, job__active=True).first().job
+        # )
         destination_machine_initial_order = list(
             MachineOrder.objects.filter(machine=self.pin2, job__active=True)
         )

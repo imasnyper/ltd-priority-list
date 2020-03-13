@@ -1,25 +1,19 @@
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.test import TestCase
 
 from list.models import *
+from . import BaseTestCase, ViewTestCase
 
 
-class CustomTestCase(TestCase):
-    def setUp(self):
-        self.c1 = Customer.objects.create(name="c1")
-        self.c2 = Customer.objects.create(name="c2")
-
-        self.j1 = Job.objects.create(job_number=1111, customer=self.c1)
-        self.j2 = Job.objects.create(job_number=2222, customer=self.c2)
-
-        self.m1 = Machine.objects.create(name="m1")
-        self.m2 = Machine.objects.create(name="m2")
-
-
-class JobModelTestCase(CustomTestCase):
+class JobModelTestCase(BaseTestCase):
     def test_str(self):
         j = Job.objects.first()
         self.assertEqual(str(j), f"{j.job_number} {j.description}")
+
+    def test_get_absolute_url(self):
+        job = self.j1
+
+        self.assertEqual(job.get_absolute_url(), f"/job/{job.pk}/")
 
     def test_delete_job_cascade(self):
         d1 = Detail.objects.create(
@@ -56,11 +50,145 @@ class JobModelTestCase(CustomTestCase):
             ValidationError, Job.objects.create, job_number=999, customer=self.c1
         )
 
+    def test_up(self):
+        job = self.j1
+        Detail.objects.create(
+            job=self.j2,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="10",
+        )
+        detail = Detail.objects.create(
+            job=job,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="10",
+        )
 
-class DetailModelTestCase(CustomTestCase):
+        self.assertEqual(job.order(self.m1), 2)
+
+        original_oq = MachineOrder.objects.filter(machine=self.m1).order_by("order")
+
+        job.up(self.m1)
+
+        self.assertEqual(job.order(self.m1), 1)
+
+    def test_down(self):
+        job = self.j1
+        detail = Detail.objects.create(
+            job=job,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="10",
+        )
+        Detail.objects.create(
+            job=self.j2,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="10",
+        )
+
+        self.assertEqual(job.order(self.m1), 1)
+
+        job.down(self.m1)
+
+        self.assertEqual(job.order(self.m1), 2)
+
+    def test_to_down(self):
+        self.j3 = Job.objects.create(job_number=9991, customer=self.c1)
+        job = self.j1
+        detail = Detail.objects.create(
+            job=job,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="10",
+        )
+        Detail.objects.create(
+            job=self.j2,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="10",
+        )
+        Detail.objects.create(
+            job=self.j3,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="10",
+        )
+
+        self.assertEqual(job.order(self.m1), 1)
+
+        job.to(self.m1, 3)
+
+        self.assertEqual(job.order(self.m1), 3)
+
+    def test_to_up(self):
+        self.j3 = Job.objects.create(job_number=9991, customer=self.c1)
+        job = self.j1
+        Detail.objects.create(
+            job=self.j2,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="10",
+        )
+        Detail.objects.create(
+            job=self.j3,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="10",
+        )
+        detail = Detail.objects.create(
+            job=job,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="10",
+        )
+
+        self.assertEqual(job.order(self.m1), 3)
+
+        job.to(self.m1, 1)
+
+        self.assertEqual(job.order(self.m1), 1)
+
+
+class DetailModelTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.j3 = Job.objects.create(job_number=3333, customer=self.c1)
+
+    def test_str(self):
+        d1 = Detail.objects.create(
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="1",
+        )
+        self.assertEqual(
+            str(d1),
+            "[" + str(d1.job.job_number) + "] - Item " + str(d1.ltd_item_number),
+        )
+
+    def test_get_absolute_url(self):
+        d1 = Detail.objects.create(
+            job=self.j1,
+            machine=self.m1,
+            quantity=1,
+            ltd_item_number=1,
+            outsource_detail_number="1",
+        )
+
+        self.assertEqual(d1.get_absolute_url(), f"/detail/{d1.pk}/")
 
     def test_create_detail(self):
         # check that no MachineOrder objects exist
@@ -236,7 +364,7 @@ class DetailModelTestCase(CustomTestCase):
         self.assertEqual(mo3.order, 2)
 
 
-class MachineOrderTestCase(CustomTestCase):
+class MachineOrderTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.j3 = Job.objects.create(job_number=3333, customer=self.c1)
@@ -276,6 +404,19 @@ class MachineOrderTestCase(CustomTestCase):
             quantity=1,
             ltd_item_number=1,
             outsource_detail_number=10,
+        )
+
+    def test_str(self):
+        mo = MachineOrder.objects.first()
+        self.assertEqual(
+            str(mo),
+            "["
+            + str(mo.machine.name)
+            + "] - ["
+            + str(mo.job.job_number)
+            + "] - <"
+            + str(mo.order)
+            + ">",
         )
 
     def test_unique_order_validation(self):
@@ -328,6 +469,33 @@ class MachineOrderTestCase(CustomTestCase):
         self.assertEqual(mo1.order, 1)
         self.assertEqual(mo2.order, 3)
         self.assertEqual(mo3.order, 2)
+
+    def test_machine_order_down_out_of_bounds(self):
+        mo5 = MachineOrder.objects.get(job=self.d5.job, machine=self.d5.machine)
+
+        mo = MachineOrder.objects.filter(machine=self.d5.machine)
+        moo = [moi.order for moi in mo]
+
+        self.assertListEqual(moo, [1, 2, 3, 4, 5])
+
+        mo5.down()
+
+        mo = MachineOrder.objects.filter(machine=self.d5.machine).order_by("order")
+        moo = [moi.order for moi in mo]
+
+        self.assertListEqual(moo, [1, 2, 3, 4, 5])
+
+        mo1 = MachineOrder.objects.get(job=self.d1.job, machine=self.d1.machine)
+        mo2 = MachineOrder.objects.get(job=self.d2.job, machine=self.d2.machine)
+        mo3 = MachineOrder.objects.get(job=self.d3.job, machine=self.d3.machine)
+        mo4 = MachineOrder.objects.get(job=self.d4.job, machine=self.d4.machine)
+        mo5 = MachineOrder.objects.get(job=self.d5.job, machine=self.d5.machine)
+
+        self.assertEqual(mo1.order, 1)
+        self.assertEqual(mo2.order, 2)
+        self.assertEqual(mo3.order, 3)
+        self.assertEqual(mo4.order, 4)
+        self.assertEqual(mo5.order, 5)
 
     def test_machine_order_to_down(self):
         mo2 = MachineOrder.objects.get(job=self.d2.job, machine=self.d2.machine)
@@ -383,8 +551,62 @@ class MachineOrderTestCase(CustomTestCase):
         self.assertEqual(mo4.order, 2)
         self.assertEqual(mo5.order, 5)
 
+    def test_machine_order_to_down_out_of_bounds(self):
+        mo2 = MachineOrder.objects.get(job=self.d2.job, machine=self.d2.machine)
 
-class MachineModelTestCase(CustomTestCase):
+        mo = MachineOrder.objects.filter(machine=self.d1.machine).order_by("order")
+        moo = [moi.order for moi in mo]
+
+        self.assertListEqual(moo, [1, 2, 3, 4, 5])
+
+        mo2.to(6)
+
+        mo = MachineOrder.objects.filter(machine=self.d1.machine).order_by("order")
+        moo = [moi.order for moi in mo]
+
+        self.assertListEqual(moo, [1, 2, 3, 4, 5])
+
+        mo1 = MachineOrder.objects.get(job=self.d1.job, machine=self.d1.machine)
+        mo2 = MachineOrder.objects.get(job=self.d2.job, machine=self.d2.machine)
+        mo3 = MachineOrder.objects.get(job=self.d3.job, machine=self.d3.machine)
+        mo4 = MachineOrder.objects.get(job=self.d4.job, machine=self.d4.machine)
+        mo5 = MachineOrder.objects.get(job=self.d5.job, machine=self.d5.machine)
+
+        self.assertEqual(mo1.order, 1)
+        self.assertEqual(mo2.order, 2)
+        self.assertEqual(mo3.order, 3)
+        self.assertEqual(mo4.order, 4)
+        self.assertEqual(mo5.order, 5)
+
+    def test_machine_order_to_up_out_of_bounds(self):
+        mo4 = MachineOrder.objects.get(job=self.d4.job, machine=self.d4.machine)
+
+        mo = MachineOrder.objects.filter(machine=self.d1.machine).order_by("order")
+        moo = [moi.order for moi in mo]
+
+        self.assertListEqual(moo, [1, 2, 3, 4, 5])
+
+        mo4.to(-1)
+
+        mo = MachineOrder.objects.filter(machine=self.d1.machine).order_by("order")
+        moo = [moi.order for moi in mo]
+
+        self.assertListEqual(moo, [1, 2, 3, 4, 5])
+
+        mo1 = MachineOrder.objects.get(job=self.d1.job, machine=self.d1.machine)
+        mo2 = MachineOrder.objects.get(job=self.d2.job, machine=self.d2.machine)
+        mo3 = MachineOrder.objects.get(job=self.d3.job, machine=self.d3.machine)
+        mo4 = MachineOrder.objects.get(job=self.d4.job, machine=self.d4.machine)
+        mo5 = MachineOrder.objects.get(job=self.d5.job, machine=self.d5.machine)
+
+        self.assertEqual(mo1.order, 1)
+        self.assertEqual(mo2.order, 2)
+        self.assertEqual(mo3.order, 3)
+        self.assertEqual(mo4.order, 4)
+        self.assertEqual(mo5.order, 5)
+
+
+class MachineModelTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.d1 = Detail.objects.create(
@@ -402,10 +624,16 @@ class MachineModelTestCase(CustomTestCase):
             outsource_detail_number=10,
         )
 
-    def test_get_ordered_jobs(self):
-        oj = self.m1.get_ordered_jobs()
+    def test_str(self):
+        self.assertEqual(str(self.m1), self.m1.name)
 
-        self.assertListEqual(oj, [self.j1, self.j2])
+    def test_inactive_jobs(self):
+        self.j1.active = False
+        self.j2.active = False
+        self.j1.save()
+        self.j2.save()
+
+        self.assertListEqual(list(self.m1.inactive_jobs()), [self.j1, self.j2])
 
     def test_get_ordering_queryset(self):
         oq = self.m1.get_ordering_queryset()
@@ -434,3 +662,15 @@ class MachineModelTestCase(CustomTestCase):
         self.d2.delete()
 
         self.assertEqual(0, self.m1.max_order())
+
+
+class ProfileModelTestCase(ViewTestCase):
+    def test_str(self):
+        profile = Profile.objects.first()
+
+        self.assertEqual(str(profile), profile.user.username)
+
+    def test_get_absolute_url(self):
+        profile = Profile.objects.first()
+
+        self.assertEqual(profile.get_absolute_url(), f"/profile/{profile.pk}/")

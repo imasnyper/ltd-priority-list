@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from list.models import Job, Detail, Machine, Customer
 
@@ -40,63 +41,95 @@ class JobSerializer(serializers.ModelSerializer):
         model = Job
         fields = ["job_number", "customer"]
 
+
+class DetailSerializer(serializers.ModelSerializer):
+    job = JobSerializer(many=False, read_only=False, validators=[])
+    machine = MachineSerializer(
+        many=False, read_only=False, required=False, validators=[]
+    )
+
+    class Meta:
+        model = Detail
+        fields = [
+            "job",
+            "machine",
+            "quantity",
+            "ltd_item_number",
+            "outsource_detail_number",
+        ]
+
     def validate(self, data):
-        if "customer" not in data.keys():
+        if "customer" not in data["job"].keys():
             try:
-                Job.objects.get(job_number=data["job_number"])
+                Job.objects.get(job_number=data["job"]["job_number"])
             except Job.DoesNotExist:
                 raise serializers.ValidationError(
                     "Customer may not be blank if job doesn't exist."
                 )
+
+        try:
+            job_number = data["job"]["job_number"]
+            item_number = data["ltd_item_number"]
+            detail_number = data["outsource_detail_number"]
+            Detail.objects.get(
+                job__job_number=job_number,
+                ltd_item_number=item_number,
+                outsource_detail_number=detail_number,
+            )
+            raise ValidationError(
+                f"{job_number} - Item {item_number} - Detail {detail_number} already exists."
+            )
+        except Detail.DoesNotExist:
+            # detail with this job number, item number and detail number
+            # doesn't exist, so we're free to create one
+            pass
         return data
-
-
-class DetailSerializer(serializers.ModelSerializer):
-    job = JobSerializer(many=False, read_only=False, validators=[])
-    machine = MachineSerializer(many=False, read_only=False, validators=[])
-
-    class Meta:
-        model = Detail
-        fields = ["job", "machine", "ltd_item_number", "outsource_detail_number"]
 
     def validate_job(self, value):
         if value["job_number"] < 1000 or value["job_number"] > 9999:
-            return serializers.ValidationError(
+            raise serializers.ValidationError(
                 "The job number must be between 1000 and 9999"
             )
-        job = Job.objects.get(job_number=value["job_number"])
-        if not job:
-            return serializers.ValidationError("The job does not exist.")
 
         return value
 
     def validate_machine(self, value):
-        machine = Machine.objects.get(name=value["name"])
-        if not machine:
-            return serializers.ValidationError("The machine does not exist.")
+        if value is not None:
+            try:
+                Machine.objects.get(name=value["name"])
+            except Machine.DoesNotExist:
+                raise serializers.ValidationError("The machine does not exist.")
 
         return value
 
     def create(self, validated_data):
         job_data = validated_data.pop("job")
         job_number = job_data.pop("job_number")
-        customer_name = job_data.pop("customer")["name"]
-        machine_name = validated_data.pop("machine")["name"]
+        customer = job_data.get("customer", None)
+        machine = validated_data.get("machine", None)
+        quantity = validated_data.pop("quantity")
         ltd_item_number = validated_data.pop("ltd_item_number")
         outsource_detail_number = validated_data.pop("outsource_detail_number")
         detail = Detail(
             ltd_item_number=ltd_item_number,
             outsource_detail_number=outsource_detail_number,
         )
-        customer, customer_created = Customer.objects.get_or_create(
-            name__iexact=customer_name
-        )
-        job, job_created = Job.objects.get_or_create(
-            job_number=job_number, customer=customer
-        )
-        machine = Machine.objects.get(name=machine_name)
-        # serializer = DetailSerializer(data=)
+        if customer is not None:
+            customer, customer_created = Customer.objects.get_or_create(
+                name__iexact=customer["name"]
+            )
+            job, job_created = Job.objects.get_or_create(
+                job_number=job_number, customer=customer
+            )
+        else:
+            job = Job.objects.get(job_number=job_number)
+
         detail.job = job
-        detail.machine = machine
+
+        if machine is not None:
+            machine = Machine.objects.get(name=machine["name"])
+            detail.machine = machine
+
+        detail.quantity = quantity
         detail.save()
         return detail

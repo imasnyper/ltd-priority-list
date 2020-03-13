@@ -10,6 +10,7 @@ urlpatterns = [
     path(
         "job/<int:pk>/<int:machine_pk>/", views.JobDetail.as_view(), name="job-detail"
     ),
+    path("job/<int:pk>/", views.JobDetail.as_view(), name="job-unassigned-details"),
     path("job/<int:pk>/", views.JobOverview.as_view(), name="job-overview"),
     path("job/edit/<int:pk>/", views.JobUpdate.as_view(), name="edit"),
     path("detail/<int:pk>/", views.DetailDetail.as_view(), name="detail"),

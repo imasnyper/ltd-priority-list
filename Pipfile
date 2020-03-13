@@ -32,3 +32,4 @@ xlrd = "*"
 djangorestframework = "*"
 
 [dev-packages]
+django-coverage-plugin = "*"

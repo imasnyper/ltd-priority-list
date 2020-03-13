@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
 from rest_framework import routers
+from rest_framework.authtoken import views as drf_views
 
 from list import views
 from priority_list.forms import MyPasswordChangeForm, MyLoginForm
@@ -26,13 +27,14 @@ from priority_list.forms import MyPasswordChangeForm, MyLoginForm
 router = routers.DefaultRouter()
 router.register(r"users", views.UserViewSet)
 router.register(r"groups", views.GroupViewSet)
-router.register(r"details", views.DetailViewSet)
+router.register(r"details", views.DetailViewSet, basename="details")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("list.urls")),
-    path("api/", include(router.urls)),
-    path("auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path("auth/", drf_views.obtain_auth_token, name="authenticate"),
+    path("api/", include((router.urls, "api"), namespace="api")),
+    # path("auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("vacation/", include("vacation.urls")),
     path(
         "accounts/login/",

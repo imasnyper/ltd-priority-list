@@ -172,6 +172,50 @@ uk-active
         </div>
     </div>
     {% endfor %}
+    <div class="uk-width-1-2@l uk-width-1-1@s">
+        <div class="uk-card uk-card-small uk-card-default uk-card-body">
+            <table class="uk-table-small uk-table-middle">
+                <thead>
+                    <tr>
+                        <th>
+                            Unassigned Details
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                        </th>
+                        <th>Job #</th>
+                        <th>Description</th>
+                        <th>Customer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if jobs_with_unassigned_details %}
+                        {% for ua in jobs_with_unassigned_details %}
+                            <tr>
+                                <td class="uk-table-link">
+                                    <a class="uk-link-reset" href="{% url 'list:job-unassigned-details' ua.pk %}">{{ forloop.counter }}</a>
+                                </td>
+                                <td class="uk-table-link">
+                                    <a class="uk-link-reset" href="{% url 'list:job-unassigned-details' ua.pk %}">{{ ua.job_number }}</a>
+                                </td>
+                                <td class="uk-table-link">
+                                    <a class="uk-link-reset" href="{% url 'list:job-unassigned-details' ua.pk %}">{{ ua.description }}</a>
+                                </td>
+                                <td class="uk-table-link">
+                                    <a class="uk-link-reset" href="{% url 'list:job-unassigned-details' ua.pk %}">{{ ua.customer }}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4">Currently no unassigned jobs</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {#    </div>#}
 {% endblock content %}

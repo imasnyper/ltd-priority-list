@@ -9,7 +9,7 @@
         <h2 class="uk-text-center"><a class="uk-link-reset" href="{% url 'list:job-overview' detail.job.pk %}">{{ detail.job.job_number }}</a> - Item {{ detail.ltd_item_number }}</h2>
         <div><span class="uk-text-bold">Customer Detail #: </span>{{ detail.outsource_detail_number }}</div>
         <div><span class="uk-text-bold">Quantity: </span>{{ detail.quantity }}</div>
-        <div><span class="uk-text-bold">Machine: </span>{{ detail.machine.name }}</div>
+        <div><span class="uk-text-bold">Machine: </span>{% if machine %}{{ detail.machine.name }}{% else %}&lt;No Machine Assigned&gt;{% endif %}</div>
         {% if detail.description|length > 0 %}
             <div><span class="uk-text-bold">Description: </span>{{ detail.description }}</div>
         {% else %}

@@ -125,8 +125,26 @@ class Job(models.Model):
 
         return count
 
+    def unassigned_details(self):
+        details = Detail.objects.filter(job__job_number=self.job_number).filter(
+            job__active=True
+        )
+        unassigned_details = []
+        for d in details:
+            if d.machine is None:
+                unassigned_details.append(d)
+
+        return unassigned_details
+
+    @property
+    def has_unassigned_details(self):
+        if len(self.unassigned_details()) > 0:
+            return True
+        else:
+            return False
+
     def get_absolute_url(self):
-        return reverse("list:job-detail", args=[self.pk])
+        return reverse("list:job-overview", args=[self.pk])
 
     def save(self, **kwargs):
         self.full_clean()
@@ -194,7 +212,7 @@ class MachineOrder(models.Model):
             self.order = order
             self.save()
 
-    def __repr__(self):
+    def __str__(self):
         return f"[{self.machine.name}] - [{self.job.job_number}] - <{self.order}>"
 
 

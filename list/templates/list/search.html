@@ -101,42 +101,42 @@
         {% for job in jobs %}
             <tr class="job-row">
                 <td class="uk-table-link">
-                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                    <a href="{% url 'list:job-overview' job.pk %}" class="uk-link-reset">
                         {{ page_obj.start_index|add:forloop.counter|add:"-1" }}.
                     </a>
                 </td>
                 <td class="uk-table-link">
-                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                    <a href="{% url 'list:job-overview' job.pk %}" class="uk-link-reset">
                         {{ job.job_number }}
                     </a>
                 </td>
                 <td class="uk-table-link">
-                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                    <a href="{% url 'list:job-overview' job.pk %}" class="uk-link-reset">
                         {{ job.description|title }}
                     </a>
                 </td>
                 <td class="uk-table-link">
-                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                    <a href="{% url 'list:job-overview' job.pk %}" class="uk-link-reset">
                         {{ job.customer.name|title }}
                     </a>
                 </td>
                 <td class="uk-table-link">
-                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                    <a href="{% url 'list:job-overview' job.pk %}" class="uk-link-reset">
                         {{ job.machine.name|title }}
                     </a>
                 </td>
                 <td class="uk-table-link">
-                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                    <a href="{% url 'list:job-overview' job.pk %}" class="uk-link-reset">
                         {{ job.date_added }}
                     </a>
                 </td>
                 <td class="uk-table-link">
-                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                    <a href="{% url 'list:job-overview' job.pk %}" class="uk-link-reset">
                         {{ job.due_date }}
                     </a>
                 </td>
                 <td class="uk-table-link">
-                    <a href="{% url 'list:job-detail' job.pk %}" class="uk-link-reset">
+                    <a href="{% url 'list:job-overview' job.pk %}" class="uk-link-reset">
                         {{ job.datetime_completed }}
                     </a>
                 </td>

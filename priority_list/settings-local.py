@@ -23,6 +23,8 @@ DEBUG = True
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
+APPEND_SLASH = True
+
 INSTALLED_APPS += [
     "debug_toolbar",
     "django_extensions",
@@ -35,8 +37,6 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "list.util.csrf_header_middleware",
-    # 'list.util.react_header_middleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

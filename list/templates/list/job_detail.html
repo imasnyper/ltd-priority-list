@@ -10,7 +10,11 @@
     <div class="uk-container uk-inline uk-width-1-1">
         <div class="uk-card uk-width-large uk-align-center">
             <h1 class="uk-card-title uk-text-bold"><a class="uk-link-reset" href="{% url 'list:job-overview' job.pk %}">{{ job.customer.name|title }} {{ job.job_number }}</a></h1>
-            <h3>{{ machine.name }}</h3>
+            {% if machine %}
+                <h3>{{ machine.name }}</h3>
+            {% else %}
+                <h3>Unassigned Details</h3>
+            {% endif %}
             <p>
                 {{ job.description|title }}
             </p>
@@ -63,28 +67,25 @@
                 <thead>
                     <tr>
                         <th colspan="6">
-                            <h2 class="uk-text-center">{{ job.job_number }} Details on {{ machine.name }}</h2>
+                            {% if machine %}
+                                <h2 class="uk-text-center">{{ job.job_number }} Details on {{ machine.name }}</h2>
+                            {% else %}
+                                <h2 class="uk-text-center">Unassigned Details for {{ job.job_number }}</h2>
+                            {% endif %}
                         </th>
                     </tr>
                     <tr>
                         <th class="rotate"><div><span>Item #</span></div></th>
                         <th class="rotate"><div><span>Customer Detail #</span></div></th>
                         <th class="rotate"><div><span>Quantity</span></div></th>
+                        <th class="rotate"><div><span>Machined On</span></div></th>
                         <th class="rotate"><div><span>Description</span></div></th>
+                        <th class="rotate"><div><span>Save</span></div></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for detail in details %}
-                        <tr>
-                            <td class="uk-table-shrink table-bordered uk-table-link uk-link-reset"><a href="{% url "list:detail" detail.pk %}">{{ detail.ltd_item_number }}</a></td>
-                            <td class="uk-table-shrink table-bordered uk-table-link uk-link-reset"><a href="{% url "list:detail" detail.pk %}">{{ detail.outsource_detail_number }}</a></td>
-                            <td class="uk-table-shrink table-bordered uk-table-link uk-link-reset"><a href="{% url "list:detail" detail.pk %}">{{ detail.quantity }}</a></td>
-                            {% if detail.description|length > 0 %}
-                                <td class="uk-table-expand table-bordered uk-table-link uk-link-reset"><a href="{% url "list:detail" detail.pk %}">{{ detail.description }}</a></td>
-                            {% else %}
-                                <td class="uk-table-expand table-bordered uk-table-link uk-link-reset"><a href="{% url "list:detail" detail.pk %}">&lt;No description provided&gt;</a></td>
-                            {% endif %}
-                        </tr>
+                    {% for detail, form in details.items %}
+                        {{ form }}
                     {% endfor %}
                 </tbody>
             </table>

@@ -5,7 +5,7 @@ from .models import Detail, Job
 class DetailAutoFixture(AutoFixture):
     field_values = {
         "original_machine": None,
-        "ltd_item_number": generators.IntegerGenerator(min_value=1, max_value=500),
+        "ltd_item_number": generators.IntegerGenerator(min_value=1, max_value=50),
     }
 
     def pre_process_instance(self, instance):

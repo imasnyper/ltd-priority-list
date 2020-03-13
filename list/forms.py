@@ -62,7 +62,7 @@ class JobForm(forms.ModelForm):
         required=False,
     )
     description = forms.CharField(
-        widget=forms.widgets.TextInput(attrs={"class": "uk-input"})
+        widget=forms.widgets.TextInput(attrs={"class": "uk-input"}), required=False
     )
     active = forms.BooleanField(
         widget=forms.widgets.CheckboxInput(attrs={"class": "uk-checkbox"}),
@@ -225,3 +225,21 @@ class ProfileForm(forms.ModelForm):
         widgets = {
             "machines": forms.SelectMultiple(attrs={"size": "8", "class": "uk-select"})
         }
+
+
+class DetailForm(forms.ModelForm):
+    machine = forms.ModelChoiceField(
+        label="Machine:",
+        required=False,
+        queryset=Machine.objects.all(),
+        widget=forms.widgets.Select(attrs={"class": "uk-select"}),
+    )
+
+    class Meta:
+        model = Detail
+        fields = (
+            "id",
+            "quantity",
+            "description",
+            "machine",
+        )

@@ -13,8 +13,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from list.forms import CustomerForm, JobForm, ProfileForm, JobSearchForm, \
-    DetailForm
+from list.forms import CustomerForm, JobForm, ProfileForm, JobSearchForm, DetailForm
 from list.models import Customer, Job, Machine, Profile, MachineOrder, Detail
 from list.serializers import (
     UserSerializer,

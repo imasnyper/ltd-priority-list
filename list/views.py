@@ -6,12 +6,15 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, reverse, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, FormMixin
 from django.views.generic.list import ListView
 from rest_framework import viewsets, status
+from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from list.forms import CustomerForm, JobForm, ProfileForm, JobSearchForm
+from list.forms import CustomerForm, JobForm, ProfileForm, JobSearchForm, \
+    DetailForm
 from list.models import Customer, Job, Machine, Profile, MachineOrder, Detail
 from list.serializers import (
     UserSerializer,
@@ -36,40 +39,44 @@ class DetailViewSet(viewsets.ModelViewSet):
     queryset = Detail.objects.all()
     serializer_class = DetailSerializer
 
-    def create(self, request):
+    parser_classes = [JSONParser]
+
+    def create(self, request, *args, **kwargs):
+        job_instance = None
         try:
-            job_instance = Job.objects.get(job_number=request.data["job.job_number"])
+            job_instance = Job.objects.get(
+                job_number=request.data.get("job", None)["job_number"]
+            )
         except Job.DoesNotExist:
-            print(request.data)
-            if (
-                request.data["job.customer.name"] is not None
-                and request.data["job.customer.name"] != ""
-            ):
+            if "customer" in request.data.get("job", None):
                 customer_instance, customer_created = Customer.objects.get_or_create(
-                    name=request.data["job.customer.name"]
+                    name=request.data.get("job", None)["customer"]["name"].lower()
                 )
                 job_instance, job_created = Job.objects.get_or_create(
-                    job_number=request.data["job.job_number"],
+                    job_number=request.data.get("job", None)["job_number"],
                     customer=customer_instance,
                 )
             else:
-                job_serializer = JobSerializer(
-                    data={"job_number": request.data["job.job_number"]}
-                )
-                job_serializer.is_valid(raise_exception=True)
-
-        machine_instance = Machine.objects.get(
-            name__iexact=request.data["machine.name"]
-        )
-        machine_serializer = MachineSerializer(instance=machine_instance)
+                raise ValidationError("Customer may not be blank if job doesn't exist.")
 
         job_serializer = JobSerializer(instance=job_instance)
+
         new_data = {
-            "ltd_item_number": request.data["ltd_item_number"],
-            "outsource_detail_number": request.data["outsource_detail_number"],
+            "ltd_item_number": request.data.get("ltd_item_number", None),
+            "outsource_detail_number": request.data.get(
+                "outsource_detail_number", None
+            ),
+            "quantity": request.data.get("quantity", None),
             "job": job_serializer.data,
-            "machine": machine_serializer.data,
         }
+
+        if "machine" in request.data.keys():
+            machine_instance = Machine.objects.get(
+                name__iexact=request.data["machine"]["name"]
+            )
+            machine_serializer = MachineSerializer(instance=machine_instance)
+            new_data["machine"] = machine_serializer.data
+
         serializer = self.get_serializer(data=new_data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -77,9 +84,6 @@ class DetailViewSet(viewsets.ModelViewSet):
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
-
-    def list(self, request):
-        return super().list(request)
 
 
 class PriorityListView(LoginRequiredMixin, ListView):
@@ -93,6 +97,9 @@ class PriorityListView(LoginRequiredMixin, ListView):
         profile = get_object_or_404(Profile, user=user)
 
         context["machines"] = profile.machines.all()
+        context["jobs_with_unassigned_details"] = [
+            job for job in Job.objects.all() if job.has_unassigned_details
+        ]
         context["customers"] = Customer.objects.all().order_by("name")
         context["form"] = JobForm(auto_id="", initial={"setup_sheets": "N"})
         context["customer_form"] = CustomerForm()
@@ -113,11 +120,7 @@ class JobCreate(LoginRequiredMixin, CreateView):
         context["customers"] = Customer.objects.all()
         if self.request.method == "POST":
             if kwargs["form"].is_bound:
-                context["active_machine"] = self.kwargs["machine_pk"]
-                context["active_machine_form"] = context["form"]
                 context["form"] = JobForm
-            else:
-                context["active_machine"] = None
 
         return context
 
@@ -127,15 +130,52 @@ class JobCreate(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class JobDetail(LoginRequiredMixin, DetailView):
+class JobDetail(LoginRequiredMixin, DetailView, FormMixin):
     model = Job
+    form_class = DetailForm
+
+    def get_success_url(self):
+        return reverse("list:job-unassigned-details", kwargs={"pk": self.kwargs["pk"]})
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        detail = Detail.objects.get(id=form.data.id)
+        for field_name, field_value in form.cleaned_data.items():
+            setattr(detail, field_name, field_value)
+        detail.save()
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["details"] = self.object.details.filter(
-            machine=self.kwargs["machine_pk"]
-        ).order_by("ltd_item_number")
-        context["machine"] = Machine.objects.get(pk=self.kwargs["machine_pk"])
+        machine = None
+        if "machine_pk" in self.kwargs.keys():
+            context["details"] = self.object.details.filter(
+                machine=self.kwargs["machine_pk"]
+            ).order_by("ltd_item_number")
+            context["machine"] = Machine.objects.get(pk=self.kwargs["machine_pk"])
+        else:
+            details = self.object.details.filter(machine=None)
+            context["details"] = {}
+            for d in details:
+                form = DetailForm(
+                    {
+                        "id": d.id,
+                        "quantity": d.quantity,
+                        "description": d.description,
+                        "machine": d.machine,
+                    }
+                )
+                form.is_valid()
+                context["details"][d] = form
+
+            context["machine"] = None
 
         return context
 
@@ -219,48 +259,55 @@ class JobSearch(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        form = self.form_class(self.request.GET)
-        if form.is_valid():
-            data = form.cleaned_data
-            data = {k: v for k, v in data.items() if v is not None and v != ""}
-            due_date_lte = data.pop("due_date_lte", False)
-            due_date_gte = data.pop("due_date_gte", False)
-            date_added_lte = data.pop("date_added_lte", False)
-            date_added_gte = data.pop("date_added_gte", False)
-            datetime_completed_lte = data.pop("datetime_completed_lte", False)
-            datetime_completed_gte = data.pop("datetime_completed_gte", False)
+        if len(self.request.GET) > 0:
+            form = self.form_class(self.request.GET)
+            if form.is_valid():
+                data = form.data
+                data = {k: v for k, v in data.items() if v is not None and v != ""}
+                customer = data.pop("customer", None)
+                due_date_lte = data.pop("due_date_lte", False)
+                due_date_gte = data.pop("due_date_gte", False)
+                date_added_lte = data.pop("date_added_lte", False)
+                date_added_gte = data.pop("date_added_gte", False)
+                datetime_completed_lte = data.pop("datetime_completed_lte", False)
+                datetime_completed_gte = data.pop("datetime_completed_gte", False)
 
-            description = data.pop("description", None)
-            datetime_completed = data.pop("datetime_completed", None)
-            date_added = data.pop("date_added", None)
-            due_date = data.pop("due_date", None)
+                description = data.pop("description", None)
+                datetime_completed = data.pop("datetime_completed", None)
+                date_added = data.pop("date_added", None)
+                due_date = data.pop("due_date", None)
 
-            qs = Job.objects.filter(**data)
-            if description is not None:
-                qs = qs.filter(description__contains=description)
-            if datetime_completed is not None:
-                if datetime_completed_lte:
-                    qs = qs.filter(datetime_completed__lte=datetime_completed)
-                elif datetime_completed_gte:
-                    qs = qs.filter(datetime_completed__gte=datetime_completed)
-                else:
-                    qs = qs.filter(datetime_completed__date=datetime_completed)
-            if date_added is not None:
-                if date_added_lte:
-                    qs = qs.filter(date_added__lte=date_added)
-                elif date_added_gte:
-                    qs = qs.filter(date_added__gte=date_added)
-                else:
-                    qs = qs.filter(date_added__date=date_added)
-            if due_date is not None:
-                if due_date_lte:
-                    qs = qs.filter(due_date__lte=due_date)
-                elif due_date_gte:
-                    qs = qs.filter(due_date__gte=due_date)
-                else:
-                    qs = qs.filter(due_date__date=due_date)
-            return qs.order_by("date_added")
-        return super().get_queryset()
+                qs = Job.objects.filter(**data)
+                if customer is not None:
+                    qs = qs.filter(customer=customer)
+                if description is not None:
+                    qs = qs.filter(description__contains=description)
+                if datetime_completed is not None:
+                    if datetime_completed_lte:
+                        qs = qs.filter(datetime_completed__lte=datetime_completed)
+                    elif datetime_completed_gte:
+                        qs = qs.filter(datetime_completed__gte=datetime_completed)
+                    else:
+                        qs = qs.filter(datetime_completed=datetime_completed)
+                if date_added is not None:
+                    if date_added_lte:
+                        qs = qs.filter(date_added__lte=date_added)
+                    elif date_added_gte:
+                        qs = qs.filter(date_added__gte=date_added)
+                    else:
+                        qs = qs.filter(date_added=date_added)
+                if due_date is not None:
+                    if due_date_lte:
+                        qs = qs.filter(due_date__lte=due_date)
+                    elif due_date_gte:
+                        qs = qs.filter(due_date__gte=due_date)
+                    else:
+                        qs = qs.filter(due_date=due_date)
+                return qs.order_by("date_added")
+            else:
+                raise ValidationError(form.errors.as_data())
+        else:
+            return Job.objects.none()
 
 
 class ArchiveView(LoginRequiredMixin, ListView):
